@@ -38,13 +38,13 @@ export function Dashboard() {
       <section>
         <p className="mb-3 flex items-center gap-2 text-xs font-medium text-muted-foreground">
           <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
-          PHASE 00 · FOUNDATION
+          WORKSPACE OVERVIEW
         </p>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
+            <h2 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
               A clear starting point.
-            </h1>
+            </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
               Your workspace for turning new interest into meaningful conversations.
               <br className="hidden sm:block" /> Built to grow with the way you do business.
@@ -124,13 +124,13 @@ export function Dashboard() {
                 <ArrowUpRight aria-hidden="true" className="size-4 text-muted-foreground" />
               </div>
               <p className="text-xs leading-5 text-muted-foreground">
-                A few considered steps. Available in future phases.
+                Invite your team now. Lead sources and engagement rules follow in future phases.
               </p>
             </CardHeader>
             <CardContent>
               <ol className="space-y-5">
                 {[
-                  { title: 'Create your organization', text: 'A secure home for your team.' },
+                  { title: 'Invite your team', text: 'Manage access in Team & settings.' },
                   {
                     title: 'Connect a lead source',
                     text: 'Meet new opportunities where they begin.',
@@ -153,7 +153,7 @@ export function Dashboard() {
               </ol>
               <div className="mt-6 flex items-center gap-2 border-t border-border pt-4 text-xs text-muted-foreground">
                 <Check aria-hidden="true" className="size-3.5" />
-                You’re viewing the foundation preview.
+                You’re viewing the local workspace preview.
               </div>
             </CardContent>
           </Card>

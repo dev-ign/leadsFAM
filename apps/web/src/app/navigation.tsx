@@ -9,22 +9,31 @@ import {
   Plug,
   X,
 } from 'lucide-react';
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate, useMatch, Link } from 'react-router';
+import { useIdentity } from '../features/identity/context';
+import { apiClient } from '../lib/api-client';
+import { useState } from 'react';
+import { identityMessage } from '../features/identity/errors';
 import { Button } from '@leadops/ui';
 
 export function Navigation({ onNavigate }: { onNavigate: () => void }) {
+  const { state, changed } = useIdentity(),
+    navigate = useNavigate(),
+    match = useMatch('/organizations/:org/*'),
+    org = match?.params.org;
+  const [error, setError] = useState('');
   return (
     <>
       <div className="flex h-20 shrink-0 items-center justify-between px-6">
         <a
           href="/"
           className="flex items-center gap-2.5 font-semibold tracking-tight"
-          aria-label="LeadOps AI home"
+          aria-label="LeadsFam home"
         >
           <span className="grid size-8 place-items-center rounded-lg bg-foreground text-background">
             <Layers3 className="size-4" aria-hidden="true" />
           </span>
-          LeadOps<span className="text-xs font-medium text-muted-foreground">AI</span>
+          LeadsFam
         </a>
         <Button
           variant="ghost"
@@ -38,8 +47,31 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
       </div>
       <div className="px-4">
         <div className="mb-8 rounded-lg border border-border bg-card px-3 py-3">
-          <p className="text-xs text-muted-foreground">Workspace</p>
-          <p className="mt-1 text-sm font-medium">Your next chapter</p>
+          {state.status === 'ready' && state.session.purpose === 'application' ? (
+            <label className="block text-xs text-muted-foreground">
+              Workspace
+              <select
+                className="field text-foreground"
+                aria-label="Switch workspace"
+                value={org ?? ''}
+                onChange={(event) => {
+                  navigate(
+                    event.currentTarget.value ? `/organizations/${event.currentTarget.value}` : '/',
+                  );
+                  onNavigate();
+                }}
+              >
+                <option value="">All workspaces</option>
+                {state.organizations.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <p className="text-sm">Your next chapter</p>
+          )}
         </div>
         <nav aria-label="Main navigation">
           <p className="mb-3 px-3 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
@@ -96,17 +128,33 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
             One place for your leads, conversations, and next steps.
           </p>
         </div>
-        <div className="mt-5 flex items-center gap-3 px-2">
-          <span
-            aria-hidden="true"
-            className="grid size-8 place-items-center rounded-full bg-accent text-xs font-semibold"
-          >
-            W
-          </span>
-          <div>
-            <p className="text-xs font-medium">Workspace setup pending</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">Foundation preview</p>
-          </div>
+        <div className="mt-5 space-y-3 px-2 text-xs">
+          {state.status === 'ready' && state.session.user ? (
+            <>
+              <p className="break-all">{state.session.user.email}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setError('');
+                  void apiClient
+                    .signOut()
+                    .then(async () => {
+                      await changed();
+                      navigate('/sign-in');
+                    })
+                    .catch((e) => setError(identityMessage(e)));
+                }}
+              >
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <Link className="underline" to="/sign-in" onClick={onNavigate}>
+              Sign in
+            </Link>
+          )}
+          {error && <p role="alert">{error}</p>}
         </div>
       </div>
     </>

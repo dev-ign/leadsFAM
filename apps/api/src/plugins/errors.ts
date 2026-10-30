@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { IdentityFailure } from '../modules/identity/failure.js';
 import type { ApiErrorResponse } from '@leadops/shared';
 
 function respond(
@@ -17,6 +18,22 @@ export function registerErrorHandlers(app: FastifyInstance) {
   );
   app.setErrorHandler((error, request, reply) => {
     const failure = error instanceof Error ? error : new Error('Unknown failure');
+    if (failure instanceof IdentityFailure)
+      return respond(
+        reply,
+        request,
+        failure.statusCode,
+        failure.code,
+        (
+          {
+            SIGN_IN_REQUIRED: 'Sign in to continue.',
+            CREDENTIALS_REJECTED: 'The credentials could not be verified.',
+            NOT_FOUND: 'The requested resource is unavailable.',
+            FORBIDDEN: 'You do not have permission for this action.',
+            RATE_LIMITED: 'Too many attempts. Please try again later.',
+          } as Record<string, string>
+        )[failure.code] ?? 'The request could not be completed.',
+      );
     const status = 'statusCode' in failure ? failure.statusCode : undefined;
     if ('validation' in failure && failure.validation)
       return respond(
@@ -25,6 +42,14 @@ export function registerErrorHandlers(app: FastifyInstance) {
         400,
         'INVALID_REQUEST',
         'The request does not match the expected format.',
+      );
+    if (status === 429)
+      return respond(
+        reply,
+        request,
+        429,
+        'RATE_LIMITED',
+        'Too many attempts. Please try again later.',
       );
     if (status === 413)
       return respond(reply, request, 413, 'PAYLOAD_TOO_LARGE', 'The request body is too large.');

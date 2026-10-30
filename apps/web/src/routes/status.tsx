@@ -20,8 +20,9 @@ export function StatusPage() {
         <CardContent>
           <p className="text-sm leading-7 text-muted-foreground">
             The API connection check confirms that the server responds. Account sign-in,
-            organization permissions, and tenant data isolation are planned and have not been
-            implemented or verified. This foundation preview is not ready to hold business data.
+            organization permissions and tenant isolation have separate checks. This status endpoint
+            does not test them or confirm production readiness. This local preview is not ready to
+            hold business data.
           </p>
         </CardContent>
       </Card>

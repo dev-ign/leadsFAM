@@ -49,13 +49,11 @@ describe('API transport boundary', () => {
     }
   });
   it('sanitizes unexpected failures in production', async () => {
-    const app = createApp(
-      parseEnv({
-        NODE_ENV: 'production',
-        CORS_ORIGINS: 'https://app.example',
-        LOG_LEVEL: 'silent',
-      }),
-    );
+    const app = createApp({
+      ...parseEnv({ NODE_ENV: 'test', LOG_LEVEL: 'silent' }),
+      nodeEnv: 'production',
+      corsOrigins: ['https://app.example'],
+    });
     apps.push(app);
     app.get('/test-failure', () => {
       throw new Error('private database details');

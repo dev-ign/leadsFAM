@@ -9,7 +9,7 @@
     "pnpm": "12.16.1"
   },
   "scripts": {
-    "dev": "turbo run build --filter=@leadops/shared --filter=@leadops/ui && turbo run dev",
+    "dev": "turbo run build --filter=@leadops/database --filter=@leadops/shared --filter=@leadops/ui && turbo run dev",
     "build": "turbo run build",
     "lint": "node scripts/check-boundaries.mjs && eslint . --max-warnings=0",
     "typecheck": "turbo run typecheck",
@@ -18,7 +18,17 @@
     "format:check": "prettier --check .",
     "audit:dependencies": "pnpm audit --audit-level=high",
     "scan:secrets": "node scripts/secret-scan.mjs",
-    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "db:start": "node scripts/database-command.mjs start",
+    "db:reset": "node scripts/database-command.mjs reset",
+    "db:test": "node scripts/database-command.mjs test",
+    "db:types": "node scripts/database-command.mjs types",
+    "test:database": "turbo run build --filter=@leadops/database && node --test tests/database/concurrency.test.mjs",
+    "test:identity": "turbo run build --filter=@leadops/api && node --test tests/identity/auth.test.mjs",
+    "db:advisors": "node scripts/database-command.mjs advisors",
+    "db:types:check": "node scripts/database-command.mjs types-check",
+    "verify:database": "pnpm db:bindings:check && pnpm db:test && pnpm test:database && pnpm test:identity && pnpm db:advisors && pnpm db:types:check",
+    "db:bindings:check": "node scripts/database-command.mjs bindings"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -27,6 +37,7 @@
     "eslint-plugin-react-refresh": "0.5.7",
     "globals": "17.13.0",
     "prettier": "3.9.10",
+    "supabase": "2.122.0",
     "turbo": "2.11.10",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1"

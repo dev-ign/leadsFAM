@@ -1,0 +1,9 @@
+{
+  "extends": "@leadops/config/typescript/base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"]
+  },
+  "include": ["src"]
+}

@@ -7,7 +7,8 @@ const root = process.cwd();
 const builtins = new Set(builtinModules.flatMap((name) => [name, `node:${name}`]));
 const allowed = {
   '@leadops/web': ['@leadops/ui', '@leadops/shared', '@leadops/config'],
-  '@leadops/api': ['@leadops/shared', '@leadops/config'],
+  '@leadops/api': ['@leadops/shared', '@leadops/database', '@leadops/config'],
+  '@leadops/database': ['@leadops/config'],
   '@leadops/ui': ['@leadops/config'],
   '@leadops/shared': ['@leadops/config'],
   '@leadops/config': [],

@@ -65,3 +65,68 @@ describe('typed API client', () => {
     expect(() => parseApiBaseUrl(url)).toThrow('VITE_API_BASE_URL');
   });
 });
+
+it('bootstraps cookie sessions and binds mutations to the server-issued CSRF token', async () => {
+  const session = {
+    csrfToken: 'c'.repeat(43),
+    purpose: 'anonymous',
+    user: null,
+    onboardingEnabled: true,
+  };
+  const fetcher = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(JSON.stringify(session)))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true })));
+  await createApiClient('https://api.example', fetcher).signIn({
+    email: 'synthetic@example.test',
+    password: 'synthetic-password-only',
+  });
+  expect(fetcher).toHaveBeenNthCalledWith(
+    1,
+    new URL('https://api.example/v1/auth/session'),
+    expect.objectContaining({ credentials: 'include', cache: 'no-store', method: 'GET' }),
+  );
+  expect(fetcher).toHaveBeenNthCalledWith(
+    2,
+    new URL('https://api.example/v1/auth/sign-in'),
+    expect.objectContaining({
+      credentials: 'include',
+      method: 'POST',
+      headers: expect.objectContaining({ 'X-CSRF-Token': session.csrfToken }),
+    }),
+  );
+});
+it('rejects malformed identity responses before presenting authenticated content', async () => {
+  const fetcher = vi
+    .fn<typeof fetch>()
+    .mockResolvedValue(
+      new Response(JSON.stringify({ purpose: 'application', user: { id: 'forged' } })),
+    );
+  await expect(createApiClient('https://api.example', fetcher).getSession()).rejects.toMatchObject({
+    reason: 'invalid-response',
+  });
+});
+it('invalidates cached CSRF after cookie rotation and never automatically replays a rejected mutation', async () => {
+  const session = {
+    csrfToken: 'c'.repeat(43),
+    purpose: 'anonymous',
+    user: null,
+    onboardingEnabled: true,
+  };
+  const fetcher = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(JSON.stringify(session)))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true })))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ ...session, csrfToken: 'd'.repeat(43) })))
+    .mockResolvedValueOnce(new Response('private denial', { status: 403 }));
+  const client = createApiClient('https://api.example', fetcher);
+  await client.signIn({ email: 'synthetic@example.test', password: 'synthetic-password-only' });
+  await expect(client.signOut()).rejects.toMatchObject({ status: 403 });
+  expect(fetcher).toHaveBeenCalledTimes(4);
+  expect(fetcher).toHaveBeenLastCalledWith(
+    new URL('https://api.example/v1/auth/sign-out'),
+    expect.objectContaining({
+      headers: expect.objectContaining({ 'X-CSRF-Token': 'd'.repeat(43) }),
+    }),
+  );
+});

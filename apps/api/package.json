@@ -8,16 +8,18 @@
     "pnpm": "12.16.1"
   },
   "scripts": {
-    "dev": "node --env-file-if-exists=.env --import tsx --watch src/server.ts",
+    "dev": "node ../../scripts/dev-api.mjs",
     "build": "tsc -p tsconfig.build.json",
     "start": "node --env-file-if-exists=.env dist/server.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
-    "@leadops/shared": "workspace:*",
     "@fastify/cors": "11.3.1",
     "@fastify/helmet": "13.2.0",
+    "@fastify/rate-limit": "11.2.1",
+    "@leadops/database": "workspace:*",
+    "@leadops/shared": "workspace:*",
     "fastify": "5.12.7",
     "pino": "10.4.0",
     "zod": "4.6.7"

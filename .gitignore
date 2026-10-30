@@ -24,4 +24,3 @@ credentials*.json
 service-account*.json
 .aws/
 .secrets/
-/docs/

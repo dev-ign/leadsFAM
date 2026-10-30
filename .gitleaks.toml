@@ -1,4 +1,4 @@
-title = "LeadOps Phase 00 secret policy"
+title = "LeadsFam secret policy"
 
 [extend]
 useDefault = true
@@ -13,3 +13,17 @@ description = "Provider credentials must not appear in source or local environme
 regex = '''(?i)(?:OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEY)\s*=\s*["']?([A-Za-z0-9._-]{20,})'''
 secretGroup = 1
 keywords = ["OPENAI_API_KEY", "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY"]
+
+[[rules]]
+id = "leadsfam-session-key"
+description = "Session encryption keys must not enter repository environment files"
+regex = '''(?i)SESSION_KEYS\s*=\s*["']?\{[^\r\n]*["']\s*:\s*["']([A-Za-z0-9+/]{43}=)'''
+secretGroup = 1
+keywords = ["SESSION_KEYS"]
+
+[[rules]]
+id = "leadsfam-database-password"
+description = "Non-default database passwords in connection URLs are secrets"
+regex = '''(?i)postgres(?:ql)?://[^:\s/@]+:([^@\s/]{12,})@'''
+secretGroup = 1
+keywords = ["postgres://", "postgresql://"]

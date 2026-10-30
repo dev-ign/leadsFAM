@@ -10,3 +10,5 @@ export const apiErrorSchema = z.strictObject({
   error: z.strictObject({ code: z.string(), message: z.string(), requestId: z.string() }),
 });
 export type ApiErrorResponse = z.infer<typeof apiErrorSchema>;
+
+export * from './identity.js';

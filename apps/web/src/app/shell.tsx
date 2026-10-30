@@ -71,7 +71,7 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-3">
             <span className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-              Foundation preview
+              Workspace preview
             </span>
             <Button
               variant="ghost"
@@ -91,8 +91,8 @@ export function AppShell() {
           <Outlet />
         </main>
         <footer className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-5 pb-8 text-xs text-muted-foreground sm:px-8 lg:px-10">
-          <span>LeadOps AI</span>
-          <span>Foundation preview · No business data connected</span>
+          <span>LeadsFam</span>
+          <span>Workspace preview · No business data connected</span>
         </footer>
       </div>
     </div>

@@ -1,0 +1,23 @@
+# ADR 0002: Reproducible runtime and compatible dependencies
+
+Status: accepted; installation adjustments recorded below. Date: October 29, 2026.
+
+Node's official release index (`https://nodejs.org/dist/index.json`) identifies v26.13.0, released October 28, 2026, as LTS Lithium. This was checked before installation; nvm verified the downloaded archive checksum. `.nvmrc` pins 26.13.0; package engines require `>=26.13.0 <27`; CI reads `.nvmrc`. pnpm 12.16.1 is pinned in packageManager and engines. No global Node default was intentionally changed.
+
+Use current compatible stable packages with exact versions and a lockfile. Enable strict engine/peer checks, disable automatic peer installation, preserve the 24-hour release-age restriction, and require review of dependency build scripts. Only `esbuild@0.28.2` may run its reviewed native-binary setup. A future esbuild version needs a fresh decision. Frozen installs verify the graph rather than silently changing it.
+
+## Actual adjustments and findings
+
+| Finding                                                                                                       | Resolution                                                                                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript latest 7.0.2 exceeds typescript-eslint 8.72.1's declared `<6.1.0` support                          | Pin TypeScript 6.0.3; keep strict checks and all library declaration checking                                                                                                                                   |
+| Lucide 1.64.0 was published within the configured 24-hour age window                                          | Pin mature Lucide 1.63.0; no release-age exclusion                                                                                                                                                              |
+| Node declarations 26.6.6 remove worker_threads.TransferListItem used by thread-stream 4.2.0 (Pino dependency) | Use @types/node 24.19.2 for the supported Node API subset; execute/build/test on Node 26.13.0. Revisit when upstream supports the newer declarations. No ambient compatibility alias or skipLibCheck workaround |
+| jest-dom 7.0.1's `/vitest` adapter declares the old Assertion<T>; Vitest 5 uses two type parameters           | Use standalone matchers plus Vitest's documented Matchers<R,T> augmentation in the test setup; no dependency downgrade or disabled type checking                                                                |
+| Minimal Radix Slot is sufficient for the adapted Button                                                       | Use @radix-ui/react-slot 1.5.0, not the full radix-ui aggregate                                                                                                                                                 |
+| Initial globals version in the draft manifest was not the verified current baseline                           | Pin verified globals 17.13.0 before successful installation                                                                                                                                                     |
+| npm reported pnpm install scripts were not explicitly authorized during initial global setup                  | pnpm 12.16.1 executed successfully. README/CI use npm's explicit one-install `--allow-scripts=pnpm` flag; no global blanket script permission                                                                   |
+
+The Node runtime and Node declaration package have different versions by deliberate compatibility choice. The declarations constrain our code to a stable API subset; they do not change the executable runtime. Runtime compatibility is established by local execution and tests, not declared peer ranges alone.
+
+Primary sources: [Node release policy](https://nodejs.org/en/about/previous-releases), [Vite requirements](https://vite.dev/guide/), [typescript-eslint support](https://typescript-eslint.io/users/dependency-versions/), [pnpm installation](https://pnpm.io/installation), [Vitest matcher extension](https://vitest.dev/guide/extending-matchers). Exact metadata was read from the public npm registry before installing. The lockfile is ready for version control; no commit has been made.
