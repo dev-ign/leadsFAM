@@ -1,6 +1,6 @@
 # LeadsFam architecture
 
-Phase 01 implements local identity, organizations and tenant isolation. It is a modular monorepo with one React application and one Fastify API. No worker, agent execution, customer integration or hosted deployment exists.
+Phase 02 adds the tenant-scoped CRM, transactional intake/import, activity and attribution to the existing local identity foundation. It is a modular monorepo with one React application and one Fastify API. No worker, agent execution, customer integration or hosted deployment exists. See the [CRM architecture and contracts](crm.md), [Phase 02 report](../phases/phase-02-report.md) and [learning guide](../learning/phase-02.md).
 
 ```mermaid
 sequenceDiagram

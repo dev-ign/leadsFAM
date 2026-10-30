@@ -12,7 +12,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node --env-file-if-exists=.env dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --fsModuleCachePath ./node_modules/.vitest-cache"
   },
   "dependencies": {
     "@fastify/cors": "11.3.1",
@@ -20,7 +20,9 @@
     "@fastify/rate-limit": "11.2.1",
     "@leadops/database": "workspace:*",
     "@leadops/shared": "workspace:*",
+    "csv-parse": "7.0.3",
     "fastify": "5.12.7",
+    "libphonenumber-js": "1.13.15",
     "pino": "10.4.0",
     "zod": "4.6.7"
   },

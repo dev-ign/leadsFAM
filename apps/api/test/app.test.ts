@@ -15,6 +15,11 @@ function setup() {
 }
 
 describe('API transport boundary', () => {
+  it('reports missing dependencies without exposing configuration through readiness', async () => {
+    const response = await setup().inject('/ready');
+    expect(response.statusCode).toBe(503);
+    expect(response.json()).toEqual({ status: 'unavailable' });
+  });
   it('serves the typed health contract with security headers and a generated request ID', async () => {
     const response = await setup().inject({
       method: 'GET',
@@ -36,7 +41,7 @@ describe('API transport boundary', () => {
   });
   it('returns a consistent safe 404, including deferred product routes', async () => {
     const app = setup();
-    for (const url of ['/unknown', '/leads', '/agents/run', '/ready']) {
+    for (const url of ['/unknown', '/leads', '/agents/run']) {
       const response = await app.inject(url);
       expect(response.statusCode).toBe(404);
       expect(response.json()).toEqual({
@@ -134,6 +139,9 @@ describe('API transport boundary', () => {
         token: 'token-sensitive-value',
         password: 'password-sensitive-value',
         body: { value: 'body-sensitive-value' },
+        search: 'search-sensitive-value',
+        contact: { email: 'contact-sensitive-value' },
+        reason: 'reason-sensitive-value',
       },
       'redaction test',
     );

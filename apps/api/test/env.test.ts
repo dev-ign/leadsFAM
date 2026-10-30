@@ -59,8 +59,13 @@ it('requires public provider keys, verified database TLS and closed onboarding i
     SESSION_DATABASE_URL: 'postgresql://leadsfam_runtime@database.example/app?sslmode=verify-full',
     SESSION_ACTIVE_KEY: 'v1',
     SESSION_KEYS: JSON.stringify({ v1: Buffer.alloc(32, 1).toString('base64') }),
+    CRM_CURSOR_KEY: Buffer.alloc(32, 2).toString('base64'),
   };
   expect(parseEnv(configured).identity?.onboardingEnabled).toBe(false);
+  expect(() => parseEnv({ ...configured, CRM_CURSOR_KEY: undefined })).toThrow('CRM_CURSOR_KEY');
+  expect(() =>
+    parseEnv({ ...configured, CRM_CURSOR_KEY: Buffer.alloc(32, 1).toString('base64') }),
+  ).toThrow('CRM_CURSOR_KEY');
   expect(() =>
     parseEnv({ ...configured, SUPABASE_PUBLIC_KEY: 'sb_secret_synthetic_example_only' }),
   ).toThrow('identity security settings');

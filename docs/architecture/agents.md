@@ -30,3 +30,13 @@ Provider keys remain server-side. Agents get no unrestricted database client, sh
 - Evaluate prompt injection, cross-tenant requests, forged approvals, unsupported tools, duplicate actions, consent changes, and budget exhaustion.
 
 Future specialists may cover discovery, enrichment, qualification, conversation, outreach, scheduling, and coordination. Start with one bounded, evaluated use case after authentication and tenant isolation are verified; seven empty agent definitions would add no assurance.
+
+## Phase 02 service boundary
+
+The CRM now supplies versioned, authorized contact/lead reads and mutations, immutable business activity, bounded acquisition provenance, and durable intake delivery receipts. These are reusable application services; they import no model SDK and accept no model-selected effective organization. A future Agents SDK integration can adapt them into narrow tools without moving policy into prompts or changing database ownership.
+
+Conceptual reads are `get_lead`, `search_leads`, `get_contact` and `get_lead_activity`. Conceptual writes are proposals such as `propose_lead_update`, `propose_status_change` and `request_human_approval`. None is registered or implemented as an agent tool. A future handler must bind a verified actor/job and organization outside the model, validate schemas, recheck current permission/RLS, require expected record version and stable delivery identity, and verify action-specific approval before effects.
+
+Customer-provided facts, human-entered facts, integration claims and AI inferences require separate provenance and review. Do not reuse ordinary contact fields as an inference store or allow a confidence score to override authorization. Lead descriptions, CSV cells, attribution references and tool results are untrusted data; apparent instructions inside them cannot expand tools, credentials, tenant scope or approval.
+
+An eventual external action needs a transactional outbox tied to the CRM change, an idempotent provider operation and reconciliation after response loss. Existing local database receipts do not make a remote API call atomic. Business activity, security audit and provider/model traces need separate retention and access decisions. No SDK, worker, outbox, approval engine or external integration is added in Phase 02.

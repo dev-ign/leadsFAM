@@ -17,7 +17,7 @@
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsc -p tsconfig.build.json --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --fsModuleCachePath ./node_modules/.vitest-cache"
   },
   "dependencies": {
     "zod": "4.6.7"

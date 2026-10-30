@@ -18,7 +18,7 @@
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsc -p tsconfig.build.json --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --environment jsdom"
+    "test": "vitest run --environment jsdom --fsModuleCachePath ./node_modules/.vitest-cache"
   },
   "dependencies": {
     "@radix-ui/react-slot": "1.5.0",

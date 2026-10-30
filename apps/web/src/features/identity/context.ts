@@ -3,7 +3,7 @@ import type { Organization, Session } from '@leadops/shared';
 export type IdentityState =
   | { status: 'loading' }
   | { status: 'error' }
-  | { status: 'ready'; session: Session; organizations: Organization[] };
+  | { status: 'ready'; session: Session; organizations: Organization[]; verification: number };
 export const IdentityContext = createContext<{
   state: IdentityState;
   refresh: () => Promise<void>;

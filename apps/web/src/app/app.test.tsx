@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
 import { apiClient } from '../lib/api-client';
-import { App } from './app';
+import { AppRoutes } from './app';
 
 const orgId = '11111111-1111-4111-8111-111111111111';
 const org = { id: orgId, name: 'Synthetic workspace A', role: 'owner' as const };
@@ -20,9 +20,9 @@ beforeEach(() => {
 });
 function renderApp(path = `/organizations/${orgId}`) {
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>,
+    <RouterProvider
+      router={createMemoryRouter(createRoutesFromElements(AppRoutes()), { initialEntries: [path] })}
+    />,
   );
 }
 describe('application shell', () => {
@@ -37,10 +37,13 @@ describe('application shell', () => {
       'href',
       '#main-content',
     );
-    expect(screen.getByRole('button', { name: /Lead setup coming later/ })).toBeDisabled();
+    expect(screen.getByRole('link', { name: 'New lead' })).toHaveAttribute(
+      'href',
+      `/organizations/${orgId}/leads/new`,
+    );
     expect(await screen.findByText('API reachable')).toBeInTheDocument();
     expect(
-      screen.getByText('No lead sources connected. No business data is displayed.'),
+      screen.getByText('Current contact details stay shared across related leads.'),
     ).toBeInTheDocument();
   });
   it('shows loading, recovers from failure, and supports retry', async () => {

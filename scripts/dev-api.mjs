@@ -12,6 +12,7 @@ const child = spawn(process.execPath, ['--import', 'tsx', '--watch', 'src/server
     SESSION_DATABASE_URL: identity.databaseUrl,
     SESSION_ACTIVE_KEY: identity.activeKey,
     SESSION_KEYS: JSON.stringify(identity.keys),
+    CRM_CURSOR_KEY: identity.cursorKey,
     ALLOW_ORG_CREATION: 'true',
   },
 });

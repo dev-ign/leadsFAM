@@ -23,12 +23,13 @@
     "db:reset": "node scripts/database-command.mjs reset",
     "db:test": "node scripts/database-command.mjs test",
     "db:types": "node scripts/database-command.mjs types",
-    "test:database": "turbo run build --filter=@leadops/database && node --test tests/database/concurrency.test.mjs",
+    "test:database": "turbo run build --filter=@leadops/database && node --test tests/database/*.test.mjs",
     "test:identity": "turbo run build --filter=@leadops/api && node --test tests/identity/auth.test.mjs",
     "db:advisors": "node scripts/database-command.mjs advisors",
     "db:types:check": "node scripts/database-command.mjs types-check",
-    "verify:database": "pnpm db:bindings:check && pnpm db:test && pnpm test:database && pnpm test:identity && pnpm db:advisors && pnpm db:types:check",
-    "db:bindings:check": "node scripts/database-command.mjs bindings"
+    "verify:database": "pnpm db:bindings:check && pnpm db:test && pnpm test:database && pnpm test:identity && pnpm test:crm && pnpm db:advisors && pnpm db:types:check",
+    "db:bindings:check": "node scripts/database-command.mjs bindings",
+    "test:crm": "turbo run build --filter=@leadops/api && node --test tests/crm/*.test.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

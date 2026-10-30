@@ -1,6 +1,6 @@
 # LeadsFam
 
-An industry-agnostic lead acquisition and engagement platform. **Phase 01 implements local authentication, organizations and tested tenant isolation. It is not ready for customer data or production deployment.** Lead acquisition, agents, integrations, billing and outbound engagement remain deferred. Internal package names retain `@leadops`.
+An industry-agnostic lead acquisition and engagement platform. **Phase 02 implements local contacts, leads, transactional intake, bounded CSV imports, activity and attribution on the tested identity/tenant foundation. It is not ready for customer data or production deployment.** Agents, external acquisition integrations, billing and outbound engagement remain deferred. Internal package names retain `@leadops`.
 
 > Docker Desktop prerequisite: select **Port binding behavior → Localhost by default** before the first stack startup. This workstation is configured with user approval. The project also checks actual published addresses; a loopback connection URL alone does not establish a private listener. See [ADR 0009](docs/decisions/0009-local-container-binding-review.md).
 
@@ -34,13 +34,13 @@ The API launcher generates local session credentials outside the repository, sup
 | `pnpm audit:dependencies`         | Full dependency audit; high/critical findings block                                            |
 | `pnpm scan:secrets`               | Working tree and Git history scan with provider/session/database detection canaries            |
 
-CI runs these gates with a disposable Docker/Supabase stack. Remote CI execution awaits a separately authorized push; local CI-equivalent checks are recorded in the [engineering report](docs/phases/phase-01-report.md). No deployment job exists.
+CI runs these gates with a disposable Docker/Supabase stack, including CRM integration and race tests. Remote CI execution of these changes awaits a separately authorized push; local CI-equivalent checks are recorded in the [Phase 02 engineering report](docs/phases/phase-02-report.md). No deployment job exists. See the [manual testing and benchmark instructions](docs/phases/phase-02-manual.md).
 
 ## Repository map
 
-- `apps/web`: React shell, identity and organization flows, notes, team settings, one typed API client.
-- `apps/api`: Fastify transport, verified Auth adapter, encrypted opaque sessions, organization authorization and safe logging.
-- `packages/database`: server-only PostgreSQL pool and generated schema types.
+- `apps/web`: React workspace, identity/organizations, CRM/import flows, scoped memory-only drafts and one typed API client.
+- `apps/api`: Fastify transport, verified Auth adapter, encrypted opaque sessions, authorized CRM/intake and safe logging.
+- `packages/database`: server-only PostgreSQL pool, generated schema types and typed user-JWT RPC transport.
 - `packages/shared`: browser-safe Zod contracts, role/permission presentation helpers.
 - `packages/ui`: accessible primitives and semantic theme tokens.
 - `packages/config`: strict TypeScript and ESLint configuration.
@@ -54,4 +54,4 @@ Authentication proves identity; authorization checks what that identity may do i
 
 Production requires a reviewed deployment and operational design: HTTPS and same-site browser/API topology, managed keys/TLS, distributed abuse controls, Auth signup policy, SMTP, monitoring, backups, retention and incident recovery. Public organization creation is disabled in production code and by default in migration settings. The local seed is not a production migration.
 
-No hosted infrastructure, deployment, customer import, external integration, commit, push or Phase 02 work is authorized. Architecture and implementation teaching starts with the [Phase 01 learning guide](docs/learning/phase-01.md), [architecture](docs/architecture/overview.md), [tenant model](docs/architecture/multi-tenancy.md), and [threat model](docs/security/threat-model.md). The [Phase 00 report](docs/phases/phase-00-report.md) is historical evidence for the foundation stage.
+No hosted infrastructure, deployment, customer import, external integration, commit, push or Phase 03 work is authorized. Architecture and implementation teaching starts with the [Phase 02 learning guide](docs/learning/phase-02.md), [CRM architecture](docs/architecture/crm.md), [tenant model](docs/architecture/multi-tenancy.md), and [threat model](docs/security/threat-model.md). The [Phase 00](docs/phases/phase-00-report.md) and [Phase 01](docs/phases/phase-01-report.md) reports are historical evidence for their stages.

@@ -15,8 +15,10 @@ import { apiClient } from '../lib/api-client';
 import { useState } from 'react';
 import { identityMessage } from '../features/identity/errors';
 import { Button } from '@leadops/ui';
+import { useDrafts } from '../features/crm/draft-context';
 
 export function Navigation({ onNavigate }: { onNavigate: () => void }) {
+  const { store, confirmDiscard } = useDrafts();
   const { state, changed } = useIdentity(),
     navigate = useNavigate(),
     match = useMatch('/organizations/:org/*'),
@@ -25,8 +27,8 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
   return (
     <>
       <div className="flex h-20 shrink-0 items-center justify-between px-6">
-        <a
-          href="/"
+        <Link
+          to="/"
           className="flex items-center gap-2.5 font-semibold tracking-tight"
           aria-label="LeadsFam home"
         >
@@ -34,7 +36,7 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
             <Layers3 className="size-4" aria-hidden="true" />
           </span>
           LeadsFam
-        </a>
+        </Link>
         <Button
           variant="ghost"
           size="icon"
@@ -80,6 +82,12 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
           <div className="space-y-1">
             {[
               { to: '/', label: 'Overview', icon: LayoutDashboard },
+              ...(org
+                ? [
+                    { to: `/organizations/${org}/leads`, label: 'Leads', icon: Inbox },
+                    { to: `/organizations/${org}/contacts`, label: 'Contacts', icon: Layers3 },
+                  ]
+                : []),
               { to: '/status', label: 'Platform status', icon: Activity },
             ].map(({ to, label, icon: Icon }) => (
               <NavLink
@@ -101,7 +109,6 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
           </p>
           <ul className="space-y-1">
             {[
-              { label: 'Leads', icon: Inbox },
               { label: 'Conversations', icon: MessageSquare },
               { label: 'Agents', icon: Bot },
               { label: 'Integrations', icon: Plug },
@@ -136,14 +143,17 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  setError('');
-                  void apiClient
-                    .signOut()
-                    .then(async () => {
-                      await changed();
-                      navigate('/sign-in');
-                    })
-                    .catch((e) => setError(identityMessage(e)));
+                  confirmDiscard(() => {
+                    store.clear();
+                    setError('');
+                    void apiClient
+                      .signOut()
+                      .then(async () => {
+                        await changed();
+                        navigate('/sign-in');
+                      })
+                      .catch((e) => setError(identityMessage(e)));
+                  });
                 }}
               >
                 Sign out

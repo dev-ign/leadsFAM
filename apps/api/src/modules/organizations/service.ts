@@ -1,4 +1,4 @@
-import type { Database } from '@leadops/database';
+import { UserDatabase, DatabaseRpcFailure, type Database } from '@leadops/database';
 import { organizationSchema, type Permission, can } from '@leadops/shared';
 import type { SessionStore } from '../identity/sessions.js';
 import { IdentityFailure } from '../identity/failure.js';
@@ -18,52 +18,46 @@ export class OrganizationService {
     args: Functions[N]['Args'],
     requestId: string,
   ): Promise<unknown> {
-    let response: Response;
     try {
-      response = await fetch(`${this.store.config.url}/rest/v1/rpc/${name}`, {
-        method: 'POST',
-        headers: {
-          apikey: this.store.config.publicKey,
-          authorization: `Bearer ${caller.tokens.accessToken}`,
-          'content-type': 'application/json',
-          'x-request-id': requestId,
-        },
-        body: JSON.stringify(args),
-        signal: AbortSignal.timeout(5000),
-        redirect: 'error',
-      });
-    } catch {
-      throw new IdentityFailure(503, 'DATA_UNAVAILABLE');
-    }
-    let result: unknown;
-    try {
-      result = (await response.json()) as unknown;
-    } catch {
-      throw new IdentityFailure(503, 'DATA_UNAVAILABLE');
-    }
-    if (!response.ok) {
-      const failure = result as { message?: unknown; code?: unknown };
-      if (response.status === 401 || failure.message === 'unauthenticated')
+      return await new UserDatabase(this.store.config).rpc(
+        caller.tokens.accessToken,
+        name,
+        args,
+        requestId,
+      );
+    } catch (error) {
+      if (!(error instanceof DatabaseRpcFailure)) throw error;
+      if (error.status === 401 || error.reason === 'unauthenticated')
         throw new IdentityFailure(401, 'SIGN_IN_REQUIRED');
-      if (failure.message === 'not_found' || failure.message === 'invitation_invalid')
+      if (['not_found', 'invitation_invalid'].includes(error.reason))
         throw new IdentityFailure(404, 'NOT_FOUND');
-      if (
-        failure.message === 'forbidden' ||
-        failure.message === 'onboarding_disabled' ||
-        failure.message === 'email_unverified'
-      )
+      if (['forbidden', 'onboarding_disabled', 'email_unverified'].includes(error.reason))
         throw new IdentityFailure(403, 'FORBIDDEN');
-      if (
-        failure.message === 'last_owner' ||
-        failure.message === 'already_member' ||
-        failure.code === '23505'
-      )
+      if (['last_owner', 'already_member'].includes(error.reason) || error.sqlCode === '23505')
         throw new IdentityFailure(409, 'CONFLICT');
-      if (failure.code === '23514') throw new IdentityFailure(400, 'INVALID_REQUEST');
+      if (
+        [
+          'version_conflict',
+          'idempotency_conflict',
+          'duplicate_review_required',
+          'archived_record',
+          'closed_record',
+          'invalid_transition',
+          'contact_has_open_leads',
+          'archived_contact',
+          'delivery_job_conflict',
+          'source_limit',
+        ].includes(error.reason)
+      )
+        throw new IdentityFailure(409, error.reason.toUpperCase());
+      if (error.reason === 'invalid_manifest') throw new IdentityFailure(422, 'INVALID_MANIFEST');
+      if (['22023', '22P02', '23502', '23503'].includes(error.sqlCode))
+        throw new IdentityFailure(422, 'INVALID_FIELDS');
+      if (error.sqlCode === '23514') throw new IdentityFailure(400, 'INVALID_REQUEST');
       throw new IdentityFailure(503, 'DATA_UNAVAILABLE');
     }
-    return result;
   }
+
   async authorize(
     caller: Caller,
     requestedOrg: string,

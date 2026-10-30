@@ -3,6 +3,411 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      contact_emails: {
+        Row: {
+          contact_id: string;
+          normalized: string;
+          organization_id: string;
+          position: number;
+          value: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          contact_id: string;
+          normalized: string;
+          organization_id: string;
+          position: number;
+          value: string;
+        };
+        Update: {
+          contact_id?: string;
+          normalized?: string;
+          organization_id?: string;
+          position?: number;
+          value?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'contact_emails_organization_id_contact_id_fkey';
+            columns: ['organization_id', 'contact_id'];
+            isOneToOne: false;
+            referencedRelation: 'contacts';
+            referencedColumns: ['organization_id', 'id'];
+          },
+        ];
+      };
+      contact_phones: {
+        Row: {
+          contact_id: string;
+          normalized: string | null;
+          organization_id: string;
+          position: number;
+          region: string | null;
+          value: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          contact_id: string;
+          normalized?: string | null;
+          organization_id: string;
+          position: number;
+          region?: string | null;
+          value: string;
+        };
+        Update: {
+          contact_id?: string;
+          normalized?: string | null;
+          organization_id?: string;
+          position?: number;
+          region?: string | null;
+          value?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'contact_phones_organization_id_contact_id_fkey';
+            columns: ['organization_id', 'contact_id'];
+            isOneToOne: false;
+            referencedRelation: 'contacts';
+            referencedColumns: ['organization_id', 'id'];
+          },
+        ];
+      };
+      contacts: {
+        Row: {
+          archived_at: string | null;
+          company_name: string;
+          created_at: string;
+          created_by: string;
+          display_name: string;
+          first_name: string;
+          id: string;
+          kind: string;
+          last_name: string;
+          organization_id: string;
+          search_name: string | null;
+          updated_at: string;
+          version: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          company_name?: string;
+          created_at?: string;
+          created_by: string;
+          display_name: string;
+          first_name?: string;
+          id?: string;
+          kind: string;
+          last_name?: string;
+          organization_id: string;
+          search_name?: never;
+          updated_at?: string;
+          version?: number;
+        };
+        Update: {
+          archived_at?: string | null;
+          company_name?: string;
+          created_at?: string;
+          created_by?: string;
+          display_name?: string;
+          first_name?: string;
+          id?: string;
+          kind?: string;
+          last_name?: string;
+          organization_id?: string;
+          search_name?: never;
+          updated_at?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'contacts_organization_id_created_by_fkey';
+            columns: ['organization_id', 'created_by'];
+            isOneToOne: false;
+            referencedRelation: 'organization_memberships';
+            referencedColumns: ['organization_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'contacts_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      crm_activities: {
+        Row: {
+          actor_id: string;
+          contact_id: string | null;
+          created_at: string;
+          details: NonNullable<Json>;
+          event: string;
+          id: string;
+          lead_id: string | null;
+          organization_id: string;
+          reason: string | null;
+          request_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          actor_id: string;
+          contact_id?: string | null;
+          created_at?: string;
+          details?: NonNullable<Json>;
+          event: string;
+          id?: string;
+          lead_id?: string | null;
+          organization_id: string;
+          reason?: string | null;
+          request_id?: string | null;
+        };
+        Update: {
+          actor_id?: string;
+          contact_id?: string | null;
+          created_at?: string;
+          details?: NonNullable<Json>;
+          event?: string;
+          id?: string;
+          lead_id?: string | null;
+          organization_id?: string;
+          reason?: string | null;
+          request_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'crm_activities_organization_id_actor_id_fkey';
+            columns: ['organization_id', 'actor_id'];
+            isOneToOne: false;
+            referencedRelation: 'organization_memberships';
+            referencedColumns: ['organization_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'crm_activities_organization_id_contact_id_fkey';
+            columns: ['organization_id', 'contact_id'];
+            isOneToOne: false;
+            referencedRelation: 'contacts';
+            referencedColumns: ['organization_id', 'id'];
+          },
+          {
+            foreignKeyName: 'crm_activities_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'crm_activities_organization_id_lead_id_fkey';
+            columns: ['organization_id', 'lead_id'];
+            isOneToOne: false;
+            referencedRelation: 'leads';
+            referencedColumns: ['organization_id', 'id'];
+          },
+        ];
+      };
+      lead_attributions: {
+        Row: {
+          accepted_at: string;
+          campaign: string | null;
+          channel: string;
+          claimed_acquired_at: string | null;
+          external_reference: string | null;
+          landing_url: string | null;
+          lead_id: string;
+          organization_id: string;
+          provider: string | null;
+          source_id: string | null;
+          utm_medium: string | null;
+          utm_source: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string;
+          campaign?: string | null;
+          channel: string;
+          claimed_acquired_at?: string | null;
+          external_reference?: string | null;
+          landing_url?: string | null;
+          lead_id: string;
+          organization_id: string;
+          provider?: string | null;
+          source_id?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+        };
+        Update: {
+          accepted_at?: string;
+          campaign?: string | null;
+          channel?: string;
+          claimed_acquired_at?: string | null;
+          external_reference?: string | null;
+          landing_url?: string | null;
+          lead_id?: string;
+          organization_id?: string;
+          provider?: string | null;
+          source_id?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'lead_attributions_organization_id_lead_id_fkey';
+            columns: ['organization_id', 'lead_id'];
+            isOneToOne: true;
+            referencedRelation: 'leads';
+            referencedColumns: ['organization_id', 'id'];
+          },
+          {
+            foreignKeyName: 'lead_attributions_organization_id_source_id_fkey';
+            columns: ['organization_id', 'source_id'];
+            isOneToOne: false;
+            referencedRelation: 'lead_sources';
+            referencedColumns: ['organization_id', 'id'];
+          },
+        ];
+      };
+      lead_sources: {
+        Row: {
+          archived_at: string | null;
+          created_at: string;
+          created_by: string;
+          id: string;
+          name: string;
+          organization_id: string;
+          updated_at: string;
+          version: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          name: string;
+          organization_id: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Update: {
+          archived_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          name?: string;
+          organization_id?: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'lead_sources_organization_id_created_by_fkey';
+            columns: ['organization_id', 'created_by'];
+            isOneToOne: false;
+            referencedRelation: 'organization_memberships';
+            referencedColumns: ['organization_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'lead_sources_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      leads: {
+        Row: {
+          archived_at: string | null;
+          assigned_membership_generation: number | null;
+          closed_at: string | null;
+          contact_id: string;
+          created_at: string;
+          created_by: string;
+          description: string;
+          id: string;
+          last_activity_at: string;
+          last_assigned_user_id: string | null;
+          organization_id: string;
+          outcome: string | null;
+          priority: string;
+          search_title: string | null;
+          status: string;
+          title: string;
+          updated_at: string;
+          version: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          archived_at?: string | null;
+          assigned_membership_generation?: number | null;
+          closed_at?: string | null;
+          contact_id: string;
+          created_at?: string;
+          created_by: string;
+          description?: string;
+          id?: string;
+          last_activity_at?: string;
+          last_assigned_user_id?: string | null;
+          organization_id: string;
+          outcome?: string | null;
+          priority?: string;
+          search_title?: never;
+          status?: string;
+          title: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Update: {
+          archived_at?: string | null;
+          assigned_membership_generation?: number | null;
+          closed_at?: string | null;
+          contact_id?: string;
+          created_at?: string;
+          created_by?: string;
+          description?: string;
+          id?: string;
+          last_activity_at?: string;
+          last_assigned_user_id?: string | null;
+          organization_id?: string;
+          outcome?: string | null;
+          priority?: string;
+          search_title?: never;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'leads_organization_id_contact_id_fkey';
+            columns: ['organization_id', 'contact_id'];
+            isOneToOne: false;
+            referencedRelation: 'contacts';
+            referencedColumns: ['organization_id', 'id'];
+          },
+          {
+            foreignKeyName: 'leads_organization_id_created_by_fkey';
+            columns: ['organization_id', 'created_by'];
+            isOneToOne: false;
+            referencedRelation: 'organization_memberships';
+            referencedColumns: ['organization_id', 'user_id'];
+          },
+          {
+            foreignKeyName: 'leads_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'leads_organization_id_last_assigned_user_id_fkey';
+            columns: ['organization_id', 'last_assigned_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'organization_memberships';
+            referencedColumns: ['organization_id', 'user_id'];
+          },
+        ];
+      };
       organization_invitations: {
         Row: {
           accepted_at: string | null;
@@ -60,6 +465,7 @@ export type Database = {
       };
       organization_memberships: {
         Row: {
+          crm_assignment_generation: number;
           joined_at: string;
           organization_id: string;
           revoked_at: string | null;
@@ -68,6 +474,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          crm_assignment_generation?: number;
           joined_at?: string;
           organization_id: string;
           revoked_at?: string | null;
@@ -75,6 +482,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          crm_assignment_generation?: number;
           joined_at?: string;
           organization_id?: string;
           revoked_at?: string | null;
@@ -197,6 +605,45 @@ export type Database = {
         Returns: Json;
       };
       create_organization: { Args: { p_name: string }; Returns: Json };
+      crm_activity: {
+        Args: { p_after?: Json; p_id: string; p_kind: string; p_org: string; p_size?: number };
+        Returns: Json;
+      };
+      crm_candidates: { Args: { p_data: Json; p_org: string }; Returns: Json };
+      crm_change_lead: {
+        Args: { p_action: string; p_data: Json; p_id: string; p_org: string; p_version: number };
+        Returns: Json;
+      };
+      crm_get: { Args: { p_id: string; p_kind: string; p_org: string }; Returns: Json };
+      crm_import_execute: {
+        Args: { p_attempt: string; p_job: string; p_org: string; p_rows: Json };
+        Returns: Json;
+      };
+      crm_import_status: {
+        Args: { p_attempt?: string; p_job?: string; p_org: string };
+        Returns: Json;
+      };
+      crm_intake_manual: { Args: { p_data: Json; p_key: string; p_org: string }; Returns: Json };
+      crm_preview_candidates: { Args: { p_inputs: Json; p_org: string }; Returns: Json };
+      crm_query: {
+        Args: { p_after?: Json; p_kind: string; p_org: string; p_query: Json };
+        Returns: Json;
+      };
+      crm_save_contact: {
+        Args: {
+          p_action: string;
+          p_data: Json;
+          p_id?: string;
+          p_key?: string;
+          p_org: string;
+          p_version?: number;
+        };
+        Returns: Json;
+      };
+      crm_sources: {
+        Args: { p_data?: Json; p_id?: string; p_org: string; p_version?: number };
+        Returns: Json;
+      };
       delete_note: { Args: { p_id: string; p_org: string }; Returns: Json };
       get_organization: { Args: { p_org: string }; Returns: Json };
       list_invitations: { Args: { p_org: string }; Returns: Json };

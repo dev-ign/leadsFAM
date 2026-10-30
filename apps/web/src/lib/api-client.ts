@@ -10,14 +10,34 @@ import {
   notesSchema,
   okSchema,
   type HealthResponse,
+  apiErrorSchema,
+  contactSchema,
+  contactPageSchema,
+  leadSchema,
+  leadPageSchema,
+  activityPageSchema,
+  sourceSchema,
+  csvPreviewSchema,
+  importResultSchema,
+  importStatusSchema,
+  importJobsSchema,
+  type ContactInput,
+  type LeadIntake,
+  type CrmQuery,
+  type csvPreviewInputSchema,
+  type importSubmissionSchema,
+  csvColumnsSchema,
 } from '@leadops/shared';
-import type { z } from 'zod';
+import { z } from 'zod';
 import { apiBaseUrl, parseApiBaseUrl } from './env';
+const zArrayContacts = z.array(contactSchema).max(10),
+  zArraySources = z.array(sourceSchema);
 
 export class ApiClientError extends Error {
   constructor(
     public readonly reason: 'network' | 'http' | 'invalid-response',
     public readonly status?: number,
+    public readonly code?: string,
   ) {
     super(
       reason === 'invalid-response'
@@ -36,6 +56,7 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
     method = 'GET',
     body?: unknown,
     signal?: AbortSignal,
+    extraHeaders: Record<string, string> = {},
   ): Promise<T> {
     if (method !== 'GET' && !csrfToken) await getSession(signal);
     let response: Response;
@@ -43,6 +64,7 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
       response = await fetcher(new URL(`/v1${path}`, origin), {
         method,
         headers: {
+          ...extraHeaders,
           Accept: 'application/json',
           ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
           ...(method === 'GET' ? {} : { 'X-CSRF-Token': csrfToken ?? '' }),
@@ -61,7 +83,15 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
     }
     if (!response.ok) {
       if (response.status === 401) window.dispatchEvent(new Event('leadsfam-session-expired'));
-      throw new ApiClientError('http', response.status);
+      let code: string | undefined;
+      try {
+        const parsed = apiErrorSchema.safeParse(await response.json());
+        if (parsed.success && /^[A-Z_]{1,60}$/.test(parsed.data.error.code))
+          code = parsed.data.error.code;
+      } catch {
+        /* The safe fallback does not echo provider response bodies. */
+      }
+      throw new ApiClientError('http', response.status, code);
     }
     let payload: unknown;
     try {
@@ -84,7 +114,123 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
     return result;
   };
   const org = (id: string) => `/organizations/${encodeURIComponent(id)}`;
+  const queryString = (query: Record<string, unknown>) => {
+    const parameters = new URLSearchParams();
+    for (const [key, value] of Object.entries(query))
+      if (value !== undefined && value !== null && value !== '') parameters.set(key, String(value));
+    return parameters.size ? `?${parameters.toString()}` : '';
+  };
+  const resource = (id: string, kind: 'contacts' | 'leads', key: string) =>
+    `${org(id)}/${kind}/${encodeURIComponent(key)}`;
   return {
+    csvColumns: (id: string, csv: string) =>
+      request(`${org(id)}/lead-imports/columns`, csvColumnsSchema, 'POST', { csv }),
+    contacts: (id: string, query: Partial<CrmQuery> = {}, signal?: AbortSignal) =>
+      request(
+        `${org(id)}/contacts${queryString(query)}`,
+        contactPageSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    leads: (id: string, query: Partial<CrmQuery> = {}, signal?: AbortSignal) =>
+      request(`${org(id)}/leads${queryString(query)}`, leadPageSchema, 'GET', undefined, signal),
+    contact: (id: string, key: string, signal?: AbortSignal) =>
+      request(resource(id, 'contacts', key), contactSchema, 'GET', undefined, signal),
+    lead: (id: string, key: string, signal?: AbortSignal) =>
+      request(resource(id, 'leads', key), leadSchema, 'GET', undefined, signal),
+    createContact: (id: string, input: ContactInput, key: string) =>
+      request(`${org(id)}/contacts`, contactSchema, 'POST', input, undefined, {
+        'Idempotency-Key': key,
+      }),
+    updateContact: (id: string, key: string, version: number, input: ContactInput) =>
+      request(resource(id, 'contacts', key), contactSchema, 'PATCH', { version, contact: input }),
+    candidates: (id: string, input: ContactInput, signal?: AbortSignal) =>
+      request(`${org(id)}/contacts/candidates`, zArrayContacts, 'POST', input, signal),
+    createLead: (id: string, input: LeadIntake, key: string) =>
+      request(`${org(id)}/leads`, leadSchema, 'POST', input, undefined, { 'Idempotency-Key': key }),
+    updateLead: (
+      id: string,
+      key: string,
+      version: number,
+      input: { title: string; description: string; priority: 'low' | 'normal' | 'high' },
+    ) => request(resource(id, 'leads', key), leadSchema, 'PATCH', { version, lead: input }),
+    transitionLead: (
+      id: string,
+      key: string,
+      input: {
+        version: number;
+        status: 'in_progress' | 'qualified' | 'closed';
+        outcome?: 'won' | 'lost' | 'unqualified';
+        reason?: string;
+      },
+    ) => request(`${resource(id, 'leads', key)}/transitions`, leadSchema, 'POST', input),
+    assignLead: (id: string, key: string, version: number, userId: string | null) =>
+      request(`${resource(id, 'leads', key)}/assignee`, leadSchema, 'PUT', { version, userId }),
+    archiveContact: (id: string, key: string, version: number, restore = false) =>
+      request(
+        `${resource(id, 'contacts', key)}/${restore ? 'restore' : 'archive'}`,
+        contactSchema,
+        'POST',
+        { version },
+      ),
+    archiveLead: (id: string, key: string, version: number, restore = false) =>
+      request(
+        `${resource(id, 'leads', key)}/${restore ? 'restore' : 'archive'}`,
+        leadSchema,
+        'POST',
+        { version },
+      ),
+    activity: (
+      id: string,
+      kind: 'contacts' | 'leads',
+      key: string,
+      query: { pageSize?: number; cursor?: string } = {},
+      signal?: AbortSignal,
+    ) =>
+      request(
+        `${resource(id, kind, key)}/activity${queryString(query)}`,
+        activityPageSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    sources: (id: string, signal?: AbortSignal) =>
+      request(`${org(id)}/lead-sources`, zArraySources, 'GET', undefined, signal),
+    createSource: (id: string, input: { name: string; archived: boolean }) =>
+      request(`${org(id)}/lead-sources`, sourceSchema, 'POST', input),
+    updateSource: (
+      id: string,
+      key: string,
+      version: number,
+      input: { name: string; archived: boolean },
+    ) =>
+      request(`${org(id)}/lead-sources/${encodeURIComponent(key)}`, sourceSchema, 'PATCH', {
+        version,
+        source: input,
+      }),
+    previewCsv: (id: string, input: z.input<typeof csvPreviewInputSchema>, signal?: AbortSignal) =>
+      request(`${org(id)}/lead-imports/preview`, csvPreviewSchema, 'POST', input, signal),
+    executeImport: (id: string, input: z.input<typeof importSubmissionSchema>) =>
+      request(`${org(id)}/lead-imports`, importResultSchema, 'POST', input),
+    importJobs: (id: string, signal?: AbortSignal) =>
+      request(`${org(id)}/lead-imports`, importJobsSchema, 'GET', undefined, signal),
+    importStatus: (id: string, job: string, signal?: AbortSignal) =>
+      request(
+        `${org(id)}/lead-imports/${encodeURIComponent(job)}`,
+        importStatusSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    importAttempt: (id: string, job: string, attempt: string, signal?: AbortSignal) =>
+      request(
+        `${org(id)}/lead-imports/${encodeURIComponent(job)}/attempts/${encodeURIComponent(attempt)}`,
+        importResultSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
     getSession,
     signIn: (input: { email: string; password: string }) => auth('sign-in', input),
     signUp: (input: { email: string; password: string; displayName: string }) =>

@@ -5,6 +5,7 @@ export function IdentityProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<IdentityState>({ status: 'loading' });
   const active = useRef<AbortController | null>(null),
     channel = useRef<BroadcastChannel | null>(null);
+  const verification = useRef(0);
   const load = useCallback(() => {
     active.current?.abort();
     const controller = new AbortController();
@@ -14,7 +15,13 @@ export function IdentityProvider({ children }: { children: ReactNode }) {
       .then(async (session) => {
         const organizations =
           session.purpose === 'application' ? await apiClient.organizations(controller.signal) : [];
-        if (!controller.signal.aborted) setState({ status: 'ready', session, organizations });
+        if (!controller.signal.aborted)
+          setState({
+            status: 'ready',
+            session,
+            organizations,
+            verification: ++verification.current,
+          });
       })
       .catch(() => {
         if (!controller.signal.aborted) setState({ status: 'error' });

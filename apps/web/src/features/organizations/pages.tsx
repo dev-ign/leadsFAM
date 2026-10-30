@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { Suspense, useCallback, useEffect, useLayoutEffect, useState, type FormEvent } from 'react';
 import { Link, Navigate, Outlet, useLocation, useNavigate, useParams } from 'react-router';
 import { can, canRemoveMember, canChangeMemberRole, type Note } from '@leadops/shared';
 import { Button, Card, CardHeader, CardTitle, CardContent } from '@leadops/ui';
-import { apiClient } from '../../lib/api-client';
+import { apiClient, ApiClientError } from '../../lib/api-client';
+import { useDrafts } from '../crm/draft-context';
 import { useIdentity } from '../identity/context';
 import { identityMessage } from '../identity/errors';
 import { OrganizationContext, useOrganization } from './context';
@@ -104,11 +105,29 @@ export function OrganizationHome() {
 }
 export function OrganizationRoute() {
   const { org } = useParams();
-  return org ? <OrganizationBoundary key={org} org={org} /> : <Navigate to="/" replace />;
+  const { state } = useIdentity();
+  return org ? (
+    <OrganizationBoundary
+      key={`${org}/${state.status === 'ready' ? state.verification : 0}`}
+      org={org}
+    />
+  ) : (
+    <Navigate to="/" replace />
+  );
 }
 function OrganizationBoundary({ org }: { org: string }) {
+  const { store } = useDrafts();
   const load = useCallback((signal: AbortSignal) => apiClient.organization(org, signal), [org]);
   const { state, refresh } = useResource(load);
+  useLayoutEffect(() => {
+    if (state.status === 'ready') store.activate(state.data.id);
+    else if (
+      state.status === 'error' &&
+      state.error instanceof ApiClientError &&
+      [401, 403, 404].includes(state.error.status ?? 0)
+    )
+      store.revoke(org);
+  }, [state, org, store]);
   if (state.status === 'loading') return <p role="status">Opening workspace…</p>;
   if (state.status === 'error') return <Failure error={state.error} retry={refresh} />;
   return (
@@ -120,13 +139,21 @@ function OrganizationBoundary({ org }: { org: string }) {
         </div>
         <nav
           aria-label="Workspace pages"
-          className="flex gap-4 text-sm underline underline-offset-4"
+          className="flex flex-wrap gap-4 text-sm underline underline-offset-4"
         >
           <Link to={`/organizations/${org}`}>Overview</Link>
+          <Link to={`/organizations/${org}/leads`}>Leads</Link>
+          <Link to={`/organizations/${org}/contacts`}>Contacts</Link>
+          <Link to={`/organizations/${org}/sources`}>Sources</Link>
+          {can(state.data.role, 'crm_import') && (
+            <Link to={`/organizations/${org}/imports`}>Imports</Link>
+          )}
           <Link to={`/organizations/${org}/settings`}>Team & settings</Link>
         </nav>
       </div>
-      <Outlet />
+      <Suspense fallback={<p role="status">Loading workspace page…</p>}>
+        <Outlet />
+      </Suspense>
     </OrganizationContext.Provider>
   );
 }
@@ -188,7 +215,7 @@ function Notes() {
       <CardHeader>
         <CardTitle>Workspace notes</CardTitle>
         <p className="text-sm text-muted-foreground">
-          A private space for your team. Lead sources and outreach are coming later.
+          A private space for your team’s shared context. Outreach features will arrive later.
         </p>
       </CardHeader>
       <CardContent className="space-y-5">

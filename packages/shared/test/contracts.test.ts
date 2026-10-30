@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { healthResponseSchema, apiErrorSchema } from '../src/index.js';
+import { healthResponseSchema, apiErrorSchema, can } from '../src/index.js';
 
 describe('wire contracts', () => {
+  it('keeps CRM write permission separate from administration and import permission', () => {
+    expect(can('member', 'crm_write')).toBe(true);
+    expect(can('member', 'crm_manage')).toBe(false);
+    expect(can('member', 'crm_import')).toBe(false);
+    for (const role of ['owner', 'admin'] as const) {
+      expect(can(role, 'crm_manage')).toBe(true);
+      expect(can(role, 'crm_import')).toBe(true);
+    }
+  });
   it('rejects unknown fields and invalid health payloads received over HTTP', () => {
     expect(
       healthResponseSchema.safeParse({ status: 'ok', service: 'leadops-api', secret: 'unexpected' })

@@ -23,6 +23,7 @@ export interface AppConfig {
   logLevel: z.infer<typeof environmentSchema>['LOG_LEVEL'];
   corsOrigins: string[];
   identity?: IdentityConfig;
+  crmCursorKey?: string;
 }
 
 // Errors name the invalid fields, never the supplied environment values.
@@ -119,7 +120,17 @@ export function parseEnv(environment: Record<string, string | undefined>): AppCo
   }
   if (env.NODE_ENV === 'production' && !identity)
     throw new Error('Invalid server configuration: identity is required in production');
+  const crmCursorKey = environment.CRM_CURSOR_KEY;
+  if (
+    (crmCursorKey !== undefined &&
+      (!/^[A-Za-z0-9+/]{43}=$/.test(crmCursorKey) ||
+        Buffer.from(crmCursorKey, 'base64').length !== 32 ||
+        Object.values(identity?.keys ?? {}).includes(crmCursorKey))) ||
+    (env.NODE_ENV === 'production' && !crmCursorKey)
+  )
+    throw new Error('Invalid server configuration: CRM_CURSOR_KEY');
   return {
+    ...(crmCursorKey ? { crmCursorKey } : {}),
     ...(identity ? { identity } : {}),
     nodeEnv: env.NODE_ENV,
     host: env.HOST,

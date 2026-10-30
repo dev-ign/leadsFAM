@@ -12,9 +12,22 @@ export const permissions = {
     'remove_member',
     'change_role',
     'moderate_note',
+    'crm_write',
+    'crm_manage',
+    'crm_import',
   ],
-  admin: ['read', 'write_note', 'settings', 'invite_member', 'remove_member', 'moderate_note'],
-  member: ['read', 'write_note'],
+  admin: [
+    'read',
+    'write_note',
+    'settings',
+    'invite_member',
+    'remove_member',
+    'moderate_note',
+    'crm_write',
+    'crm_manage',
+    'crm_import',
+  ],
+  member: ['read', 'write_note', 'crm_write'],
 } as const;
 export type Permission = (typeof permissions)[Role][number];
 export function can(role: Role, permission: Permission) {

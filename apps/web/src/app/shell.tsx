@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Menu, Moon, Sun } from 'lucide-react';
 import { Outlet, useLocation } from 'react-router';
 import { Button } from '@leadops/ui';
@@ -71,7 +71,7 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-3">
             <span className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-              Workspace preview
+              LeadsFam workspace
             </span>
             <Button
               variant="ghost"
@@ -88,11 +88,13 @@ export function AppShell() {
           tabIndex={-1}
           className="mx-auto max-w-7xl px-5 py-9 outline-none sm:px-8 lg:px-10 lg:py-11"
         >
-          <Outlet />
+          <Suspense fallback={<p role="status">Loading page…</p>}>
+            <Outlet />
+          </Suspense>
         </main>
         <footer className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-5 pb-8 text-xs text-muted-foreground sm:px-8 lg:px-10">
           <span>LeadsFam</span>
-          <span>Workspace preview · No business data connected</span>
+          <span>Contacts, leads and next steps</span>
         </footer>
       </div>
     </div>

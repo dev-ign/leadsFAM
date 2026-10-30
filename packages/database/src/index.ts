@@ -11,4 +11,5 @@ export function createSessionPool(connectionString: string) {
   });
 }
 
-export type { Database } from './database.types.js';
+export type { Database, Json } from './database.types.js';
+export { UserDatabase, DatabaseRpcFailure } from './rpc.js';

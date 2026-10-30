@@ -8,7 +8,15 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["NODE_ENV", "HOST", "PORT", "LOG_LEVEL", "CORS_ORIGINS", "VITE_API_BASE_URL"]
+      "env": [
+        "NODE_ENV",
+        "HOST",
+        "PORT",
+        "LOG_LEVEL",
+        "CORS_ORIGINS",
+        "VITE_API_BASE_URL",
+        "TMPDIR"
+      ]
     },
     "typecheck": {
       "dependsOn": ["^build"],

@@ -64,6 +64,26 @@ export async function fixture() {
       const client = await pool.connect();
       try {
         await client.query('begin');
+        // Explicit administrator-only synthetic-fixture teardown. Append-only
+        // application records have no delete endpoint or execution-role grant.
+        await client.query("set local session_replication_role='replica'");
+        for (const [schema, table] of [
+          ['private', 'lead_import_rows'],
+          ['private', 'lead_import_attempts'],
+          ['private', 'lead_import_jobs'],
+          ['private', 'crm_request_receipts'],
+          ['public', 'crm_activities'],
+          ['public', 'lead_attributions'],
+          ['public', 'leads'],
+          ['public', 'contact_emails'],
+          ['public', 'contact_phones'],
+          ['public', 'contacts'],
+          ['public', 'lead_sources'],
+        ])
+          await client.query(
+            `delete from ${schema}.${table} where organization_id=any($1::uuid[])`,
+            [[org, otherOrg]],
+          );
         await client.query(
           'delete from public.organization_notes where organization_id=any($1::uuid[])',
           [[org, otherOrg]],
@@ -79,6 +99,7 @@ export async function fixture() {
         await client.query('delete from public.organizations where id=any($1::uuid[])', [
           [org, otherOrg],
         ]);
+        await client.query("set local session_replication_role='origin'");
         await client.query('delete from auth.users where id=any($1::uuid[])', [
           Object.values(ids).map((p) => p.user),
         ]);
