@@ -1,0 +1,22 @@
+{
+  "name": "@leadops/config",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./typescript/base.json": "./typescript/base.json",
+    "./eslint": "./eslint.js"
+  },
+  "engines": {
+    "node": ">=26.13.0 <27",
+    "pnpm": "12.16.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.7",
+    "globals": "17.13.0",
+    "typescript-eslint": "8.72.1"
+  }
+}

@@ -1,0 +1,46 @@
+@theme inline {
+  --font-sans: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-sidebar: var(--sidebar);
+}
+:root {
+  color-scheme: light;
+  --background: #fafaf9;
+  --foreground: #202124;
+  --card: #ffffff;
+  --primary: #262729;
+  --primary-foreground: #ffffff;
+  --muted: #f1f1ef;
+  --muted-foreground: #62635f;
+  --accent: #eeefeb;
+  --border: #e3e4df;
+  --ring: #4d5cbe;
+  --success: #246845;
+  --sidebar: #f3f4f0;
+}
+.dark {
+  color-scheme: dark;
+  --background: #151616;
+  --foreground: #ededeb;
+  --card: #1b1d1c;
+  --primary: #ededeb;
+  --primary-foreground: #1b1d1c;
+  --muted: #242724;
+  --muted-foreground: #a9ada6;
+  --accent: #2b2e2a;
+  --border: #353932;
+  --ring: #aab6ff;
+  --success: #91d5ad;
+  --sidebar: #191b18;
+}

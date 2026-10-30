@@ -1,0 +1,15 @@
+title = "LeadOps Phase 00 secret policy"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated dependency, build, tool and Git object data; history is scanned separately"
+paths = ['(^|/)(node_modules|dist|coverage|\.turbo|\.tools|\.git)(/|$)']
+
+[[rules]]
+id = "leadops-sensitive-env"
+description = "Provider credentials must not appear in source or local environment files"
+regex = '''(?i)(?:OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEY)\s*=\s*["']?([A-Za-z0-9._-]{20,})'''
+secretGroup = 1
+keywords = ["OPENAI_API_KEY", "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY"]

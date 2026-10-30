@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - packages/*
+engineStrict: true
+strictPeerDependencies: true
+autoInstallPeers: false
+saveExact: true
+minimumReleaseAge: 1440
+blockExoticSubdeps: true
+allowBuilds:
+  esbuild@0.28.2: true
