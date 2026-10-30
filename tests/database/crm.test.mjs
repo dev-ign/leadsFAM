@@ -187,29 +187,56 @@ test('member claim, release, administrative assignment and generation fencing', 
     );
   }));
 
-test('CRM read queued behind revocation rechecks membership', () =>
-  setup(async (f) => {
-    const revoke = await actor(f.ids.owner),
-      read = await actor(f.ids.member);
-    try {
-      await revoke.client.query('select public.change_member($1,$2,null,true)', [
-        f.org,
-        f.ids.member.user,
-      ]);
-      const waiting = read.client
-        .query('select public.crm_get($1,$2,$3)', [f.org, 'lead', f.lead])
-        .then(
-          () => null,
-          (error) => error,
-        );
-      await waitForLock(read.pid);
-      await revoke.close(true);
-      assert.equal((await waiting).message, 'not_found');
-    } finally {
-      await revoke.close();
-      await read.close();
-    }
-  }));
+test('CRM read queued behind revocation rechecks membership', async (t) => {
+  for (const kind of ['detail', 'search'])
+    await t.test(kind, () =>
+      setup(async (f) => {
+        const revoke = await actor(f.ids.owner),
+          read = await actor(f.ids.member);
+        try {
+          await revoke.client.query('select public.change_member($1,$2,null,true)', [
+            f.org,
+            f.ids.member.user,
+          ]);
+          const waiting = read.client
+            .query(
+              kind === 'detail'
+                ? 'select public.crm_get($1,$2,$3)'
+                : 'select public.crm_query($1,$2,$3)',
+              kind === 'detail'
+                ? [f.org, 'lead', f.lead]
+                : [
+                    f.org,
+                    'leads',
+                    {
+                      q: 'synthetic',
+                      searchMode: 'contains',
+                      status: 'all',
+                      priority: 'all',
+                      sourceId: null,
+                      assignee: 'all',
+                      archived: 'active',
+                      from: null,
+                      to: null,
+                      sort: 'created',
+                      pageSize: 25,
+                    },
+                  ],
+            )
+            .then(
+              () => null,
+              (error) => error,
+            );
+          await waitForLock(read.pid);
+          await revoke.close(true);
+          assert.equal((await waiting).message, 'not_found');
+        } finally {
+          await revoke.close();
+          await read.close();
+        }
+      }),
+    );
+});
 
 test('active CRM mutation commits before a waiting membership revocation', () =>
   setup(async (f) => {

@@ -2,14 +2,18 @@
 // setup, plans and teardown; timed requests use real application sessions/RLS.
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import { performance } from 'node:perf_hooks';
+import { setTimeout as delay } from 'node:timers/promises';
 import { harness } from '../crm/fixture.mjs';
+import { CursorCodec } from '../../apps/api/dist/modules/crm/cursors.js';
 
 const h = await harness();
 const label = process.env.BENCHMARK_LABEL ?? 'phase-02';
 assert.match(label, /^[a-z0-9-]{1,40}$/);
+const rounds = Number(process.env.BENCHMARK_ROUNDS ?? 3);
+assert.ok(Number.isInteger(rounds) && rounds >= 3 && rounds <= 15);
 const output = new URL(`../../docs/phases/benchmarks/${label}/`, import.meta.url);
 await mkdir(output, { recursive: true });
 const report = {
@@ -22,8 +26,7 @@ const report = {
     logicalCpus: os.cpus().length,
     hostMemoryGiB: Math.round(os.totalmem() / 2 ** 30),
   },
-  method:
-    'Fastify injection, real opaque cookie/CSRF, runtime SQL, Auth verification and JWT PostgREST; excludes browser and client TCP/TLS. Four independently signed-in users, 4 concurrent requests, 4 warmups then 12 measured requests per read. Imports: 3 sequential 100-row jobs and one 4-job concurrent burst. Timings are warm local engineering observations, not an SLA.',
+  method: `Fastify injection, real opaque cookie/CSRF, runtime SQL, Auth verification and JWT PostgREST; excludes browser and client TCP/TLS. Four independently signed-in users, 4 concurrent requests, 4 warmups then ${rounds * 4} measured requests per read. Imports: 3 sequential 100-row jobs and one 4-job concurrent burst. Timings are warm local engineering observations, not an SLA. No p99 claim.`,
   stages: [],
 };
 function summarize(values) {
@@ -142,7 +145,19 @@ try {
       ['shared_buffers', 'work_mem', 'max_connections', 'jit', 'log_parameter_max_length_on_error'],
     ])
   ).rows;
+  report.roleSettings = (
+    await h.admin.query(
+      "select rolname,rolconfig from pg_roles where rolname in ('authenticated','authenticator','leadsfam_crm')",
+    )
+  ).rows;
+  report.searchRpcSettings = (
+    await h.admin.query(
+      "select proconfig from pg_proc where oid='public.crm_query(uuid,text,jsonb,jsonb)'::regprocedure",
+    )
+  ).rows[0].proconfig;
   for (const size of (process.env.BENCHMARK_SIZES ?? '1000,10000,50000').split(',').map(Number)) {
+    // Preserve the real 120/minute IP limiter when collecting more samples.
+    if (rounds > 3 && report.stages.length) await delay(61_000);
     assert.ok([1000, 10000, 50000].includes(size));
     const org = await h.organization(people[0]);
     for (const person of people.slice(1))
@@ -175,6 +190,16 @@ try {
     ).rows;
     report.stages.push(stage);
     const base = `/organizations/${org}`;
+    const deepPosition =
+      process.env.BENCHMARK_EXTENDED === '1'
+        ? (
+            await h.admin.query(
+              `select id,to_char(created_at at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') time from public.leads where organization_id=$1 and archived_at is null order by created_at desc,id desc offset $2 limit 1`,
+              [org, Math.floor(size * 0.8)],
+            )
+          ).rows[0]
+        : null;
+    const codec = new CursorCodec(h.identity.cursorKey);
     const cases = {
       list: `${base}/leads`,
       activityOrder: `${base}/leads?sort=activity`,
@@ -184,21 +209,64 @@ try {
       filtered: `${base}/leads?status=in_progress&assignee=mine&sourceId=${records.source}`,
       detail: `${base}/leads/${records.id}`,
       timeline: `${base}/leads/${records.id}/activity`,
+      ...(process.env.BENCHMARK_EXTENDED === '1'
+        ? {
+            commonContains: `${base}/leads?q=standard&searchMode=contains`,
+            rareContains: `${base}/leads?q=opportunity%20211&searchMode=contains`,
+            shortContains: `${base}/leads?q=sy&searchMode=contains`,
+            archivedContains: `${base}/leads?q=specialist&searchMode=contains&archived=archived`,
+            commonPrefix: `${base}/leads?q=synthetic`,
+            unassigned: `${base}/leads?assignee=unassigned`,
+            deepPage: (person) =>
+              `${base}/leads?cursor=${encodeURIComponent(codec.encode({ org, user: person.user, kind: 'leads', query: queryDefaults }, deepPosition))}`,
+          }
+        : {}),
     };
+    let windowRequests = 0;
     for (const [name, path] of Object.entries(cases)) {
+      if (windowRequests + rounds + 1 > 100) {
+        await delay(61_000);
+        windowRequests = 0;
+      }
+      windowRequests += rounds + 1;
       const timings = [];
       const failures = [];
-      for (let round = 0; round < 4; round++)
+      const actorTimings = people.map(() => []),
+        pageCounts = new Set();
+      for (let round = 0; round <= rounds; round++)
         await Promise.all(
-          people.map(async (person) => {
+          people.map(async (person, index) => {
             const start = performance.now();
-            const r = await person.client.request(path);
+            const r = await person.client.request(typeof path === 'function' ? path(person) : path);
             if (r.statusCode !== 200)
-              failures.push({ status: r.statusCode, code: r.json().error?.code });
-            if (round) timings.push(performance.now() - start);
+              failures.push({
+                status: r.statusCode,
+                code: r.json().error?.code,
+                warmup: round === 0,
+              });
+            assert.notEqual(
+              r.statusCode,
+              429,
+              'Rate-limited benchmark is invalid; preserve request limits and increase pacing',
+            );
+            if (r.statusCode === 200 && Array.isArray(r.json().items))
+              pageCounts.add(r.json().items.length);
+            if (round) {
+              const elapsed = performance.now() - start;
+              timings.push(elapsed);
+              actorTimings[index].push(elapsed);
+            }
           }),
         );
-      stage.reads[name] = { ...summarize(timings), failures };
+      stage.reads[name] = {
+        ...summarize(timings),
+        failures,
+        pageCounts: [...pageCounts],
+        byActor: actorTimings.map((values, index) => ({
+          role: index === 0 ? 'owner-assigned' : 'admin-unassigned',
+          ...summarize(values),
+        })),
+      };
       console.log(JSON.stringify({ size, operation: name, p95Ms: stage.reads[name].p95Ms }));
     }
     const tokens = (
@@ -277,6 +345,130 @@ try {
         const result = await plan.query(`explain (analyze,buffers,format json) ${sql}`, params);
         parts.push({ name, plan: result.rows[0]['QUERY PLAN'] });
       }
+      // Inspect the exact dynamic SQL under its real definer role/RLS, rather
+      // than mistaking the opaque RPC Result node for a relational plan.
+      // This administrator-only instrumentation is transaction-local and is
+      // ALWAYS rolled back. No instrumented function is ever committed.
+      await plan.query('reset role');
+      const definition = (
+        await plan.query(
+          "select pg_get_functiondef('private.crm_query(uuid,text,jsonb,jsonb)'::regprocedure) definition",
+        )
+      ).rows[0].definition;
+      const instrumented = definition
+        .replaceAll(
+          'for r in execute $query$',
+          "for r in execute 'explain (analyze,buffers,format json) ' || $query$",
+        )
+        .replace(
+          / {3}if jsonb_array_length\(items\)=page_size then more:=true; exit; end if;\n {3}items:=items\|\|jsonb_build_array\(private\.crm_(?:contact|lead)_json\(p_org,r.id\)\); next_time:=r.ts; next_id:=r.id;/g,
+          '   items:=items||to_jsonb(r."QUERY PLAN");',
+        );
+      assert.notEqual(instrumented, definition);
+      assert.ok(!instrumented.includes('r.ts; next_id:=r.id'));
+      await plan.query(instrumented);
+      await plan.query('set local role authenticated');
+      for (const [name, query, after] of [
+        ['list', queryDefaults],
+        ['prefix', { ...queryDefaults, q: 'synthetic opportunity 21' }],
+        ['contains', { ...queryDefaults, q: 'specialist', searchMode: 'contains' }],
+        [
+          'filtered',
+          { ...queryDefaults, status: 'in_progress', assignee: 'mine', sourceId: records.source },
+        ],
+        ...(process.env.BENCHMARK_EXTENDED === '1'
+          ? [
+              ['common_contains', { ...queryDefaults, q: 'standard', searchMode: 'contains' }],
+              ['rare_contains', { ...queryDefaults, q: 'opportunity 211', searchMode: 'contains' }],
+              ['unassigned', { ...queryDefaults, assignee: 'unassigned' }],
+              ['deep_page', queryDefaults, deepPosition],
+            ]
+          : []),
+      ]) {
+        await plan.query('savepoint explain_case');
+        try {
+          const explained = await plan.query("select public.crm_query($1,'leads',$2,$3) result", [
+            org,
+            JSON.stringify(query),
+            after ? JSON.stringify(after) : null,
+          ]);
+          parts.push({ name: `nested_${name}`, plan: explained.rows[0].result.items });
+        } catch (error) {
+          await plan.query('rollback to savepoint explain_case');
+          if (error.code !== '57014') throw error;
+          parts.push({ name: `nested_${name}`, timeout: true });
+        }
+      }
+      if (process.env.BENCHMARK_TRIGRAM_PROBE === '1' && size === 50000) {
+        await plan.query('reset role');
+        stage.trigramAvailable = (
+          await plan.query(
+            "select default_version from pg_available_extensions where name='pg_trgm'",
+          )
+        ).rows;
+        await plan.query('create extension if not exists pg_trgm with schema extensions');
+        stage.trigramProbe = [];
+        for (const method of ['gin', 'gist']) {
+          await plan.query('savepoint trigram_probe');
+          const started = performance.now();
+          await plan.query(
+            `create index bench_trigram_probe on public.leads using ${method}(title extensions.${method}_trgm_ops)`,
+          );
+          const index = (
+            await plan.query("select pg_relation_size('public.bench_trigram_probe')::integer bytes")
+          ).rows[0];
+          stage.trigramProbe.push({ method, ...index, buildMs: performance.now() - started });
+          await plan.query('set local role leadsfam_crm');
+          for (const term of ['specialist', 'standard']) {
+            const result = await plan.query(
+              'explain (analyze,buffers,format json) select id from public.leads where organization_id=$1 and title ilike $2',
+              [org, `%${term}%`],
+            );
+            parts.push({ name: `trigram_${method}_${term}`, plan: result.rows[0]['QUERY PLAN'] });
+          }
+          await plan.query('rollback to savepoint trigram_probe');
+        }
+      }
+      if (process.env.BENCHMARK_EXTENDED === '1') {
+        // Control for physical table/cache differences between separate runs:
+        // restore Phase 02 policies only inside this rollback-only transaction
+        // and explain the same SQL over exactly the same rows and indexes.
+        await plan.query('reset role');
+        await plan.query('savepoint old_policy_control');
+        await plan.query(
+          await readFile(
+            new URL(
+              '../../supabase/migrations/20261030042804_crm_scope_evaluation.sql',
+              import.meta.url,
+            ),
+            'utf8',
+          ),
+        );
+        await plan.query('set local role authenticated');
+        for (const [name, query] of [
+          ['list', queryDefaults],
+          ['prefix', { ...queryDefaults, q: 'synthetic opportunity 21' }],
+          ['contains', { ...queryDefaults, q: 'specialist', searchMode: 'contains' }],
+          [
+            'filtered',
+            { ...queryDefaults, status: 'in_progress', assignee: 'mine', sourceId: records.source },
+          ],
+        ]) {
+          await plan.query('savepoint control_case');
+          try {
+            const result = await plan.query("select public.crm_query($1,'leads',$2) result", [
+              org,
+              JSON.stringify(query),
+            ]);
+            parts.push({ name: `control_old_${name}`, plan: result.rows[0].result.items });
+          } catch (error) {
+            await plan.query('rollback to savepoint control_case');
+            if (error.code !== '57014') throw error;
+            parts.push({ name: `control_old_${name}`, timeout: true });
+          }
+        }
+        await plan.query('rollback to savepoint old_policy_control');
+      }
       await writeFile(new URL(`${size}-plans.json`, output), JSON.stringify(parts, null, 2) + '\n');
     } finally {
       await plan.query('rollback');
@@ -312,6 +504,64 @@ try {
     for (let i = 0; i < 3; i++) serial.push(await importBatch(people[i]));
     stage.imports.sequential = summarize(serial);
     stage.imports.concurrent = summarize(await Promise.all(people.map(importBatch)));
+    if (process.env.BENCHMARK_EXTENDED === '1' && size === 50000) {
+      // A bounded four-client mix, including successful writes and optimistic
+      // versions, followed by one 100-row import alongside two healthy reads.
+      // Start a fresh limiter window; never disable production request limits.
+      await delay(61_000);
+      stage.mixed = { list: [], search: [], update: [], create: [], failures: [] };
+      let version = 1;
+      async function mixedRequest(name, person, path, options, expected = 200) {
+        const start = performance.now();
+        const response = await person.client.request(path, options);
+        stage.mixed[name].push(performance.now() - start);
+        if (response.statusCode !== expected)
+          stage.mixed.failures.push({
+            operation: name,
+            status: response.statusCode,
+            code: response.json().error?.code,
+          });
+        return response;
+      }
+      for (let i = 0; i < 8; i++) {
+        const results = await Promise.all([
+          mixedRequest('list', people[0], `${base}/leads`),
+          mixedRequest('search', people[1], `${base}/leads?q=standard&searchMode=contains`),
+          mixedRequest('update', people[2], `${base}/leads/${records.id}`, {
+            method: 'PATCH',
+            body: {
+              version,
+              lead: {
+                title: 'Synthetic opportunity 6 standard',
+                description: 'Synthetic mixed update',
+                priority: 'normal',
+              },
+            },
+          }),
+          mixedRequest('create', people[3], `${base}/leads`, {
+            method: 'POST',
+            headers: { 'idempotency-key': randomUUID() },
+            body: {
+              contact: { mode: 'existing', id: records.contact_id },
+              lead: { title: `Synthetic mixed inquiry ${i}` },
+            },
+          }),
+        ]);
+        if (results[2].statusCode === 200) version = results[2].json().version;
+      }
+      const withImport = await Promise.all([
+        importBatch(people[2]),
+        mixedRequest('list', people[0], `${base}/leads`),
+        mixedRequest('search', people[1], `${base}/leads?q=standard&searchMode=contains`),
+      ]);
+      stage.mixed.importMs = withImport[0];
+      stage.mixed.databaseActivity = (
+        await h.admin.query(
+          'select state,wait_event_type,count(*)::integer connections from pg_stat_activity where datname=current_database() group by state,wait_event_type',
+        )
+      ).rows;
+      console.log(JSON.stringify({ size, mixed: stage.mixed }));
+    }
     console.log(JSON.stringify({ size, imports: stage.imports }));
     await writeFile(new URL('results.json', output), JSON.stringify(report, null, 2) + '\n');
   }

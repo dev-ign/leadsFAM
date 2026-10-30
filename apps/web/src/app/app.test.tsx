@@ -67,7 +67,9 @@ describe('application shell', () => {
     renderApp();
     await screen.findByRole('heading', { name: 'A clear starting point.' });
     await userEvent.click(screen.getAllByRole('link', { name: 'Platform status' })[0]!);
-    expect(screen.getByRole('heading', { name: 'Platform status', level: 1 })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Platform status', level: 1 }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Account sign-in, organization permissions/)).toBeInTheDocument();
     expect(await screen.findByText('API reachable')).toBeInTheDocument();
   });
