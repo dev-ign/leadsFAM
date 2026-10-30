@@ -69,6 +69,26 @@ select throws_ok('select * from auth.users','42501',null,'Execution role cannot 
 select throws_ok($$select private.crm_context('21000000-0000-4000-8000-000000000001','owner')$$,'42501','forbidden','Unknown permission is denied even to owner');
 select set_config('leadsfam.organization_id','21000000-0000-4000-8000-000000000002',true);
 select is((select count(*) from public.contacts),0::bigint,'Forged scope cannot supply membership');
+-- InitPlans must recheck live authority on each execution, including reuse of
+-- the same prepared plan on a pooled connection. Scope is a bound, not a grant.
+prepare scoped_contacts as select count(*) from public.contacts;
+select set_config('leadsfam.organization_id','21000000-0000-4000-8000-000000000001',true);
+select results_eq('execute scoped_contacts',array[1::bigint],'Execution role sees only its authorized UUID scope');
+select throws_ok($$insert into public.contacts(organization_id,kind,display_name,created_by) values('21000000-0000-4000-8000-000000000002','person','Forged write','01000000-0000-4000-8000-000000000002')$$,'42501',null,'Execution WITH CHECK rejects a foreign tenant even with valid foreign references');
+select set_config('leadsfam.organization_id','',true);
+select results_eq('execute scoped_contacts',array[0::bigint],'Missing scope fails closed on the same prepared plan');
+select set_config('leadsfam.organization_id','21000000-0000-4000-8000-000000000002',true);
+select results_eq('execute scoped_contacts',array[0::bigint],'Changed scope cannot reuse prior statement authority');
+select set_config('leadsfam.organization_id','21000000-0000-4000-8000-000000000001',true);
+reset role;
+update private.app_sessions set revoked_at=clock_timestamp() where user_id='01000000-0000-4000-8000-000000000001';
+set local role leadsfam_crm;
+select results_eq('execute scoped_contacts',array[0::bigint],'Session revocation invalidates the next execution of a prepared plan');
+reset role;
+update private.app_sessions set revoked_at=null where user_id='01000000-0000-4000-8000-000000000001';
+set local role leadsfam_crm;
+select results_eq('execute scoped_contacts',array[1::bigint],'Prepared plan evaluates live session state rather than caching a denial');
+deallocate scoped_contacts;
 reset role;
 
 select throws_ok($$insert into public.leads(organization_id,contact_id,title,created_by) values('21000000-0000-4000-8000-000000000001','31000000-0000-4000-8000-000000000002','Cross tenant','01000000-0000-4000-8000-000000000001')$$,'23503',null,'Composite contact FK rejects foreign tenant even for administrator');
