@@ -481,38 +481,68 @@ test('revocation transaction wins while intake and execution wait on its organiz
     await worker.execute(dispatch.id, dispatch.token, dispatch.generation);
     const job = await worker.claim();
     const barrier = await pool.connect();
+    let intake;
+    let execution;
     try {
       await barrier.query('begin');
       await barrier.query('select 1 from public.organizations where id=$1 for update', [f.org]);
-      const intake = ingress.ingest(hash(f.secret), payload(), randomUUID());
-      const execution = worker.execute(job.id, job.token, job.generation);
-      // Observe actual lock waits rather than sleeping to guess the ordering.
+      const barrierPid = (await barrier.query('select pg_backend_pid() pid')).rows[0].pid;
+      // Observe rejections immediately: either operation can settle before COMMIT responds.
+      intake = ingress.ingest(hash(f.secret), payload(), randomUUID()).then(
+        (value) => ({ status: 'fulfilled', value }),
+        (error) => ({ status: 'rejected', error }),
+      );
+      execution = worker.execute(job.id, job.token, job.generation).then(
+        (value) => ({ status: 'fulfilled', value }),
+        (error) => ({ status: 'rejected', error }),
+      );
+      // Require both roles to be blocked by this transaction before revoking.
       const deadline = Date.now() + 5000;
+      let waitingRoles = 0;
       while (Date.now() < deadline) {
         const r = await pool.query(
-          "select count(*)::int n from pg_stat_activity where usename in ('leadsfam_ingress','leadsfam_worker') and wait_event_type='Lock'",
+          "select count(distinct usename)::int n from pg_stat_activity where usename in ('leadsfam_ingress','leadsfam_worker') and wait_event_type='Lock' and $1::integer=any(pg_blocking_pids(pid))",
+          [barrierPid],
         );
-        if (r.rows[0].n >= 2) break;
+        waitingRoles = r.rows[0].n;
+        if (waitingRoles === 2) break;
         await new Promise((resolve) => setTimeout(resolve, 10));
       }
+      assert.equal(waitingRoles, 2, 'intake and execution must both wait on the revocation lock');
       await barrier.query("update private.source_integrations set status='revoked' where id=$1", [
         f.integration.id,
       ]);
       await barrier.query('commit');
-      await assert.rejects(intake, { message: 'credentials_rejected' });
-      assert.equal((await execution).state, 'failed_terminal');
+      const [intakeResult, executionResult] = await Promise.all([intake, execution]);
+      assert.equal(intakeResult.status, 'rejected');
+      assert.equal(intakeResult.error.message, 'credentials_rejected');
+      assert.equal(intakeResult.error.code, '42501');
+      assert.equal(executionResult.status, 'fulfilled');
+      assert.deepEqual(executionResult.value, {
+        state: 'failed_terminal',
+        code: 'AUTHORITY_REVOKED',
+      });
     } finally {
-      await barrier.query('rollback');
-      barrier.release();
+      try {
+        await barrier.query('rollback');
+      } finally {
+        barrier.release();
+        // Drain both observed operations before fixture cleanup, including on barrier failure.
+        await Promise.all([intake, execution]);
+      }
     }
-    assert.equal(
+    assert.deepEqual(
       (
         await pool.query(
-          'select count(*)::int n from private.automation_tool_executions where organization_id=$1',
+          `select
+            (select count(*)::int from public.contacts where organization_id=$1) contacts,
+            (select count(*)::int from public.leads where organization_id=$1) leads,
+            (select count(*)::int from public.crm_activities where organization_id=$1 and event='automation.activity') activities,
+            (select count(*)::int from private.automation_tool_executions where organization_id=$1) executions`,
           [f.org],
         )
-      ).rows[0].n,
-      0,
+      ).rows[0],
+      { contacts: 1, leads: 1, activities: 0, executions: 0 },
     );
   }));
 
