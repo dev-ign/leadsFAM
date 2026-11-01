@@ -1,0 +1,24 @@
+{
+  "risk": "Level 3 targeted acceptance security checks; no code/schema changes",
+  "communications": {
+    "command": "node --test --test-name-pattern='draft tenant ownership|consent is channel|opt-out, changed|changed CRM destination' tests/communications/database.test.mjs",
+    "passed": 4,
+    "failed": 0,
+    "log": "security.log"
+  },
+  "automation": {
+    "command": "node --test --test-name-pattern='concurrent replay, conflict, repeat inquiry and atomic outbox-to-tool vertical slice' tests/automation/database.test.mjs",
+    "passed": 1,
+    "failed": 0,
+    "log": "automation.log"
+  },
+  "configuration": {
+    "command": "pnpm --filter @leadops/api exec vitest run test/automation.test.ts --testNamePattern='rejects unsupported live modes'",
+    "passed": 1,
+    "failed": 0,
+    "unselected": 4
+  },
+  "fullRepositorySuiteExecuted": false,
+  "resetExecuted": false,
+  "applicationCodeChanged": false
+}

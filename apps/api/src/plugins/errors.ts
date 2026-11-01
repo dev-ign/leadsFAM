@@ -41,6 +41,12 @@ export function registerErrorHandlers(app: FastifyInstance) {
               'This lead source is archived or unavailable. Ask an administrator to review it.',
             RESOURCE_LIMIT: 'This workspace has reached its integration or automation limit.',
             VERSION_CONFLICT: 'A newer version was saved. Refresh and review before trying again.',
+            SENDING_PAUSED:
+              'Sending is paused. An administrator can enable mock sending in communication settings.',
+            RECIPIENT_INELIGIBLE:
+              'This recipient cannot receive this message. Review permission and suppression status.',
+            SUPPRESSION_REVIEW_REQUIRED:
+              'This destination is blocked by an opt-out or bounce and requires a separate review.',
             RATE_LIMITED: 'Too many attempts. Please try again later.',
           } as Record<string, string>
         )[failure.code] ?? 'The request could not be completed.',

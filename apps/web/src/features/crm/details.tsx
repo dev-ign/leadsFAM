@@ -242,6 +242,21 @@ function LeadView({ lead, refresh }: { lead: Lead; refresh: () => void }) {
         </section>
       </div>
       <LeadActions key={`${lead.id}/${lead.version}`} lead={lead} refresh={refresh} />
+      <section className="space-y-2">
+        <h3 className="text-lg font-semibold">Communications</h3>
+        <Link
+          className="underline"
+          to={`${base}/communications?leadId=${lead.id}&contactId=${lead.contact_id}`}
+        >
+          View message history
+        </Link>
+        <Link
+          className="ml-4 underline"
+          to={`${base}/communications/compose?contactId=${lead.contact_id}&leadId=${lead.id}`}
+        >
+          Compose message
+        </Link>
+      </section>
       <Timeline kind="leads" id={lead.id} />
     </div>
   );
@@ -609,6 +624,18 @@ function ContactView({ contact, refresh }: { contact: Contact; refresh: () => vo
             )}
           </>
         )}
+      </section>
+      <section className="space-y-2">
+        <h3 className="text-lg font-semibold">Communications</h3>
+        <Link className="underline" to={`${base}/communications?contactId=${contact.id}`}>
+          View message history
+        </Link>
+        <Link
+          className="ml-4 underline"
+          to={`${base}/communications/compose?contactId=${contact.id}`}
+        >
+          Compose message
+        </Link>
       </section>
       <Timeline kind="contacts" id={contact.id} />
     </div>

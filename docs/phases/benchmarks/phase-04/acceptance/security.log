@@ -1,0 +1,12 @@
+✔ draft tenant ownership, strict sender rejection, validation, CAS and deterministic replay (91.039959ms)
+✔ consent is channel, purpose and destination specific; send requires admin, evidence and unpaused workspace (90.591833ms)
+✔ opt-out, changed recipient, pause and revoked approval are checked immediately before dispatch (102.162125ms)
+✔ changed CRM destination is suppressed and message/conversation pagination is bounded (233.729667ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1462.295958

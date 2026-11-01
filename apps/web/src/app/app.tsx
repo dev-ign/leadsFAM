@@ -55,6 +55,20 @@ const AutomationEditorPage = lazy(() =>
 const IntegrationsPage = lazy(() =>
   import('../features/automation/pages').then((m) => ({ default: m.IntegrationsPage })),
 );
+const ConversationsPage = lazy(() =>
+  import('../features/communications/pages').then((m) => ({ default: m.ConversationsPage })),
+);
+const ConversationDetailPage = lazy(() =>
+  import('../features/communications/pages').then((m) => ({ default: m.ConversationDetailPage })),
+);
+const ComposeMessagePage = lazy(() =>
+  import('../features/communications/pages').then((m) => ({ default: m.ComposeMessagePage })),
+);
+const CommunicationSettingsPage = lazy(() =>
+  import('../features/communications/pages').then((m) => ({
+    default: m.CommunicationSettingsPage,
+  })),
+);
 function RouteFailure() {
   return (
     <main className="mx-auto max-w-lg p-8">
@@ -110,6 +124,10 @@ export function AppRoutes() {
           <Route path="automations/new" element={<AutomationEditorPage />} />
           <Route path="automations/:id/edit" element={<AutomationEditorPage />} />
           <Route path="integrations" element={<IntegrationsPage />} />
+          <Route path="communications" element={<ConversationsPage />} />
+          <Route path="communications/compose" element={<ComposeMessagePage />} />
+          <Route path="communications/settings" element={<CommunicationSettingsPage />} />
+          <Route path="communications/:id" element={<ConversationDetailPage />} />
           <Route path="sources" element={<SourcesPage />} />
         </Route>
       </Route>

@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
@@ -552,4 +552,116 @@ it('activates the reviewed definition using its newly saved version', async () =
   await waitFor(() =>
     expect(apiClient.changeWorkflow).toHaveBeenCalledWith(orgA.id, saved.id, 3, 'publish'),
   );
+});
+
+describe('communication approval and operational controls', () => {
+  it('persists a draft, records explicit evidence, and sends only after reviewing the saved version', async () => {
+    vi.mocked(apiClient.contact).mockResolvedValue({
+      ...contact(),
+      emails: [{ value: 'synthetic@example.test', normalized: 'synthetic@example.test' }],
+    });
+    let eligible = false;
+    vi.spyOn(apiClient, 'communicationEligibility').mockImplementation(async () => ({
+      code: eligible ? null : 'CONSENT_REQUIRED',
+      permissions: [],
+      suppressed: false,
+    }));
+    const permission = vi
+      .spyOn(apiClient, 'recordCommunicationPermission')
+      .mockImplementation(async () => {
+        eligible = true;
+        return { ok: true };
+      });
+    const saved = {
+      id: '77777777-7777-4777-8777-777777777777',
+      conversation_id: '88888888-8888-4888-8888-888888888888',
+      contact_id: contact().id,
+      lead_id: null,
+      direction: 'outbound' as const,
+      channel: 'email' as const,
+      purpose: 'transactional' as const,
+      sender: 'FreshNest <mock@example.test>',
+      recipient: 'synthetic@example.test',
+      subject: 'Synthetic appointment',
+      body: 'Synthetic service details',
+      state: 'draft' as const,
+      version: 1,
+      code: null,
+      provider: 'mock' as const,
+      provider_message_id: null,
+      created_at: '2026-11-01T00:00:00Z',
+      updated_at: '2026-11-01T00:00:00Z',
+    };
+    const save = vi
+      .spyOn(apiClient, 'saveMessageDraft')
+      .mockImplementation(async (_org, input) => ({ ...saved, id: input.id }));
+    const send = vi
+      .spyOn(apiClient, 'sendMessage')
+      .mockResolvedValue({ ...saved, state: 'queued', version: 2 });
+    app(`/organizations/${orgA.id}/communications/compose?contactId=${contact().id}`);
+    await userEvent.type(await screen.findByRole('textbox', { name: 'Subject' }), saved.subject);
+    await userEvent.type(screen.getByRole('textbox', { name: 'Message' }), saved.body);
+    await userEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+    const review = await screen.findByRole('heading', { name: 'Review saved message' });
+    await waitFor(() => expect(review).toHaveFocus());
+    expect(save).toHaveBeenCalledOnce();
+    expect(send).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByText('Record permission evidence', { exact: true }));
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Consent source' }),
+      'Synthetic service request',
+    );
+    fireEvent.change(screen.getByLabelText('Collected at (your local time)'), {
+      target: { value: '2026-10-30T12:00' },
+    });
+    await userEvent.type(screen.getByRole('textbox', { name: 'Recipient country code' }), 'US');
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Disclosure or policy version' }),
+      'synthetic-v1',
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Evidence reference' }),
+      'fixture-only',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Record explicit permission' }));
+    await waitFor(() => expect(permission).toHaveBeenCalledOnce());
+    const approve = screen.getByRole('button', { name: 'Confirm and queue mock message' });
+    expect(approve).toBeDisabled();
+    await userEvent.click(
+      screen.getByRole('checkbox', { name: /I reviewed this exact saved message/ }),
+    );
+    await waitFor(() => expect(approve).toBeEnabled());
+    await userEvent.click(approve);
+    expect(
+      await screen.findByRole('heading', { name: 'Message queued for mock delivery' }),
+    ).toBeInTheDocument();
+    expect(send).toHaveBeenCalledWith(orgA.id, save.mock.calls[0]![1].id, 1);
+  });
+  it('submits the pause and budget form through the server API', async () => {
+    vi.spyOn(apiClient, 'communicationSettings').mockResolvedValue({
+      paused: true,
+      dailyLimit: 100,
+      recipientDailyLimit: 5,
+      channelDailyLimit: 100,
+      concurrentLimit: 2,
+      requestsPerMinute: 30,
+      maxAttempts: 3,
+      mode: 'mock',
+      liveEnabled: false,
+      senderEmail: 'FreshNest <mock@example.test>',
+      senderSms: '+15005550006',
+      attentionCount: 0,
+      queuedCount: 0,
+    });
+    const save = vi.spyOn(apiClient, 'saveCommunicationSettings').mockResolvedValue({ ok: true });
+    app(`/organizations/${orgA.id}/communications/settings`);
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Pause new submissions' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save sending controls' }));
+    await waitFor(() =>
+      expect(save).toHaveBeenCalledWith(
+        orgA.id,
+        expect.objectContaining({ paused: false, dailyLimit: 100 }),
+      ),
+    );
+  });
 });

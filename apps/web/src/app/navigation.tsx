@@ -88,6 +88,11 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
                     { to: `/organizations/${org}/contacts`, label: 'Contacts', icon: Layers3 },
                     { to: `/organizations/${org}/automations`, label: 'Automations', icon: Bot },
                     { to: `/organizations/${org}/integrations`, label: 'Integrations', icon: Plug },
+                    {
+                      to: `/organizations/${org}/communications`,
+                      label: 'Conversations',
+                      icon: MessageSquare,
+                    },
                   ]
                 : []),
               { to: '/status', label: 'Platform status', icon: Activity },
@@ -110,10 +115,7 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
             Coming later
           </p>
           <ul className="space-y-1">
-            {[
-              { label: 'Conversations', icon: MessageSquare },
-              { label: 'Agents', icon: Bot },
-            ].map(({ label, icon: Icon }) => (
+            {[{ label: 'Agents', icon: Bot }].map(({ label, icon: Icon }) => (
               <li
                 key={label}
                 className="flex min-h-11 items-center gap-3 px-3 text-sm text-muted-foreground"

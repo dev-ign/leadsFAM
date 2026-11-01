@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-01T19:23:41.479Z",
+  "conditions": "Local loopback PostgreSQL; real enrolled authenticated-role RPCs; 1000 conversations / 10000 synthetic messages; four concurrent callers, five rounds; includes pool/transaction/session/RLS, excludes HTTP/browser/network TLS. Small local sample, not a production SLO.",
+  "seedMs": 298.56025,
+  "measurements": {
+    "conversations": {
+      "requests": 20,
+      "p50Ms": 16.303999999999974,
+      "p95Ms": 27.70029199999999,
+      "maxMs": 27.84558400000003,
+      "samplesMs": [
+        17.739417000000003, 27.515125000000012, 27.70029199999999, 27.84558400000003,
+        16.36820799999998, 17.502792, 18.116833999999926, 18.6540829999999, 16.099667000000068,
+        16.303999999999974, 16.525750000000016, 16.57745900000009, 15.295834000000013,
+        15.713209000000006, 15.745457999999985, 16.21270800000002, 14.775125000000003,
+        15.131250000000023, 15.501083999999992, 15.514916999999969
+      ]
+    },
+    "history": {
+      "requests": 20,
+      "p50Ms": 5.485333000000082,
+      "p95Ms": 6.188333000000057,
+      "maxMs": 6.202125000000024,
+      "samplesMs": [
+        5.910957999999937, 6.093250000000012, 6.112999999999943, 6.139999999999986,
+        5.102209000000016, 5.2929169999999885, 5.327250000000049, 5.354874999999993,
+        4.723582999999962, 4.914250000000038, 4.9460410000000365, 4.981417000000079,
+        5.934041999999977, 6.18791699999997, 6.188333000000057, 6.202125000000024, 5.17029100000002,
+        5.485333000000082, 5.5069579999999405, 5.53283399999998
+      ]
+    }
+  },
+  "providerLookupPlan": [
+    {
+      "QUERY PLAN": [
+        {
+          "Plan": {
+            "Node Type": "Limit",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Startup Cost": 0,
+            "Total Cost": 1,
+            "Plan Rows": 1,
+            "Plan Width": 16,
+            "Plans": [
+              {
+                "Node Type": "Seq Scan",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Relation Name": "communication_jobs",
+                "Alias": "communication_jobs",
+                "Startup Cost": 0,
+                "Total Cost": 1,
+                "Plan Rows": 1,
+                "Plan Width": 16,
+                "Filter": "(message_id = '79341e30-93c4-4bcb-bc38-4909a2e8d152'::uuid)"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -48,6 +48,9 @@ export class OrganizationService {
           'delivery_job_conflict',
           'source_limit',
           'resource_limit',
+          'sending_paused',
+          'recipient_ineligible',
+          'suppression_review_required',
         ].includes(error.reason)
       )
         throw new IdentityFailure(409, error.reason.toUpperCase());

@@ -621,6 +621,14 @@ export type Database = {
         Args: { p_org: string; p_remove?: boolean; p_role?: string; p_user: string };
         Returns: Json;
       };
+      communication_manage: {
+        Args: { p_action: string; p_data?: Json; p_id?: string; p_org: string; p_version?: number };
+        Returns: Json;
+      };
+      communication_read: {
+        Args: { p_id?: string; p_kind: string; p_org: string; p_query?: Json };
+        Returns: Json;
+      };
       create_invitation: {
         Args: { p_email: string; p_hash: string; p_org: string; p_role: string };
         Returns: Json;

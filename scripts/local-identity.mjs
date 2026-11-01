@@ -33,10 +33,16 @@ export async function localIdentity() {
       await writeFile(file, JSON.stringify(secrets), { mode: 0o600, flag: 'wx' });
     }
     await chmod(file, 0o600);
-    if (!secrets.cursorKey || !secrets.ingressPassword || !secrets.workerPassword) {
+    if (
+      !secrets.cursorKey ||
+      !secrets.ingressPassword ||
+      !secrets.workerPassword ||
+      !secrets.mockWebhookSecret
+    ) {
       secrets.cursorKey ??= randomBytes(32).toString('base64');
       secrets.ingressPassword ??= randomBytes(32).toString('hex');
       secrets.workerPassword ??= randomBytes(32).toString('hex');
+      secrets.mockWebhookSecret ??= randomBytes(32).toString('base64');
       const replacement = `${file}.${randomBytes(8).toString('hex')}.tmp`;
       await writeFile(replacement, JSON.stringify(secrets), { mode: 0o600, flag: 'wx' });
       await rename(replacement, file);
@@ -73,6 +79,7 @@ export async function localIdentity() {
   worker.username = 'leadsfam_worker';
   worker.password = secrets.workerPassword;
   return {
+    mockWebhookSecret: secrets.mockWebhookSecret,
     ingressDatabaseUrl: ingress.toString(),
     workerDatabaseUrl: worker.toString(),
     url: stack.url,

@@ -130,3 +130,26 @@ it('invalidates cached CSRF after cookie rotation and never automatically replay
     }),
   );
 });
+
+it('retrieves communication history with GET and a bounded event page independently', async () => {
+  const fetcher = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(JSON.stringify({ messages: [], events: [], next: null })))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ items: [], next: null })));
+  const client = createApiClient('https://api.example', fetcher);
+  await expect(
+    client.communicationHistory('synthetic-org', 'synthetic-conversation'),
+  ).resolves.toEqual({ messages: [], events: [], next: null });
+  await expect(client.communicationEvents('synthetic-org', 'synthetic-message')).resolves.toEqual({
+    items: [],
+    next: null,
+  });
+  expect(fetcher).toHaveBeenNthCalledWith(
+    1,
+    new URL(
+      'https://api.example/v1/organizations/synthetic-org/communications/conversations/synthetic-conversation',
+    ),
+    expect.objectContaining({ method: 'GET', credentials: 'include' }),
+  );
+  expect(fetcher).toHaveBeenCalledTimes(2);
+});
