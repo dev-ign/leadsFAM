@@ -1,0 +1,547 @@
+{
+  "at": "2026-10-31T00:27:19.078Z",
+  "projectRoot": "/Users/jonathanferreira/Documents/app_projects/lead_gen/",
+  "networkName": "leadsfam-local-1e261f683484",
+  "target": {
+    "api": "http://127.0.0.1:54321",
+    "databaseHost": "127.0.0.1",
+    "databasePort": "54322",
+    "databaseName": "/postgres"
+  },
+  "containers": [
+    {
+      "name": "/supabase_db_lead_gen",
+      "image": "public.ecr.aws/supabase/postgres:17.11.0.006",
+      "project": "lead_gen",
+      "networks": ["leadsfam-local-1e261f683484"],
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "::1",
+            "HostPort": "54322"
+          },
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "54322"
+          }
+        ]
+      }
+    },
+    {
+      "name": "/supabase_kong_lead_gen",
+      "image": "public.ecr.aws/supabase/kong:2.8.1",
+      "project": "lead_gen",
+      "networks": ["leadsfam-local-1e261f683484"],
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "54321"
+          },
+          {
+            "HostIp": "::1",
+            "HostPort": "54321"
+          }
+        ]
+      }
+    },
+    {
+      "name": "/supabase_studio_lead_gen",
+      "image": "public.ecr.aws/supabase/studio:2026.10.19-sha-b375769",
+      "project": "lead_gen",
+      "networks": ["leadsfam-local-1e261f683484"],
+      "ports": {
+        "3000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "54323"
+          },
+          {
+            "HostIp": "::1",
+            "HostPort": "54323"
+          }
+        ]
+      }
+    },
+    {
+      "name": "/supabase_inbucket_lead_gen",
+      "image": "public.ecr.aws/supabase/mailpit:v1.31.3",
+      "project": "lead_gen",
+      "networks": ["leadsfam-local-1e261f683484"],
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "54324"
+          },
+          {
+            "HostIp": "::1",
+            "HostPort": "54324"
+          }
+        ]
+      }
+    }
+  ],
+  "runtime": {
+    "name": "postgres",
+    "port": 5432,
+    "version": "PostgreSQL 17.11 on aarch64-unknown-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit"
+  },
+  "tables": [
+    {
+      "schemaname": "auth",
+      "tablename": "audit_log_entries",
+      "rows": 276
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "custom_oauth_providers",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "flow_state",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "identities",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "instances",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "mfa_amr_claims",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "mfa_challenges",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "mfa_factors",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "mfa_recovery_code_sets",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "mfa_recovery_codes",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "oauth_authorizations",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "oauth_client_states",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "oauth_clients",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "oauth_consents",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "one_time_tokens",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "refresh_tokens",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "saml_providers",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "saml_relay_states",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "schema_migrations",
+      "rows": 82
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "scim_tokens",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "scim_users",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "sessions",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "sso_domains",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "sso_providers",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "users",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "webauthn_challenges",
+      "rows": 0
+    },
+    {
+      "schemaname": "auth",
+      "tablename": "webauthn_credentials",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "app_sessions",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "auth_guards",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_runs",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_tool_executions",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_versions",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_workflows",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "crm_request_receipts",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "domain_events",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_attempts",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_receipts",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "lead_import_attempts",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "lead_import_jobs",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "lead_import_rows",
+      "rows": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "security_events",
+      "rows": 236
+    },
+    {
+      "schemaname": "private",
+      "tablename": "settings",
+      "rows": 1
+    },
+    {
+      "schemaname": "private",
+      "tablename": "source_integrations",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contact_emails",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contact_phones",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contacts",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "crm_activities",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "lead_attributions",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "lead_sources",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "leads",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "organization_invitations",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "organization_memberships",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "organization_notes",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "organizations",
+      "rows": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "profiles",
+      "rows": 0
+    }
+  ],
+  "sessions": [],
+  "events": [
+    {
+      "event": "auth.denied",
+      "rows": 68,
+      "first_at": "2026-10-30T21:36:31.039Z",
+      "last_at": "2026-10-31T00:03:43.515Z"
+    },
+    {
+      "event": "auth.password_recovered",
+      "rows": 4,
+      "first_at": "2026-10-30T21:36:31.786Z",
+      "last_at": "2026-10-30T23:43:21.084Z"
+    },
+    {
+      "event": "auth.recovery_started",
+      "rows": 4,
+      "first_at": "2026-10-30T21:36:31.596Z",
+      "last_at": "2026-10-30T23:43:20.895Z"
+    },
+    {
+      "event": "auth.signed_in",
+      "rows": 66,
+      "first_at": "2026-10-30T21:36:31.025Z",
+      "last_at": "2026-10-30T23:53:24.564Z"
+    },
+    {
+      "event": "auth.signed_out",
+      "rows": 2,
+      "first_at": "2026-10-30T21:36:31.360Z",
+      "last_at": "2026-10-30T23:43:19.502Z"
+    },
+    {
+      "event": "automation.retry_requested:1aabb65a-3386-4d41-a193-fcd0d400e7a6",
+      "rows": 1,
+      "first_at": "2026-10-30T23:43:28.765Z",
+      "last_at": "2026-10-30T23:43:28.765Z"
+    },
+    {
+      "event": "invitation.accepted",
+      "rows": 8,
+      "first_at": "2026-10-30T21:36:29.211Z",
+      "last_at": "2026-10-30T23:43:22.024Z"
+    },
+    {
+      "event": "invitation.created",
+      "rows": 10,
+      "first_at": "2026-10-30T21:36:29.207Z",
+      "last_at": "2026-10-30T23:43:21.991Z"
+    },
+    {
+      "event": "invitation.revoked",
+      "rows": 2,
+      "first_at": "2026-10-30T21:36:29.282Z",
+      "last_at": "2026-10-30T23:43:17.087Z"
+    },
+    {
+      "event": "membership.revoked",
+      "rows": 19,
+      "first_at": "2026-10-30T21:36:29.091Z",
+      "last_at": "2026-10-30T23:43:22.107Z"
+    },
+    {
+      "event": "membership.role_changed",
+      "rows": 4,
+      "first_at": "2026-10-30T21:36:29.039Z",
+      "last_at": "2026-10-30T23:43:17.468Z"
+    },
+    {
+      "event": "organization.created",
+      "rows": 48,
+      "first_at": "2026-10-30T21:36:33.573Z",
+      "last_at": "2026-10-30T23:53:24.602Z"
+    }
+  ],
+  "providerAudit": [
+    {
+      "rows": 276
+    }
+  ],
+  "migrations": [
+    {
+      "version": "20261030021555",
+      "name": "identity_and_tenancy"
+    },
+    {
+      "version": "20261030024441",
+      "name": "auth_recovery_fence"
+    },
+    {
+      "version": "20261030042302",
+      "name": "crm_foundation"
+    },
+    {
+      "version": "20261030042804",
+      "name": "crm_scope_evaluation"
+    },
+    {
+      "version": "20261030042952",
+      "name": "crm_operations"
+    },
+    {
+      "version": "20261030043959",
+      "name": "crm_intake_imports"
+    },
+    {
+      "version": "20261030044452",
+      "name": "crm_import_status_columns"
+    },
+    {
+      "version": "20261030135414",
+      "name": "crm_preview_matching"
+    },
+    {
+      "version": "20261030135652",
+      "name": "crm_batch_duplicate_review"
+    },
+    {
+      "version": "20261030140405",
+      "name": "crm_queries"
+    },
+    {
+      "version": "20261030141839",
+      "name": "crm_phone_regions"
+    },
+    {
+      "version": "20261030142638",
+      "name": "crm_contact_views_and_reopen_reason"
+    },
+    {
+      "version": "20261030151155",
+      "name": "crm_error_privacy_and_source_bound"
+    },
+    {
+      "version": "20261030152553",
+      "name": "crm_query_planning"
+    },
+    {
+      "version": "20261030153231",
+      "name": "crm_prefix_search"
+    },
+    {
+      "version": "20261030153709",
+      "name": "crm_candidate_joins"
+    },
+    {
+      "version": "20261030153945",
+      "name": "crm_assignment_query"
+    },
+    {
+      "version": "20261030212327",
+      "name": "crm_scoped_policy_planning"
+    },
+    {
+      "version": "20261030232445",
+      "name": "automation_foundation"
+    }
+  ],
+  "phase03Sha256": "572dd5a2cfa7ee209eba68d25bf43252ccb55d614d7d019c6c4cbc483f464ac9",
+  "auditInspection": {
+    "total": 276,
+    "non_synthetic_names": 0,
+    "payloadFields": [
+      "action",
+      "actor_id",
+      "actor_username",
+      "actor_via_sso",
+      "log_type",
+      "traits"
+    ],
+    "privateBackupDirectory": "/var/folders/0g/dl3w6j8s50jcnr19fq1klw9w0000gn/T/leadsfam-phase03-local-verification-fGZfEm",
+    "backupSha256": "fb15d667600565ae0c969b57fc93ac46a877058470164c69ea1da603f7992212",
+    "backupPermissions": "directory 0700, file 0600",
+    "classification": "No public/tenant/user/session records; residual audit metadata from synthetic @example.test test activity and local seed settings."
+  }
+}

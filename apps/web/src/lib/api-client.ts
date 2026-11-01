@@ -1,4 +1,9 @@
 import {
+  automationOverviewSchema,
+  integrationCredentialSchema,
+  integrationSchema,
+  workflowSchema,
+  type WorkflowDefinition,
   healthResponseSchema,
   sessionSchema,
   organizationSchema,
@@ -123,6 +128,55 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
   const resource = (id: string, kind: 'contacts' | 'leads', key: string) =>
     `${org(id)}/${kind}/${encodeURIComponent(key)}`;
   return {
+    automations: (id: string, signal?: AbortSignal) =>
+      request(`${org(id)}/automations`, automationOverviewSchema, 'GET', undefined, signal),
+    retryAutomationJob: (id: string, key: string, generation: number) =>
+      request(
+        `${org(id)}/automation-jobs/${encodeURIComponent(key)}/retry`,
+        z.strictObject({ id: z.uuid(), state: z.literal('retryable') }),
+        'POST',
+        { version: generation },
+      ),
+    createIntegration: (id: string, input: { name: string; sourceId?: string }) =>
+      request(`${org(id)}/integrations`, integrationCredentialSchema, 'POST', input),
+    changeIntegration: (
+      id: string,
+      key: string,
+      version: number,
+      action: 'active' | 'paused' | 'revoked',
+    ) =>
+      request(
+        `${org(id)}/integrations/${encodeURIComponent(key)}/${action}`,
+        z.strictObject({ integration: integrationSchema }),
+        'POST',
+        { version },
+      ),
+    rotateIntegration: (id: string, key: string, version: number) =>
+      request(
+        `${org(id)}/integrations/${encodeURIComponent(key)}/rotate`,
+        integrationCredentialSchema,
+        'POST',
+        { version },
+      ),
+    saveWorkflow: (
+      id: string,
+      input: { name: string; definition: WorkflowDefinition },
+      key?: string,
+      version?: number,
+    ) =>
+      request(
+        key ? `${org(id)}/automations/${encodeURIComponent(key)}` : `${org(id)}/automations`,
+        workflowSchema,
+        key ? 'PUT' : 'POST',
+        { ...input, ...(version ? { version } : {}) },
+      ),
+    changeWorkflow: (id: string, key: string, version: number, action: 'publish' | 'pause') =>
+      request(
+        `${org(id)}/automations/${encodeURIComponent(key)}/${action}`,
+        workflowSchema,
+        'POST',
+        { version },
+      ),
     csvColumns: (id: string, csv: string) =>
       request(`${org(id)}/lead-imports/columns`, csvColumnsSchema, 'POST', { csv }),
     contacts: (id: string, query: Partial<CrmQuery> = {}, signal?: AbortSignal) =>

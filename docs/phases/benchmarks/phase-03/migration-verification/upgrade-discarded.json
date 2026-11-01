@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-31T00:36:24.702Z",
+  "validUpgradeEvidence": false,
+  "counts": {
+    "users": 5,
+    "organizations": 2,
+    "contacts": 3,
+    "leads": 2,
+    "non_synthetic_users": 0,
+    "unexpected_organizations": 0,
+    "unexpected_contacts": 0,
+    "unexpected_leads": 0
+  },
+  "classification": "Only the failed rehearsal synthetic fixtures; API remains paused",
+  "seedFailure": "Harness passed a JS array to a jsonb RPC parameter; fixed with JSON.stringify, matching the existing import test adapter",
+  "sequencingFailure": "Migration applied before inspecting completed seed result; this rehearsal is discarded and will be reconstructed",
+  "productionMigrationChanged": false
+}

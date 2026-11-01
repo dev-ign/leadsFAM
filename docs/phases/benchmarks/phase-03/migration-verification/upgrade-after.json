@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-31T00:38:36.602Z",
+  "legacySnapshotUnchanged": true,
+  "legacyRowsVerified": 42,
+  "legacySecurityUnchanged": true,
+  "manualAndCsvReplay": true,
+  "searchAssignmentLifecycleAndCas": true,
+  "tenantAndMemberDenials": true,
+  "newIngestionAndWorkflow": true,
+  "newLogicalActivities": 1,
+  "noRetroactiveBackfill": true
+}

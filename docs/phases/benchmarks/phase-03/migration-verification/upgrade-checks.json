@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-31T00:43:27.985Z",
+  "commands": ["pnpm db:test", "pnpm test:automation", "pnpm db:advisors", "pnpm db:types:check"],
+  "exitCode": 0,
+  "sqlAssertions": 127,
+  "automationTestNodes": 22,
+  "advisors": "no findings",
+  "generatedTypes": "no drift",
+  "catalogMatchesClean": true,
+  "phase03MigrationUnchanged": true,
+  "phase03Sha256": "572dd5a2cfa7ee209eba68d25bf43252ccb55d614d7d019c6c4cbc483f464ac9",
+  "retainedRowsVerified": 42,
+  "fixtureCleanup": {
+    "users": 0,
+    "organizations": 0,
+    "contacts": 0,
+    "leads": 0,
+    "jobs": 0
+  },
+  "localApiRestored": {
+    "health": 200,
+    "ready": 200
+  },
+  "reusedPassingChecks": [
+    "Full Auth/CRM/database regression gates from clean-reset path",
+    "Application units/UI/build, performance and dependency checks from prior implementation milestone"
+  ]
+}

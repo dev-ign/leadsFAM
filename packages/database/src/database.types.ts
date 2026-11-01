@@ -77,7 +77,8 @@ export type Database = {
           archived_at: string | null;
           company_name: string;
           created_at: string;
-          created_by: string;
+          created_by: string | null;
+          created_by_integration: string | null;
           display_name: string;
           first_name: string;
           id: string;
@@ -93,7 +94,8 @@ export type Database = {
           archived_at?: string | null;
           company_name?: string;
           created_at?: string;
-          created_by: string;
+          created_by?: string | null;
+          created_by_integration?: string | null;
           display_name: string;
           first_name?: string;
           id?: string;
@@ -108,7 +110,8 @@ export type Database = {
           archived_at?: string | null;
           company_name?: string;
           created_at?: string;
-          created_by?: string;
+          created_by?: string | null;
+          created_by_integration?: string | null;
           display_name?: string;
           first_name?: string;
           id?: string;
@@ -138,12 +141,13 @@ export type Database = {
       };
       crm_activities: {
         Row: {
-          actor_id: string;
+          actor_id: string | null;
           contact_id: string | null;
           created_at: string;
           details: NonNullable<Json>;
           event: string;
           id: string;
+          integration_id: string | null;
           lead_id: string | null;
           organization_id: string;
           reason: string | null;
@@ -151,24 +155,26 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
-          actor_id: string;
+          actor_id?: string | null;
           contact_id?: string | null;
           created_at?: string;
           details?: NonNullable<Json>;
           event: string;
           id?: string;
+          integration_id?: string | null;
           lead_id?: string | null;
           organization_id: string;
           reason?: string | null;
           request_id?: string | null;
         };
         Update: {
-          actor_id?: string;
+          actor_id?: string | null;
           contact_id?: string | null;
           created_at?: string;
           details?: NonNullable<Json>;
           event?: string;
           id?: string;
+          integration_id?: string | null;
           lead_id?: string | null;
           organization_id?: string;
           reason?: string | null;
@@ -322,7 +328,8 @@ export type Database = {
           closed_at: string | null;
           contact_id: string;
           created_at: string;
-          created_by: string;
+          created_by: string | null;
+          created_by_integration: string | null;
           description: string;
           id: string;
           last_activity_at: string;
@@ -343,7 +350,8 @@ export type Database = {
           closed_at?: string | null;
           contact_id: string;
           created_at?: string;
-          created_by: string;
+          created_by?: string | null;
+          created_by_integration?: string | null;
           description?: string;
           id?: string;
           last_activity_at?: string;
@@ -363,7 +371,8 @@ export type Database = {
           closed_at?: string | null;
           contact_id?: string;
           created_at?: string;
-          created_by?: string;
+          created_by?: string | null;
+          created_by_integration?: string | null;
           description?: string;
           id?: string;
           last_activity_at?: string;
@@ -596,6 +605,18 @@ export type Database = {
     };
     Functions: {
       accept_invitation: { Args: { p_hash: string }; Returns: Json };
+      automation_manage: {
+        Args: {
+          p_action: string;
+          p_data?: Json;
+          p_id?: string;
+          p_kind: string;
+          p_org: string;
+          p_version?: number;
+        };
+        Returns: Json;
+      };
+      automation_overview: { Args: { p_org: string }; Returns: Json };
       change_member: {
         Args: { p_org: string; p_remove?: boolean; p_role?: string; p_user: string };
         Returns: Json;

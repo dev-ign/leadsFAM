@@ -13,3 +13,4 @@ export function createSessionPool(connectionString: string) {
 
 export type { Database, Json } from './database.types.js';
 export { UserDatabase, DatabaseRpcFailure } from './rpc.js';
+export { AutomationDatabase } from './automation.js';

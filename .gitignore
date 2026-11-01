@@ -24,4 +24,16 @@ credentials*.json
 service-account*.json
 .aws/
 .secrets/
-/docs/
+/docs/**
+!/docs/architecture/
+!/docs/architecture/phase-03.md
+!/docs/phases/
+!/docs/phases/phase-03-report.md
+!/docs/phases/phase-03-manual.md
+!/docs/learning/
+!/docs/learning/phase-03.md
+!/docs/phases/benchmarks/
+!/docs/phases/benchmarks/phase-03/
+!/docs/phases/benchmarks/phase-03/**
+!/docs/phases/benchmarks/phase-03-automation/
+!/docs/phases/benchmarks/phase-03-automation/**

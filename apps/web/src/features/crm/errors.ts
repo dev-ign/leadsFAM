@@ -2,6 +2,8 @@ import { ApiClientError } from '../../lib/api-client';
 export function crmMessage(error: unknown) {
   if (error instanceof ApiClientError) {
     const messages: Record<string, string> = {
+      RESOURCE_LIMIT:
+        'This workspace can have up to 25 integrations and 25 automations. Contact your administrator to review this limit.',
       SOURCE_LIMIT: 'This workspace has reached the limit of 100 sources.',
       VERSION_CONFLICT:
         'Someone saved a newer version. Refresh the record and review your changes.',

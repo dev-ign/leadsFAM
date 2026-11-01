@@ -1,0 +1,773 @@
+{
+  "at": "2026-10-31T00:39:32.120Z",
+  "validatedConstraints": 75,
+  "foreignKeys": 23,
+  "primaryKeys": 9,
+  "creatorPrincipalChecks": 3,
+  "constraints": [
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_attempts_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK (((attempts >= 0) AND (attempts <= 5)))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((((type = 'dispatch'::text) AND (run_id IS NULL)) OR ((type = 'workflow'::text) AND (run_id IS NOT NULL))))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_check1",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((((state = 'claimed'::text) AND (lease_token IS NOT NULL) AND (lease_expires_at IS NOT NULL)) OR ((state <> 'claimed'::text) AND (lease_token IS NULL) AND (lease_expires_at IS NULL))))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_max_attempts_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK (((max_attempts >= 1) AND (max_attempts <= 5)))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_organization_id_event_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, event_id) REFERENCES private.domain_events(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_organization_id_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_organization_id_run_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, run_id) REFERENCES private.automation_runs(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_organization_id_type_event_id_run_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, type, event_id, run_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_schema_version_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((schema_version = 1))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_state_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((state = ANY (ARRAY['pending'::text, 'claimed'::text, 'retryable'::text, 'completed'::text, 'failed_terminal'::text])))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_jobs",
+      "name": "automation_jobs_type_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((type = ANY (ARRAY['dispatch'::text, 'workflow'::text])))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_runs",
+      "name": "automation_runs_organization_id_event_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, event_id) REFERENCES private.domain_events(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_runs",
+      "name": "automation_runs_organization_id_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_runs",
+      "name": "automation_runs_organization_id_workflow_id_event_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, workflow_id, event_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_runs",
+      "name": "automation_runs_organization_id_workflow_id_workflow_versi_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, workflow_id, workflow_version) REFERENCES private.automation_versions(organization_id, workflow_id, version)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_runs",
+      "name": "automation_runs_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_runs",
+      "name": "automation_runs_state_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((state = ANY (ARRAY['queued'::text, 'succeeded'::text, 'skipped'::text, 'failed'::text])))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_tool_executions",
+      "name": "automation_tool_executions_organization_id_activity_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, activity_id) REFERENCES crm_activities(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_tool_executions",
+      "name": "automation_tool_executions_organization_id_run_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, run_id) REFERENCES private.automation_runs(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_tool_executions",
+      "name": "automation_tool_executions_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (organization_id, run_id, step_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_tool_executions",
+      "name": "automation_tool_executions_tool_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((tool = 'activities.create'::text))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_tool_executions",
+      "name": "automation_tool_executions_version_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((version = 1))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_versions",
+      "name": "automation_versions_definition_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK (((jsonb_typeof(definition) = 'object'::text) AND (octet_length((definition)::text) <= 4096)))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_versions",
+      "name": "automation_versions_organization_id_published_by_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, published_by) REFERENCES organization_memberships(organization_id, user_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_versions",
+      "name": "automation_versions_organization_id_workflow_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, workflow_id) REFERENCES private.automation_workflows(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_versions",
+      "name": "automation_versions_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (organization_id, workflow_id, version)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_workflows",
+      "name": "automation_workflows_name_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK (((char_length(btrim(name)) >= 1) AND (char_length(btrim(name)) <= 80)))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_workflows",
+      "name": "automation_workflows_organization_id_created_by_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, created_by) REFERENCES organization_memberships(organization_id, user_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_workflows",
+      "name": "automation_workflows_organization_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id) REFERENCES organizations(id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_workflows",
+      "name": "automation_workflows_organization_id_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_workflows",
+      "name": "automation_workflows_organization_id_id_published_version_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, id, published_version) REFERENCES private.automation_versions(organization_id, workflow_id, version) DEFERRABLE INITIALLY DEFERRED"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_workflows",
+      "name": "automation_workflows_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_workflows",
+      "name": "automation_workflows_status_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((status = ANY (ARRAY['draft'::text, 'active'::text, 'paused'::text])))"
+    },
+    {
+      "schema": "private",
+      "table_name": "automation_workflows",
+      "name": "automation_workflows_version_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((version > 0))"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_bindings_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK (((jsonb_typeof(bindings) = 'array'::text) AND (jsonb_array_length(bindings) <= 25)))"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((num_nonnulls(actor_id, integration_id) = 1))"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_organization_id_actor_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, actor_id) REFERENCES organization_memberships(organization_id, user_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_organization_id_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_organization_id_integration_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, integration_id) REFERENCES private.source_integrations(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_organization_id_subject_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, subject_id) REFERENCES leads(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_organization_id_type_subject_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, type, subject_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_schema_version_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((schema_version = 1))"
+    },
+    {
+      "schema": "private",
+      "table_name": "domain_events",
+      "name": "domain_events_type_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((type = 'lead.created'::text))"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_attempts",
+      "name": "ingestion_attempts_external_event_id_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK (((char_length(external_event_id) >= 1) AND (char_length(external_event_id) <= 160)))"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_attempts",
+      "name": "ingestion_attempts_fingerprint_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((fingerprint ~ '^[a-f0-9]{64}$'::text))"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_attempts",
+      "name": "ingestion_attempts_organization_id_integration_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, integration_id) REFERENCES private.source_integrations(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_attempts",
+      "name": "ingestion_attempts_organization_id_receipt_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, receipt_id) REFERENCES private.ingestion_receipts(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_attempts",
+      "name": "ingestion_attempts_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_attempts",
+      "name": "ingestion_attempts_state_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((state = ANY (ARRAY['succeeded'::text, 'replayed'::text, 'rejected'::text])))"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_external_event_id_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK (((char_length(external_event_id) >= 1) AND (char_length(external_event_id) <= 160)))"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_fingerprint_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((fingerprint ~ '^[a-f0-9]{64}$'::text))"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_organization_id_contact_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, contact_id) REFERENCES contacts(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_organization_id_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_organization_id_integration_id_external__key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, integration_id, external_event_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_organization_id_integration_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, integration_id) REFERENCES private.source_integrations(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_organization_id_lead_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, lead_id) REFERENCES leads(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "ingestion_receipts",
+      "name": "ingestion_receipts_schema_version_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((schema_version = 1))"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_authority_generation_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((authority_generation > 0))"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_credential_hash_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((credential_hash ~ '^[a-f0-9]{64}$'::text))"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_credential_hash_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (credential_hash)"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_name_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK (((char_length(btrim(name)) >= 1) AND (char_length(btrim(name)) <= 80)))"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_organization_id_authorized_by_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, authorized_by) REFERENCES organization_memberships(organization_id, user_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_organization_id_created_by_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, created_by) REFERENCES organization_memberships(organization_id, user_id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_organization_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id) REFERENCES organizations(id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_organization_id_id_key",
+      "type": "u",
+      "validated": true,
+      "definition": "UNIQUE (organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_organization_id_source_id_fkey",
+      "type": "f",
+      "validated": true,
+      "definition": "FOREIGN KEY (organization_id, source_id) REFERENCES lead_sources(organization_id, id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_pkey",
+      "type": "p",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_status_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((status = ANY (ARRAY['active'::text, 'paused'::text, 'revoked'::text])))"
+    },
+    {
+      "schema": "private",
+      "table_name": "source_integrations",
+      "name": "source_integrations_type_check",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((type = 'first_party'::text))"
+    },
+    {
+      "schema": "public",
+      "table_name": "contacts",
+      "name": "contact_creator_principal",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((num_nonnulls(created_by, created_by_integration) = 1))"
+    },
+    {
+      "schema": "public",
+      "table_name": "crm_activities",
+      "name": "activity_actor_principal",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((num_nonnulls(actor_id, integration_id) = 1))"
+    },
+    {
+      "schema": "public",
+      "table_name": "leads",
+      "name": "lead_creator_principal",
+      "type": "c",
+      "validated": true,
+      "definition": "CHECK ((num_nonnulls(created_by, created_by_integration) = 1))"
+    }
+  ],
+  "indexes": [
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "indexname": "automation_dispatch_identity",
+      "indexdef": "CREATE UNIQUE INDEX automation_dispatch_identity ON private.automation_jobs USING btree (organization_id, event_id) WHERE (type = 'dispatch'::text)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "indexname": "automation_due",
+      "indexdef": "CREATE INDEX automation_due ON private.automation_jobs USING btree (run_at, created_at, id) WHERE (state = ANY (ARRAY['pending'::text, 'retryable'::text, 'claimed'::text]))"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "indexname": "automation_jobs_organization_id_id_key",
+      "indexdef": "CREATE UNIQUE INDEX automation_jobs_organization_id_id_key ON private.automation_jobs USING btree (organization_id, id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "indexname": "automation_jobs_organization_id_type_event_id_run_id_key",
+      "indexdef": "CREATE UNIQUE INDEX automation_jobs_organization_id_type_event_id_run_id_key ON private.automation_jobs USING btree (organization_id, type, event_id, run_id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "indexname": "automation_jobs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX automation_jobs_pkey ON private.automation_jobs USING btree (id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "indexname": "automation_tenant_queue",
+      "indexdef": "CREATE INDEX automation_tenant_queue ON private.automation_jobs USING btree (organization_id, state, created_at)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_runs",
+      "indexname": "automation_run_history",
+      "indexdef": "CREATE INDEX automation_run_history ON private.automation_runs USING btree (organization_id, created_at DESC, id DESC)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_runs",
+      "indexname": "automation_runs_organization_id_id_key",
+      "indexdef": "CREATE UNIQUE INDEX automation_runs_organization_id_id_key ON private.automation_runs USING btree (organization_id, id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_runs",
+      "indexname": "automation_runs_organization_id_workflow_id_event_id_key",
+      "indexdef": "CREATE UNIQUE INDEX automation_runs_organization_id_workflow_id_event_id_key ON private.automation_runs USING btree (organization_id, workflow_id, event_id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_runs",
+      "indexname": "automation_runs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX automation_runs_pkey ON private.automation_runs USING btree (id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_tool_executions",
+      "indexname": "automation_tool_executions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX automation_tool_executions_pkey ON private.automation_tool_executions USING btree (organization_id, run_id, step_id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_versions",
+      "indexname": "automation_versions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX automation_versions_pkey ON private.automation_versions USING btree (organization_id, workflow_id, version)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_workflows",
+      "indexname": "automation_workflows_organization_id_id_key",
+      "indexdef": "CREATE UNIQUE INDEX automation_workflows_organization_id_id_key ON private.automation_workflows USING btree (organization_id, id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_workflows",
+      "indexname": "automation_workflows_pkey",
+      "indexdef": "CREATE UNIQUE INDEX automation_workflows_pkey ON private.automation_workflows USING btree (id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "domain_events",
+      "indexname": "domain_events_organization_id_id_key",
+      "indexdef": "CREATE UNIQUE INDEX domain_events_organization_id_id_key ON private.domain_events USING btree (organization_id, id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "domain_events",
+      "indexname": "domain_events_organization_id_type_subject_id_key",
+      "indexdef": "CREATE UNIQUE INDEX domain_events_organization_id_type_subject_id_key ON private.domain_events USING btree (organization_id, type, subject_id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "domain_events",
+      "indexname": "domain_events_pkey",
+      "indexdef": "CREATE UNIQUE INDEX domain_events_pkey ON private.domain_events USING btree (id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_attempts",
+      "indexname": "ingestion_attempt_history",
+      "indexdef": "CREATE INDEX ingestion_attempt_history ON private.ingestion_attempts USING btree (organization_id, created_at DESC, id DESC)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_attempts",
+      "indexname": "ingestion_attempt_identity",
+      "indexdef": "CREATE INDEX ingestion_attempt_identity ON private.ingestion_attempts USING btree (organization_id, integration_id, external_event_id, created_at, id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_attempts",
+      "indexname": "ingestion_attempts_pkey",
+      "indexdef": "CREATE UNIQUE INDEX ingestion_attempts_pkey ON private.ingestion_attempts USING btree (id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_receipts",
+      "indexname": "ingestion_history",
+      "indexdef": "CREATE INDEX ingestion_history ON private.ingestion_receipts USING btree (organization_id, created_at DESC, id DESC)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_receipts",
+      "indexname": "ingestion_receipts_organization_id_id_key",
+      "indexdef": "CREATE UNIQUE INDEX ingestion_receipts_organization_id_id_key ON private.ingestion_receipts USING btree (organization_id, id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_receipts",
+      "indexname": "ingestion_receipts_organization_id_integration_id_external__key",
+      "indexdef": "CREATE UNIQUE INDEX ingestion_receipts_organization_id_integration_id_external__key ON private.ingestion_receipts USING btree (organization_id, integration_id, external_event_id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_receipts",
+      "indexname": "ingestion_receipts_pkey",
+      "indexdef": "CREATE UNIQUE INDEX ingestion_receipts_pkey ON private.ingestion_receipts USING btree (id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "source_integrations",
+      "indexname": "source_integrations_credential_hash_key",
+      "indexdef": "CREATE UNIQUE INDEX source_integrations_credential_hash_key ON private.source_integrations USING btree (credential_hash)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "source_integrations",
+      "indexname": "source_integrations_organization_id_id_key",
+      "indexdef": "CREATE UNIQUE INDEX source_integrations_organization_id_id_key ON private.source_integrations USING btree (organization_id, id)"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "source_integrations",
+      "indexname": "source_integrations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX source_integrations_pkey ON private.source_integrations USING btree (id)"
+    }
+  ]
+}

@@ -65,7 +65,8 @@ const aggregate = {
   id: z.uuid(),
   organization_id: z.uuid(),
   version: z.int().positive(),
-  created_by: z.uuid(),
+  created_by: z.uuid().nullable(),
+  created_by_integration: z.uuid().nullable().optional(),
   created_at: stamp,
   updated_at: stamp,
   archived_at: stamp.nullable(),
@@ -95,7 +96,7 @@ export const contactSchema = z.strictObject({
   first_touch: z
     .strictObject({
       leadId: z.uuid(),
-      channel: z.enum(['manual', 'csv']),
+      channel: z.enum(['manual', 'csv', 'first_party']),
       sourceId: z.uuid().nullable(),
       campaign: z.string().max(160).nullable(),
       acceptedAt: stamp,
@@ -108,7 +109,7 @@ export const attributionSchema = z.strictObject({
   organization_id: z.uuid(),
   lead_id: z.uuid(),
   source_id: z.uuid().nullable(),
-  channel: z.enum(['manual', 'csv']),
+  channel: z.enum(['manual', 'csv', 'first_party']),
   provider: z.string().max(80).nullable(),
   external_reference: z.string().max(160).nullable(),
   campaign: z.string().max(160).nullable(),
@@ -318,12 +319,22 @@ const activityBase = {
   organization_id: z.uuid(),
   lead_id: z.uuid().nullable(),
   contact_id: z.uuid().nullable(),
-  actor_id: z.uuid(),
+  actor_id: z.uuid().nullable(),
+  integration_id: z.uuid().nullable().optional(),
   request_id: z.string().max(80).nullable(),
   created_at: stamp,
   subject: z.enum(['lead', 'contact']),
 };
 export const activitySchema = z.discriminatedUnion('event', [
+  z.strictObject({
+    ...activityBase,
+    event: z.literal('automation.activity'),
+    details: z.strictObject({
+      message: z.string().max(300),
+      runId: z.uuid(),
+      workflowId: z.uuid(),
+    }),
+  }),
   z.strictObject({
     ...activityBase,
     event: z.enum([
@@ -364,7 +375,10 @@ export const activitySchema = z.discriminatedUnion('event', [
   z.strictObject({
     ...activityBase,
     event: z.literal('lead.created'),
-    details: z.strictObject({ channel: z.enum(['manual', 'csv']), sourceId: z.uuid().nullable() }),
+    details: z.strictObject({
+      channel: z.enum(['manual', 'csv', 'first_party']),
+      sourceId: z.uuid().nullable(),
+    }),
   }),
   z.strictObject({
     ...activityBase,

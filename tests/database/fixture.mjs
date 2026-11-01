@@ -68,6 +68,15 @@ export async function fixture() {
         // application records have no delete endpoint or execution-role grant.
         await client.query("set local session_replication_role='replica'");
         for (const [schema, table] of [
+          ['private', 'automation_tool_executions'],
+          ['private', 'automation_jobs'],
+          ['private', 'automation_runs'],
+          ['private', 'domain_events'],
+          ['private', 'automation_versions'],
+          ['private', 'automation_workflows'],
+          ['private', 'ingestion_attempts'],
+          ['private', 'ingestion_receipts'],
+          ['private', 'source_integrations'],
           ['private', 'lead_import_rows'],
           ['private', 'lead_import_attempts'],
           ['private', 'lead_import_jobs'],

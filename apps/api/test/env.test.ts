@@ -79,3 +79,24 @@ it('requires public provider keys, verified database TLS and closed onboarding i
     'identity security settings',
   );
 });
+
+it('validates worker TLS/configuration without echoing credential-shaped input', async () => {
+  const { parseWorkerEnv } = await import('../src/config/env.js');
+  const valid = new URL('postgresql://127.0.0.1/local');
+  valid.username = 'leadsfam_worker';
+  valid.password = 'synthetic-password';
+  expect(parseWorkerEnv({ WORKER_DATABASE_URL: valid.href, NODE_ENV: 'test' })).toBe(valid.href);
+  for (const environment of [
+    {},
+    { WORKER_DATABASE_URL: 'sensitive-input-is-not-a-url' },
+    { WORKER_DATABASE_URL: valid.href, NODE_ENV: 'production' },
+    { WORKER_DATABASE_URL: valid.href, NODE_ENV: 'unknown' },
+  ])
+    expect(() => parseWorkerEnv(environment)).toThrow(
+      'Invalid worker configuration: WORKER_DATABASE_URL',
+    );
+  valid.searchParams.set('sslmode', 'verify-full');
+  expect(parseWorkerEnv({ WORKER_DATABASE_URL: valid.href, NODE_ENV: 'production' })).toBe(
+    valid.href,
+  );
+});

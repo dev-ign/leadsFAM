@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-31T00:37:18.125Z",
+  "baselineCommit": "0ec8797",
+  "baselineMigration": "20261030212327",
+  "committedMigrationFilesVerified": 18,
+  "counts": {
+    "public.organizations": 2,
+    "public.organization_memberships": 4,
+    "public.profiles": 5,
+    "public.organization_notes": 1,
+    "public.contacts": 3,
+    "public.contact_emails": 1,
+    "public.contact_phones": 1,
+    "public.leads": 3,
+    "public.lead_sources": 1,
+    "public.lead_attributions": 3,
+    "public.crm_activities": 9,
+    "private.crm_request_receipts": 6,
+    "private.lead_import_jobs": 1,
+    "private.lead_import_rows": 1,
+    "private.lead_import_attempts": 1
+  },
+  "snapshotDigest": "f6c3c5e05715184b42661c06e434b9b88e6914931ff51d0e5eccdb944f62d15b",
+  "securityDigest": "cd2e4b085408ac9a5f73058bc24bb3d32b23df874698382dea0a7c722b4fbbfa"
+}

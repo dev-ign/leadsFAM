@@ -46,6 +46,15 @@ const ImportsPage = lazy(() =>
 const SourcesPage = lazy(() =>
   import('../features/crm/sources').then((m) => ({ default: m.SourcesPage })),
 );
+const AutomationsPage = lazy(() =>
+  import('../features/automation/pages').then((m) => ({ default: m.AutomationsPage })),
+);
+const AutomationEditorPage = lazy(() =>
+  import('../features/automation/pages').then((m) => ({ default: m.AutomationEditorPage })),
+);
+const IntegrationsPage = lazy(() =>
+  import('../features/automation/pages').then((m) => ({ default: m.IntegrationsPage })),
+);
 function RouteFailure() {
   return (
     <main className="mx-auto max-w-lg p-8">
@@ -97,6 +106,10 @@ export function AppRoutes() {
           <Route path="contacts/:id/edit" element={<ContactEditPage />} />
           <Route path="imports" element={<ImportsPage />} />
           <Route path="imports/:job" element={<ImportsPage />} />
+          <Route path="automations" element={<AutomationsPage />} />
+          <Route path="automations/new" element={<AutomationEditorPage />} />
+          <Route path="automations/:id/edit" element={<AutomationEditorPage />} />
+          <Route path="integrations" element={<IntegrationsPage />} />
           <Route path="sources" element={<SourcesPage />} />
         </Route>
       </Route>

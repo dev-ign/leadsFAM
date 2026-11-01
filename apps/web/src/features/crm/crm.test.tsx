@@ -2,7 +2,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
-import type { Contact, Lead } from '@leadops/shared';
+import type { Contact, Lead, AutomationOverview, Workflow } from '@leadops/shared';
 import { AppRoutes } from '../../app/app';
 import { apiClient, ApiClientError } from '../../lib/api-client';
 const orgA = {
@@ -80,6 +80,15 @@ beforeEach(() => {
   vi.spyOn(apiClient, 'leads').mockResolvedValue({ items: [], cursor: null });
   vi.spyOn(apiClient, 'contacts').mockResolvedValue({ items: [], cursor: null });
   vi.spyOn(apiClient, 'sources').mockResolvedValue([]);
+  vi.spyOn(apiClient, 'automations').mockResolvedValue({
+    integrations: [],
+    workflows: [],
+    receipts: [],
+    attempts: [],
+    jobs: [],
+    runs: [],
+    queue: { pending: 0, failed: 0, oldestPendingAt: null },
+  });
   vi.spyOn(apiClient, 'members').mockResolvedValue([]);
   vi.spyOn(apiClient, 'activity').mockResolvedValue({ items: [], cursor: null });
   vi.spyOn(apiClient, 'contact').mockResolvedValue(contact());
@@ -370,4 +379,177 @@ describe('scoped drafts and CRM navigation', () => {
       await screen.findByRole('heading', { name: 'Synthetic saved contact', level: 2 }),
     ).toBeInTheDocument();
   });
+});
+
+describe('guided automation experience', () => {
+  const definition = {
+    schemaVersion: 1 as const,
+    trigger: 'lead.created' as const,
+    conditions: [],
+    steps: [
+      {
+        id: 'record',
+        tool: 'activities.create' as const,
+        version: 1 as const,
+        arguments: { message: 'Synthetic review' },
+      },
+    ],
+  };
+  const workflow: Workflow = {
+    id: '77777777-7777-4777-8777-777777777777',
+    organization_id: orgA.id,
+    name: 'Review inquiries',
+    status: 'draft',
+    version: 1,
+    published_version: null,
+    created_by: userA,
+    created_at: '2026-10-30T00:00:00Z',
+    updated_at: '2026-10-30T00:00:00Z',
+    definition,
+  };
+  const overview = (workflows: Workflow[] = []): AutomationOverview => ({
+    integrations: [],
+    workflows,
+    receipts: [],
+    attempts: [],
+    jobs: [],
+    runs: [],
+    queue: { pending: 0, failed: 0, oldestPendingAt: null },
+  });
+  it('reviews simple choices and saves a draft without activating it', async () => {
+    vi.spyOn(apiClient, 'saveWorkflow').mockResolvedValue(workflow);
+    vi.spyOn(apiClient, 'changeWorkflow').mockResolvedValue(workflow);
+    app(`/organizations/${orgA.id}/automations/new`);
+    expect(
+      await screen.findByRole('heading', { name: 'Create an automation' }),
+    ).toBeInTheDocument();
+    await userEvent.clear(screen.getByRole('textbox', { name: 'Automation name' }));
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Automation name' }),
+      'Review inquiries',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Review automation' }));
+    expect(
+      await screen.findByRole('heading', { name: 'Review your automation' }),
+    ).toBeInTheDocument();
+    expect(apiClient.saveWorkflow).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+    await waitFor(() => expect(apiClient.saveWorkflow).toHaveBeenCalledOnce());
+    expect(apiClient.changeWorkflow).not.toHaveBeenCalled();
+    expect(
+      await screen.findByRole('heading', { name: 'Automations', level: 2 }),
+    ).toBeInTheDocument();
+  });
+  it('requires reviewing the exact saved workflow before activation', async () => {
+    vi.mocked(apiClient.automations).mockResolvedValue(overview([workflow]));
+    vi.spyOn(apiClient, 'changeWorkflow').mockResolvedValue({
+      ...workflow,
+      status: 'active',
+      version: 2,
+      published_version: 2,
+    });
+    app(`/organizations/${orgA.id}/automations`);
+    await userEvent.click(await screen.findByRole('button', { name: 'Review & activate' }));
+    expect(apiClient.changeWorkflow).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Activate automation' }));
+    await waitFor(() =>
+      expect(apiClient.changeWorkflow).toHaveBeenCalledWith(orgA.id, workflow.id, 1, 'publish'),
+    );
+  });
+  it('preserves unsupported advanced configuration and never offers an editable approximation', async () => {
+    vi.mocked(apiClient.automations).mockResolvedValue(
+      overview([{ ...workflow, definition: { ...definition, branches: [{ unfamiliar: true }] } }]),
+    );
+    vi.spyOn(apiClient, 'saveWorkflow').mockResolvedValue(workflow);
+    app(`/organizations/${orgA.id}/automations/${workflow.id}/edit`);
+    expect(
+      await screen.findByText(/uses features the guided builder cannot edit/),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'Automation name' })).not.toBeInTheDocument();
+    expect(apiClient.saveWorkflow).not.toHaveBeenCalled();
+  });
+  it('hides integration management and makes permission denial understandable', async () => {
+    vi.mocked(apiClient.organization).mockResolvedValue({ ...orgA, role: 'member' });
+    app(`/organizations/${orgA.id}/integrations`);
+    expect(await screen.findByText(/owner or administrator can manage/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add integration' })).not.toBeInTheDocument();
+    expect(apiClient.automations).not.toHaveBeenCalled();
+  });
+});
+
+it('shows a newly created integration key only in the current workspace and confirms revocation', async () => {
+  const integration = {
+    id: '88888888-8888-4888-8888-888888888888',
+    organization_id: orgA.id,
+    type: 'first_party' as const,
+    name: 'Synthetic backend',
+    status: 'active' as const,
+    source_id: null,
+    expires_at: '2027-01-01T00:00:00Z',
+    created_by: userA,
+    authorized_by: userA,
+    version: 1,
+    created_at: '2026-10-30T00:00:00Z',
+    updated_at: '2026-10-30T00:00:00Z',
+  };
+  const credential = 'lf_ing_' + 's'.repeat(43);
+  vi.mocked(apiClient.automations).mockResolvedValue({
+    integrations: [integration],
+    workflows: [],
+    receipts: [],
+    attempts: [],
+    jobs: [],
+    runs: [],
+    queue: { pending: 0, failed: 0, oldestPendingAt: null },
+  });
+  vi.spyOn(apiClient, 'createIntegration').mockResolvedValue({ integration, credential });
+  vi.spyOn(apiClient, 'changeIntegration').mockResolvedValue({ integration });
+  app(`/organizations/${orgA.id}/integrations`);
+  await userEvent.click(await screen.findByRole('button', { name: 'Add integration' }));
+  expect(await screen.findByRole('textbox', { name: 'Integration key' })).toHaveValue(credential);
+  await userEvent.click(screen.getByRole('button', { name: 'I have saved the key' }));
+  expect(screen.queryByDisplayValue(credential)).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Revoke integration' }));
+  expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  expect(apiClient.changeIntegration).not.toHaveBeenCalled();
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  expect(apiClient.changeIntegration).not.toHaveBeenCalled();
+});
+
+it('activates the reviewed definition using its newly saved version', async () => {
+  const definition = {
+    schemaVersion: 1 as const,
+    trigger: 'lead.created' as const,
+    conditions: [],
+    steps: [
+      {
+        id: 'record',
+        tool: 'activities.create' as const,
+        version: 1 as const,
+        arguments: { message: 'Review this new inquiry and choose the next step.' },
+      },
+    ],
+  };
+  const saved: Workflow = {
+    id: '99999999-9999-4999-8999-999999999999',
+    organization_id: orgA.id,
+    name: 'Review new inquiries',
+    status: 'draft',
+    version: 3,
+    published_version: null,
+    created_by: userA,
+    created_at: '2026-10-30T00:00:00Z',
+    updated_at: '2026-10-30T00:00:00Z',
+    definition,
+  };
+  vi.spyOn(apiClient, 'saveWorkflow').mockResolvedValue(saved);
+  vi.spyOn(apiClient, 'changeWorkflow').mockResolvedValue({ ...saved, status: 'active' });
+  app(`/organizations/${orgA.id}/automations/new`);
+  await userEvent.click(await screen.findByRole('button', { name: 'Review automation' }));
+  expect(await screen.findByRole('heading', { name: 'Review your automation' })).toHaveFocus();
+  expect(apiClient.saveWorkflow).not.toHaveBeenCalled();
+  await userEvent.click(screen.getByRole('button', { name: 'Activate automation' }));
+  await waitFor(() =>
+    expect(apiClient.changeWorkflow).toHaveBeenCalledWith(orgA.id, saved.id, 3, 'publish'),
+  );
 });

@@ -86,6 +86,8 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
                 ? [
                     { to: `/organizations/${org}/leads`, label: 'Leads', icon: Inbox },
                     { to: `/organizations/${org}/contacts`, label: 'Contacts', icon: Layers3 },
+                    { to: `/organizations/${org}/automations`, label: 'Automations', icon: Bot },
+                    { to: `/organizations/${org}/integrations`, label: 'Integrations', icon: Plug },
                   ]
                 : []),
               { to: '/status', label: 'Platform status', icon: Activity },
@@ -111,7 +113,6 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
             {[
               { label: 'Conversations', icon: MessageSquare },
               { label: 'Agents', icon: Bot },
-              { label: 'Integrations', icon: Plug },
             ].map(({ label, icon: Icon }) => (
               <li
                 key={label}

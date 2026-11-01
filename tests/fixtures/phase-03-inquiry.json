@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "externalEventId": "synthetic-phase03-inquiry-001",
+  "contact": {
+    "mode": "create",
+    "data": {
+      "kind": "person",
+      "displayName": "Synthetic prospect",
+      "emails": ["synthetic-prospect@example.test"]
+    }
+  },
+  "lead": {
+    "title": "Synthetic website inquiry",
+    "description": "Synthetic contract verification only."
+  },
+  "metadata": {
+    "formId": "synthetic-contact-form",
+    "eventKind": "inquiry"
+  }
+}
