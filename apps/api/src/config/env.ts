@@ -25,10 +25,12 @@ export interface AppConfig {
   identity?: IdentityConfig;
   crmCursorKey?: string;
   ingressDatabaseUrl?: string;
+  mockWebhookSecret?: string;
 }
 
 // Errors name the invalid fields, never the supplied environment values.
 export function parseEnv(environment: Record<string, string | undefined>): AppConfig {
+  const mockWebhookSecret = parseCommunicationEnv(environment);
   const result = environmentSchema.safeParse(environment);
   if (!result.success) {
     const fields = [...new Set(result.error.issues.map((issue) => issue.path.join('.')))];
@@ -121,6 +123,8 @@ export function parseEnv(environment: Record<string, string | undefined>): AppCo
   }
   if (env.NODE_ENV === 'production' && !identity)
     throw new Error('Invalid server configuration: identity is required in production');
+  if (mockWebhookSecret && Object.values(identity?.keys ?? {}).includes(mockWebhookSecret))
+    throw new Error('Invalid communication configuration: separate signing key required');
   const crmCursorKey = environment.CRM_CURSOR_KEY;
   if (
     (crmCursorKey !== undefined &&
@@ -146,6 +150,7 @@ export function parseEnv(environment: Record<string, string | undefined>): AppCo
   }
   return {
     ...(ingressDatabaseUrl ? { ingressDatabaseUrl } : {}),
+    ...(mockWebhookSecret ? { mockWebhookSecret } : {}),
     ...(crmCursorKey ? { crmCursorKey } : {}),
     ...(identity ? { identity } : {}),
     nodeEnv: env.NODE_ENV,
@@ -157,6 +162,7 @@ export function parseEnv(environment: Record<string, string | undefined>): AppCo
 }
 
 export function parseWorkerEnv(environment: Record<string, string | undefined>): string {
+  parseCommunicationEnv(environment);
   try {
     const connection = environment.WORKER_DATABASE_URL;
     const mode = environment.NODE_ENV ?? 'development';
@@ -172,4 +178,23 @@ export function parseWorkerEnv(environment: Record<string, string | undefined>):
     // URL errors can include their raw input; never let credentials reach logs.
     throw new Error('Invalid worker configuration: WORKER_DATABASE_URL');
   }
+}
+
+// No real adapter is installed. Unsupported enablement must fail even in development.
+export function parseCommunicationEnv(
+  environment: Record<string, string | undefined>,
+): string | undefined {
+  if (
+    (environment.COMMUNICATIONS_MODE !== undefined && environment.COMMUNICATIONS_MODE !== 'mock') ||
+    (environment.OUTBOUND_LIVE_ENABLED !== undefined &&
+      environment.OUTBOUND_LIVE_ENABLED !== 'false')
+  )
+    throw new Error('Invalid communication configuration: live sending is unavailable');
+  const secret = environment.MOCK_WEBHOOK_SECRET;
+  if (
+    secret !== undefined &&
+    (!/^[A-Za-z0-9+/]{43}=$/.test(secret) || Buffer.from(secret, 'base64').length !== 32)
+  )
+    throw new Error('Invalid communication configuration: MOCK_WEBHOOK_SECRET');
+  return secret;
 }

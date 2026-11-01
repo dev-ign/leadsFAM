@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-01T19:50:00.980Z",
+  "method": "Packaged migration replayed in a transaction using an isolated schema, role and wrapper names; real existing CRM/Auth schema and enrolled authenticated-role draft/history calls; all replay objects rolled back. No local reset or data clone.",
+  "tables": 9,
+  "rls": true,
+  "functions": 9,
+  "functionOwnership": true,
+  "draftAndHistory": true,
+  "rollbackConfirmed": true
+}

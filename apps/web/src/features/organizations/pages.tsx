@@ -148,6 +148,7 @@ function OrganizationBoundary({ org }: { org: string }) {
           {can(state.data.role, 'crm_import') && (
             <Link to={`/organizations/${org}/imports`}>Imports</Link>
           )}
+          <Link to={`/organizations/${org}/communications`}>Conversations</Link>
           <Link to={`/organizations/${org}/settings`}>Team & settings</Link>
         </nav>
       </div>
@@ -215,7 +216,8 @@ function Notes() {
       <CardHeader>
         <CardTitle>Workspace notes</CardTitle>
         <p className="text-sm text-muted-foreground">
-          A private space for your team’s shared context. Outreach features will arrive later.
+          A private space for your team’s shared context. Open Conversations for mock communication
+          history.
         </p>
       </CardHeader>
       <CardContent className="space-y-5">

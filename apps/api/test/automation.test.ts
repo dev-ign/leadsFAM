@@ -58,3 +58,76 @@ describe('agent tool and communication boundaries', () => {
       );
   });
 });
+
+describe('Phase 04 mock provider and webhook trust boundaries', () => {
+  it('validates exact raw bytes, rejects stale timestamps and forged signatures', async () => {
+    const { createHmac } = await import('node:crypto');
+    const { verifyMockWebhook } = await import('../src/modules/communications/routes.js');
+    const secret = Buffer.alloc(32, 7).toString('base64'),
+      raw = Buffer.from('{ "synthetic": true }'),
+      timestamp = String(Math.floor(Date.now() / 1000));
+    const sign = (body: Buffer, time: string) =>
+      createHmac('sha256', Buffer.from(secret, 'base64'))
+        .update(`${time}.`)
+        .update(body)
+        .digest('hex');
+    expect(() => verifyMockWebhook(raw, sign(raw, timestamp), timestamp, secret)).not.toThrow();
+    expect(() =>
+      verifyMockWebhook(Buffer.from('{"synthetic":true}'), sign(raw, timestamp), timestamp, secret),
+    ).toThrow();
+    expect(() => verifyMockWebhook(raw, '0'.repeat(64), timestamp, secret)).toThrow();
+    const stale = String(Number(timestamp) - 301);
+    expect(() => verifyMockWebhook(raw, sign(raw, stale), stale, secret)).toThrow();
+  });
+  it('rejects unsupported live modes and malformed secrets without echoing inputs', async () => {
+    const { parseCommunicationEnv } = await import('../src/config/env.js');
+    expect(parseCommunicationEnv({})).toBeUndefined();
+    for (const environment of [
+      { COMMUNICATIONS_MODE: 'resend' },
+      { OUTBOUND_LIVE_ENABLED: 'true' },
+      { MOCK_WEBHOOK_SECRET: 'private-secret' },
+    ])
+      expect(() => parseCommunicationEnv(environment)).toThrow(
+        /Invalid communication configuration/,
+      );
+  });
+  it('strictly validates drafts, channels and actor/provider substitution', async () => {
+    const { messageDraftSchema, providerEventSchema } = await import('@leadops/shared');
+    const input = {
+      id: crypto.randomUUID(),
+      contactId: crypto.randomUUID(),
+      leadId: null,
+      channel: 'email',
+      purpose: 'transactional',
+      recipient: 'test@example.test',
+      subject: 'Synthetic',
+      body: 'A test message',
+    };
+    expect(messageDraftSchema.safeParse(input).success).toBe(true);
+    for (const change of [
+      { sender: 'forged@example.test' },
+      { organizationId: crypto.randomUUID() },
+      { body: '' },
+      { recipient: 'invalid' },
+      { channel: 'sms', recipient: '+12025550123', subject: '', body: 'x'.repeat(1601) },
+    ])
+      expect(messageDraftSchema.safeParse({ ...input, ...change }).success).toBe(false);
+    expect(
+      providerEventSchema.safeParse({
+        eventId: 'fixture',
+        reference: `mock:${'-'.repeat(36)}`,
+        channel: 'email',
+        type: 'delivered',
+      }).success,
+    ).toBe(false);
+    expect(
+      providerEventSchema.safeParse({
+        eventId: 'fixture',
+        reference: `mock:${input.id}`,
+        channel: 'email',
+        type: 'delivered',
+        organizationId: 'forged',
+      }).success,
+    ).toBe(false);
+  });
+});

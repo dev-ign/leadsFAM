@@ -1,0 +1,18 @@
+{
+  "mobileHistory": {
+    "width": 375,
+    "scrollWidth": 375
+  },
+  "mobileComposer": {
+    "scrollWidth": 375,
+    "unlabelledControls": 0,
+    "width": 375
+  },
+  "reviewFocusObserved": "Review saved message",
+  "keyboardSequence": "Space on approval checkbox, Tab to Confirm and queue mock message, Return; paused error displayed without losing content",
+  "requiredFieldValidation": {
+    "focusedLabel": "Subject",
+    "message": "Please fill out this field."
+  },
+  "consoleWarningsOrErrors": []
+}

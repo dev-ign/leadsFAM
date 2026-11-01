@@ -1,0 +1,3178 @@
+{
+  "runId": "P04AT-20261101200343-52d449",
+  "startedAt": "2026-11-01T20:03:43.012Z",
+  "commit": "2a329e633ba5b0137cd88cadc135fa4ae660e7cd",
+  "userId": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+  "email": "crm-b442caeb-c960-4108-9193-3db4cb66725b@example.test",
+  "workspaceName": "FreshNest Acceptance P04AT-20261101200343-52d449",
+  "before": [
+    {
+      "schemaname": "private",
+      "tablename": "auth_guards",
+      "count": 1
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "count": 2
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_runs",
+      "count": 1
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_tool_executions",
+      "count": 1
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_versions",
+      "count": 2
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_workflows",
+      "count": 1
+    },
+    {
+      "schemaname": "private",
+      "tablename": "communication_budgets",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "communication_events",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "communication_jobs",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "communication_messages",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "communication_permissions",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "communication_settings",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "communication_suppressions",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "conversations",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "crm_request_receipts",
+      "count": 2
+    },
+    {
+      "schemaname": "private",
+      "tablename": "domain_events",
+      "count": 2
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_attempts",
+      "count": 1
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_receipts",
+      "count": 1
+    },
+    {
+      "schemaname": "private",
+      "tablename": "lead_import_attempts",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "lead_import_jobs",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "lead_import_rows",
+      "count": 0
+    },
+    {
+      "schemaname": "private",
+      "tablename": "security_events",
+      "count": 331
+    },
+    {
+      "schemaname": "private",
+      "tablename": "settings",
+      "count": 1
+    },
+    {
+      "schemaname": "private",
+      "tablename": "source_integrations",
+      "count": 5
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contact_emails",
+      "count": 2
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contact_phones",
+      "count": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contacts",
+      "count": 2
+    },
+    {
+      "schemaname": "public",
+      "tablename": "crm_activities",
+      "count": 7
+    },
+    {
+      "schemaname": "public",
+      "tablename": "lead_attributions",
+      "count": 2
+    },
+    {
+      "schemaname": "public",
+      "tablename": "lead_sources",
+      "count": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "leads",
+      "count": 2
+    },
+    {
+      "schemaname": "public",
+      "tablename": "organization_invitations",
+      "count": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "organization_memberships",
+      "count": 1
+    },
+    {
+      "schemaname": "public",
+      "tablename": "organization_notes",
+      "count": 0
+    },
+    {
+      "schemaname": "public",
+      "tablename": "organizations",
+      "count": 1
+    },
+    {
+      "schemaname": "public",
+      "tablename": "profiles",
+      "count": 1
+    }
+  ],
+  "org": "62e671dd-b323-40c5-8c04-5c34db8319d8",
+  "inspections": [
+    {
+      "label": "email-draft-initial",
+      "at": "2026-11-01T20:05:03.889Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "draft",
+          "version": 1,
+          "code": null,
+          "authorized_by": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        }
+      ],
+      "jobs": [],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        }
+      ],
+      "permissions": []
+    },
+    {
+      "label": "email-queued",
+      "at": "2026-11-01T20:06:52.747Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "queued",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "pending",
+          "attempts": 0,
+          "generation": 0,
+          "run_at": "2026-11-01T20:06:40.388Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ]
+    },
+    {
+      "label": "email-provider-accepted",
+      "at": "2026-11-01T20:06:53.726Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "submitted",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "pending",
+          "attempts": 1,
+          "generation": 1,
+          "run_at": "2026-11-01T20:06:55.718Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ]
+    },
+    {
+      "label": "email-delivered",
+      "at": "2026-11-01T20:07:03.016Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ]
+    },
+    {
+      "label": "sms-provider-accepted",
+      "at": "2026-11-01T20:07:52.647Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "submitted",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "pending",
+          "attempts": 1,
+          "generation": 1,
+          "run_at": "2026-11-01T20:07:54.639Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ]
+    },
+    {
+      "label": "sms-delivered",
+      "at": "2026-11-01T20:08:04.484Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:08:06.476Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        },
+        {
+          "id": "ce679bbe-512c-48c7-a0d1-061ef5a7cf59",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:08:04.476Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ]
+    },
+    {
+      "label": "suppression-before-block",
+      "at": "2026-11-01T20:08:44.811Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        },
+        {
+          "id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "display_name": "Alex — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        },
+        {
+          "id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 suppression test",
+          "body": "Hello Alex. This is a synthetic suppression acceptance test.",
+          "state": "draft",
+          "version": 1,
+          "code": null,
+          "authorized_by": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:08:06.476Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        },
+        {
+          "id": "ce679bbe-512c-48c7-a0d1-061ef5a7cf59",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:08:04.476Z"
+        },
+        {
+          "id": "92387e20-a0eb-4d5b-a48a-805a2575b6b3",
+          "message_id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "c827052d-3711-4bf4-a4d8-58c7f0e7bbba",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ],
+      "suppressions": [],
+      "settings": {
+        "paused": false
+      }
+    },
+    {
+      "label": "suppression-active",
+      "at": "2026-11-01T20:08:55.555Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        },
+        {
+          "id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "display_name": "Alex — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        },
+        {
+          "id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 suppression test",
+          "body": "Hello Alex. This is a synthetic suppression acceptance test.",
+          "state": "draft",
+          "version": 1,
+          "code": null,
+          "authorized_by": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:08:06.476Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        },
+        {
+          "id": "ce679bbe-512c-48c7-a0d1-061ef5a7cf59",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:08:04.476Z"
+        },
+        {
+          "id": "92387e20-a0eb-4d5b-a48a-805a2575b6b3",
+          "message_id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "c827052d-3711-4bf4-a4d8-58c7f0e7bbba",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ],
+      "suppressions": [
+        {
+          "channel": "email",
+          "recipient": "phase04-alex@example.test",
+          "reason": "administrative"
+        }
+      ],
+      "settings": {
+        "paused": false
+      }
+    },
+    {
+      "label": "suppression-removed",
+      "at": "2026-11-01T20:09:24.581Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        },
+        {
+          "id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "display_name": "Alex — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        },
+        {
+          "id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 suppression test",
+          "body": "Hello Alex. This is a synthetic suppression acceptance test.",
+          "state": "draft",
+          "version": 1,
+          "code": null,
+          "authorized_by": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:08:06.476Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        },
+        {
+          "id": "ce679bbe-512c-48c7-a0d1-061ef5a7cf59",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:08:04.476Z"
+        },
+        {
+          "id": "92387e20-a0eb-4d5b-a48a-805a2575b6b3",
+          "message_id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "c827052d-3711-4bf4-a4d8-58c7f0e7bbba",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ],
+      "suppressions": [],
+      "settings": {
+        "paused": false
+      }
+    },
+    {
+      "label": "pause-worker-blocked",
+      "at": "2026-11-01T20:09:55.369Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        },
+        {
+          "id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "display_name": "Alex — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        },
+        {
+          "id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 suppression test",
+          "body": "Hello Alex. This is a synthetic suppression acceptance test.",
+          "state": "draft",
+          "version": 1,
+          "code": null,
+          "authorized_by": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        },
+        {
+          "id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 pause and resume test",
+          "body": "Hello Alex. This synthetic message must remain queued while submissions are paused.",
+          "state": "queued",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:09:35.189Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:08:06.476Z"
+        },
+        {
+          "id": "ec3183c1-81e2-473d-b655-46376ffce0e4",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "state": "pending",
+          "attempts": 0,
+          "generation": 1,
+          "run_at": "2026-11-01T20:10:00.355Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        },
+        {
+          "id": "ce679bbe-512c-48c7-a0d1-061ef5a7cf59",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:08:04.476Z"
+        },
+        {
+          "id": "92387e20-a0eb-4d5b-a48a-805a2575b6b3",
+          "message_id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        },
+        {
+          "id": "85a11e03-2ce2-4ee6-ac9d-6ec5f0f1c2cb",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.190Z"
+        },
+        {
+          "id": "d128ad2c-20cd-494e-a1f8-66b193816764",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.713Z"
+        },
+        {
+          "id": "a6809413-993a-4195-aa5f-3e2f71fdb2bc",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.714Z"
+        },
+        {
+          "id": "f281e5e7-a812-4c3b-80a5-29fd1b81f010",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.714Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "c827052d-3711-4bf4-a4d8-58c7f0e7bbba",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ],
+      "suppressions": [],
+      "settings": {
+        "paused": true
+      }
+    },
+    {
+      "label": "pause-resumed-accepted",
+      "at": "2026-11-01T20:10:28.239Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        },
+        {
+          "id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "display_name": "Alex — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        },
+        {
+          "id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 suppression test",
+          "body": "Hello Alex. This is a synthetic suppression acceptance test.",
+          "state": "draft",
+          "version": 1,
+          "code": null,
+          "authorized_by": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        },
+        {
+          "id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 pause and resume test",
+          "body": "Hello Alex. This synthetic message must remain queued while submissions are paused.",
+          "state": "submitted",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:09:35.189Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:08:06.476Z"
+        },
+        {
+          "id": "ec3183c1-81e2-473d-b655-46376ffce0e4",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "state": "pending",
+          "attempts": 1,
+          "generation": 2,
+          "run_at": "2026-11-01T20:10:30.230Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        },
+        {
+          "id": "ce679bbe-512c-48c7-a0d1-061ef5a7cf59",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:08:04.476Z"
+        },
+        {
+          "id": "92387e20-a0eb-4d5b-a48a-805a2575b6b3",
+          "message_id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        },
+        {
+          "id": "85a11e03-2ce2-4ee6-ac9d-6ec5f0f1c2cb",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.190Z"
+        },
+        {
+          "id": "d128ad2c-20cd-494e-a1f8-66b193816764",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.713Z"
+        },
+        {
+          "id": "a6809413-993a-4195-aa5f-3e2f71fdb2bc",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.714Z"
+        },
+        {
+          "id": "f281e5e7-a812-4c3b-80a5-29fd1b81f010",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.714Z"
+        },
+        {
+          "id": "0c5271d5-aa70-49e9-b5d3-488d3935f0e2",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:10:28.226Z"
+        },
+        {
+          "id": "fcf75246-b0a5-47d3-bf49-578a4564bb78",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:10:28.230Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "c827052d-3711-4bf4-a4d8-58c7f0e7bbba",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ],
+      "suppressions": [],
+      "settings": {
+        "paused": false
+      }
+    },
+    {
+      "label": "pause-resumed-delivered",
+      "at": "2026-11-01T20:10:43.760Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        },
+        {
+          "id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "display_name": "Alex — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8"
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        },
+        {
+          "id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 suppression test",
+          "body": "Hello Alex. This is a synthetic suppression acceptance test.",
+          "state": "draft",
+          "version": 1,
+          "code": null,
+          "authorized_by": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        },
+        {
+          "id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 pause and resume test",
+          "body": "Hello Alex. This synthetic message must remain queued while submissions are paused.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:09:35.189Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:08:06.476Z"
+        },
+        {
+          "id": "ec3183c1-81e2-473d-b655-46376ffce0e4",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "state": "done",
+          "attempts": 2,
+          "generation": 3,
+          "run_at": "2026-11-01T20:10:45.750Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        },
+        {
+          "id": "ce679bbe-512c-48c7-a0d1-061ef5a7cf59",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:08:04.476Z"
+        },
+        {
+          "id": "92387e20-a0eb-4d5b-a48a-805a2575b6b3",
+          "message_id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        },
+        {
+          "id": "85a11e03-2ce2-4ee6-ac9d-6ec5f0f1c2cb",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.190Z"
+        },
+        {
+          "id": "d128ad2c-20cd-494e-a1f8-66b193816764",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.713Z"
+        },
+        {
+          "id": "a6809413-993a-4195-aa5f-3e2f71fdb2bc",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.714Z"
+        },
+        {
+          "id": "f281e5e7-a812-4c3b-80a5-29fd1b81f010",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.714Z"
+        },
+        {
+          "id": "0c5271d5-aa70-49e9-b5d3-488d3935f0e2",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:10:28.226Z"
+        },
+        {
+          "id": "fcf75246-b0a5-47d3-bf49-578a4564bb78",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:10:28.230Z"
+        },
+        {
+          "id": "065b29f2-8531-48de-91f2-95caf9e9eed2",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:10:43.750Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "c827052d-3711-4bf4-a4d8-58c7f0e7bbba",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ],
+      "suppressions": [],
+      "settings": {
+        "paused": false
+      }
+    },
+    {
+      "label": "final-before-cleanup",
+      "at": "2026-11-01T20:15:31.875Z",
+      "contacts": [
+        {
+          "id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "display_name": "Jordan — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8",
+          "emails": [
+            {
+              "value": "phase04-jordan@example.test",
+              "normalized": "phase04-jordan@example.test"
+            }
+          ],
+          "phones": [
+            {
+              "value": "+12025550123",
+              "region": "US",
+              "normalized": "+12025550123"
+            }
+          ]
+        },
+        {
+          "id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "display_name": "Alex — Phase 04 Acceptance",
+          "organization_id": "62e671dd-b323-40c5-8c04-5c34db8319d8",
+          "emails": [
+            {
+              "value": "phase04-alex@example.test",
+              "normalized": "phase04-alex@example.test"
+            }
+          ],
+          "phones": []
+        }
+      ],
+      "messages": [
+        {
+          "id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "conversation_id": "d4c330c8-62e4-4acd-aab2-f7097c1959dd",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-jordan@example.test",
+          "subject": "Your FreshNest cleaning appointment",
+          "body": "Hello Jordan! This is a synthetic test of your cleaning appointment confirmation. No actual appointment has been scheduled.",
+          "state": "delivered",
+          "version": 4,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "conversation_id": "e130bbce-e349-485a-ba29-50bcac5aa55c",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "recipient": "+12025550123",
+          "subject": "",
+          "body": "Hello Jordan! Your FreshNest synthetic appointment test is ready.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:07:17.996Z"
+        },
+        {
+          "id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 suppression test",
+          "body": "Hello Alex. This is a synthetic suppression acceptance test.",
+          "state": "draft",
+          "version": 1,
+          "code": null,
+          "authorized_by": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        },
+        {
+          "id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "conversation_id": "1e4a9db0-1b4a-481f-90d9-21d8b3c56f20",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "recipient": "phase04-alex@example.test",
+          "subject": "Phase 04 pause and resume test",
+          "body": "Hello Alex. This synthetic message must remain queued while submissions are paused.",
+          "state": "delivered",
+          "version": 2,
+          "code": null,
+          "authorized_by": "f264ffd0-7f54-496c-8112-4429cd8b9f2a",
+          "created_at": "2026-11-01T20:09:35.189Z"
+        }
+      ],
+      "jobs": [
+        {
+          "id": "15392a3b-a9c2-490f-828a-225afb377eac",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:07:05.008Z"
+        },
+        {
+          "id": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "state": "done",
+          "attempts": 2,
+          "generation": 2,
+          "run_at": "2026-11-01T20:08:06.476Z"
+        },
+        {
+          "id": "ec3183c1-81e2-473d-b655-46376ffce0e4",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "state": "done",
+          "attempts": 2,
+          "generation": 3,
+          "run_at": "2026-11-01T20:10:45.750Z"
+        }
+      ],
+      "events": [
+        {
+          "id": "609a037b-373c-4d95-bf19-9763364befe1",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:04:58.061Z"
+        },
+        {
+          "id": "f5c63768-e5e6-4743-b81c-6622eb6d8d7d",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:39.246Z"
+        },
+        {
+          "id": "4779fc4d-15b0-4f7e-ac3d-a94baf2a34d8",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "draft_updated",
+          "code": null,
+          "created_at": "2026-11-01T20:05:44.461Z"
+        },
+        {
+          "id": "fc8830f2-88cf-4afa-8d3f-ceba7acb7e41",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.388Z"
+        },
+        {
+          "id": "6187081a-fb22-49b1-883a-47591ea92196",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "793de9d4-fe25-4441-a35c-df5aa201be52",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:06:40.389Z"
+        },
+        {
+          "id": "692c4ad6-9d7a-4eb4-94f9-57f369467912",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.713Z"
+        },
+        {
+          "id": "0ab6199b-8047-4927-b305-c96fb3f1f1a7",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:06:53.718Z"
+        },
+        {
+          "id": "beeabd6b-83a8-4961-8426-c8e20d705383",
+          "message_id": "255e7f36-40bd-44bb-b604-382408c193cc",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:07:03.008Z"
+        },
+        {
+          "id": "a2932e4e-8b97-426a-bfe7-d1f91d529b26",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:07:17.997Z"
+        },
+        {
+          "id": "0b446041-0418-4639-8952-27c11c2a0228",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.669Z"
+        },
+        {
+          "id": "882ee91b-1858-4dcb-85f8-cd28ae42a0d5",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "c2cb48f9-7075-4c5c-9cc7-cbf12984136e",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:07:38.670Z"
+        },
+        {
+          "id": "08740b5e-cb61-467d-a6c7-1fc80fb3c4ee",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.634Z"
+        },
+        {
+          "id": "b0b6f098-6b80-4509-a0da-6d6ae7559529",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:07:52.639Z"
+        },
+        {
+          "id": "ce679bbe-512c-48c7-a0d1-061ef5a7cf59",
+          "message_id": "e20c5618-a750-48cf-aeb4-e2fb62ce3a4b",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:08:04.476Z"
+        },
+        {
+          "id": "92387e20-a0eb-4d5b-a48a-805a2575b6b3",
+          "message_id": "78461822-ae4f-4f52-a289-d858341ab32f",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:08:30.600Z"
+        },
+        {
+          "id": "85a11e03-2ce2-4ee6-ac9d-6ec5f0f1c2cb",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "draft_created",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.190Z"
+        },
+        {
+          "id": "d128ad2c-20cd-494e-a1f8-66b193816764",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "send_requested",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.713Z"
+        },
+        {
+          "id": "a6809413-993a-4195-aa5f-3e2f71fdb2bc",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "authorization_granted",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.714Z"
+        },
+        {
+          "id": "f281e5e7-a812-4c3b-80a5-29fd1b81f010",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "queued",
+          "code": null,
+          "created_at": "2026-11-01T20:09:35.714Z"
+        },
+        {
+          "id": "0c5271d5-aa70-49e9-b5d3-488d3935f0e2",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "submission_started",
+          "code": null,
+          "created_at": "2026-11-01T20:10:28.226Z"
+        },
+        {
+          "id": "fcf75246-b0a5-47d3-bf49-578a4564bb78",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "provider_accepted",
+          "code": null,
+          "created_at": "2026-11-01T20:10:28.230Z"
+        },
+        {
+          "id": "065b29f2-8531-48de-91f2-95caf9e9eed2",
+          "message_id": "ebbb88ff-614e-4be2-800b-74b8043563cd",
+          "event": "delivered",
+          "code": null,
+          "created_at": "2026-11-01T20:10:43.750Z"
+        }
+      ],
+      "permissions": [
+        {
+          "id": "9fc74256-4f36-486c-873e-63323c0f9032",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "b4fd4e56-24d6-44a1-aeda-22b4faf8bf67",
+          "contact_id": "5a022653-3ae2-4d64-97fa-63ce2886694e",
+          "channel": "sms",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest SMS service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        },
+        {
+          "id": "c827052d-3711-4bf4-a4d8-58c7f0e7bbba",
+          "contact_id": "14f05e0b-3e5e-410e-84c4-99e917279483",
+          "channel": "email",
+          "purpose": "transactional",
+          "status": "granted",
+          "source": "Synthetic FreshNest service request",
+          "collected_at": "2026-11-01T17:00:00.000Z",
+          "policy_version": "synthetic-service-v1",
+          "evidence": "synthetic-manual-fixture-only"
+        }
+      ],
+      "suppressions": [],
+      "settings": {
+        "paused": false
+      }
+    }
+  ],
+  "workerPasses": [
+    {
+      "at": "2026-11-01T20:06:53.720Z",
+      "jobId": "15392a3b-a9c2-490f-828a-225afb377eac",
+      "generation": 1
+    },
+    {
+      "at": "2026-11-01T20:07:03.011Z",
+      "jobId": "15392a3b-a9c2-490f-828a-225afb377eac",
+      "generation": 2
+    },
+    {
+      "at": "2026-11-01T20:07:52.641Z",
+      "jobId": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+      "generation": 1
+    },
+    {
+      "at": "2026-11-01T20:08:04.478Z",
+      "jobId": "2a9938ae-c7ba-40f5-9848-9d754efed569",
+      "generation": 2
+    },
+    {
+      "at": "2026-11-01T20:09:55.360Z",
+      "jobId": "ec3183c1-81e2-473d-b655-46376ffce0e4",
+      "generation": 1
+    },
+    {
+      "at": "2026-11-01T20:10:28.232Z",
+      "jobId": "ec3183c1-81e2-473d-b655-46376ffce0e4",
+      "generation": 2
+    },
+    {
+      "at": "2026-11-01T20:10:43.753Z",
+      "jobId": "ec3183c1-81e2-473d-b655-46376ffce0e4",
+      "generation": 3
+    }
+  ],
+  "cleanup": {
+    "completedAt": "2026-11-01T20:16:28.782Z",
+    "codeUnchanged": true,
+    "tables": [
+      {
+        "table": "private.auth_guards",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.automation_jobs",
+        "beforeCount": 2,
+        "afterCount": 2,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.automation_runs",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.automation_tool_executions",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.automation_versions",
+        "beforeCount": 2,
+        "afterCount": 2,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.automation_workflows",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.communication_budgets",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.communication_events",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.communication_jobs",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.communication_messages",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.communication_permissions",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.communication_settings",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.communication_suppressions",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.conversations",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.crm_request_receipts",
+        "beforeCount": 2,
+        "afterCount": 2,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.domain_events",
+        "beforeCount": 2,
+        "afterCount": 2,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.ingestion_attempts",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.ingestion_receipts",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.lead_import_attempts",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.lead_import_jobs",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.lead_import_rows",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.security_events",
+        "beforeCount": 331,
+        "afterCount": 361,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.settings",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "private.source_integrations",
+        "beforeCount": 5,
+        "afterCount": 5,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.contact_emails",
+        "beforeCount": 2,
+        "afterCount": 2,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.contact_phones",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.contacts",
+        "beforeCount": 2,
+        "afterCount": 2,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.crm_activities",
+        "beforeCount": 7,
+        "afterCount": 7,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.lead_attributions",
+        "beforeCount": 2,
+        "afterCount": 2,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.lead_sources",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.leads",
+        "beforeCount": 2,
+        "afterCount": 2,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.organization_invitations",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.organization_memberships",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.organization_notes",
+        "beforeCount": 0,
+        "afterCount": 0,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.organizations",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      },
+      {
+        "table": "public.profiles",
+        "beforeCount": 1,
+        "afterCount": 1,
+        "originalRowsPreserved": true
+      }
+    ],
+    "fixtureOrganizationRemoved": true,
+    "fixtureUserRemoved": true
+  },
+  "sourceFingerprint": "bb0d77e0cc7154dfe98c208eae343b42d581d8ec141833aac7d69a15b88a58cb"
+}

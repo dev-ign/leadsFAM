@@ -17,6 +17,7 @@ export async function harness() {
     ...parseEnv({ NODE_ENV: 'test', LOG_LEVEL: 'silent' }),
     identity,
     ingressDatabaseUrl: identity.ingressDatabaseUrl,
+    mockWebhookSecret: identity.mockWebhookSecret,
     crmCursorKey: identity.cursorKey,
   });
   let count = 30;
@@ -109,6 +110,14 @@ export async function harness() {
       await connection.query('begin');
       await connection.query("set local session_replication_role='replica'");
       for (const [schema, table] of [
+        ['private', 'communication_events'],
+        ['private', 'communication_jobs'],
+        ['private', 'communication_messages'],
+        ['private', 'conversations'],
+        ['private', 'communication_permissions'],
+        ['private', 'communication_suppressions'],
+        ['private', 'communication_budgets'],
+        ['private', 'communication_settings'],
         ['private', 'automation_tool_executions'],
         ['private', 'automation_jobs'],
         ['private', 'automation_runs'],

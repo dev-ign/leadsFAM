@@ -26,6 +26,9 @@ const reasons = new Set([
   'invalid_manifest',
   'source_limit',
   'resource_limit',
+  'sending_paused',
+  'recipient_ineligible',
+  'suppression_review_required',
 ]);
 export class DatabaseRpcFailure extends Error {
   constructor(

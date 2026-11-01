@@ -1,4 +1,14 @@
 import {
+  type messageDraftSchema,
+  type permissionInputSchema,
+  type suppressionInputSchema,
+  type communicationSettingsInput,
+  communicationSettingsSchema,
+  communicationMessageSchema,
+  conversationPageSchema,
+  communicationHistorySchema,
+  communicationEventPageSchema,
+  communicationEligibilitySchema,
   automationOverviewSchema,
   integrationCredentialSchema,
   integrationSchema,
@@ -128,6 +138,97 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
   const resource = (id: string, kind: 'contacts' | 'leads', key: string) =>
     `${org(id)}/${kind}/${encodeURIComponent(key)}`;
   return {
+    communicationSettings: (id: string, signal?: AbortSignal) =>
+      request(
+        `${org(id)}/communications/settings`,
+        communicationSettingsSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    saveCommunicationSettings: (id: string, input: z.infer<typeof communicationSettingsInput>) =>
+      request(`${org(id)}/communications/settings`, okSchema, 'PUT', input),
+    conversations: (
+      id: string,
+      query: { cursor?: string; contactId?: string; leadId?: string } = {},
+      signal?: AbortSignal,
+    ) =>
+      request(
+        `${org(id)}/communications/conversations${queryString(query)}`,
+        conversationPageSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    communicationMessage: (id: string, key: string, signal?: AbortSignal) =>
+      request(
+        `${org(id)}/communications/messages/${encodeURIComponent(key)}`,
+        communicationMessageSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    communicationEvents: (id: string, key: string, cursor?: string, signal?: AbortSignal) =>
+      request(
+        `${org(id)}/communications/messages/${encodeURIComponent(key)}/events${queryString({ cursor })}`,
+        communicationEventPageSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    communicationHistory: (id: string, key: string, cursor?: string, signal?: AbortSignal) =>
+      request(
+        `${org(id)}/communications/conversations/${encodeURIComponent(key)}${queryString({ cursor })}`,
+        communicationHistorySchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    communicationEligibility: (
+      id: string,
+      key: string,
+      query: {
+        channel: 'email' | 'sms';
+        recipient: string;
+        purpose: 'transactional' | 'marketing';
+      },
+      signal?: AbortSignal,
+    ) =>
+      request(
+        `${org(id)}/communications/contacts/${encodeURIComponent(key)}/eligibility${queryString(query)}`,
+        communicationEligibilitySchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    saveMessageDraft: (
+      id: string,
+      input: z.infer<typeof messageDraftSchema> & { version?: number },
+    ) =>
+      request(
+        `${org(id)}/communications/messages/${encodeURIComponent(input.id)}`,
+        communicationMessageSchema,
+        'PUT',
+        input,
+      ),
+    sendMessage: (id: string, key: string, version: number) =>
+      request(
+        `${org(id)}/communications/messages/${encodeURIComponent(key)}/send`,
+        communicationMessageSchema,
+        'POST',
+        { version },
+      ),
+    reconcileMessage: (id: string, key: string, version: number) =>
+      request(
+        `${org(id)}/communications/messages/${encodeURIComponent(key)}/reconcile`,
+        communicationMessageSchema,
+        'POST',
+        { version },
+      ),
+    recordCommunicationPermission: (id: string, input: z.infer<typeof permissionInputSchema>) =>
+      request(`${org(id)}/communications/permission`, okSchema, 'POST', input),
+    setCommunicationSuppression: (id: string, input: z.infer<typeof suppressionInputSchema>) =>
+      request(`${org(id)}/communications/suppression`, okSchema, 'POST', input),
     automations: (id: string, signal?: AbortSignal) =>
       request(`${org(id)}/automations`, automationOverviewSchema, 'GET', undefined, signal),
     retryAutomationJob: (id: string, key: string, generation: number) =>
