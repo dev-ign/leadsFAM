@@ -47,6 +47,7 @@ export class OrganizationService {
           'archived_contact',
           'delivery_job_conflict',
           'source_limit',
+          'resource_limit',
         ].includes(error.reason)
       )
         throw new IdentityFailure(409, error.reason.toUpperCase());

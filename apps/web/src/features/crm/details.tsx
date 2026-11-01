@@ -217,7 +217,11 @@ function LeadView({ lead, refresh }: { lead: Lead; refresh: () => void }) {
         </section>
         <section className="space-y-3 rounded-xl border border-border bg-card p-5">
           <h3 className="font-semibold">Acquisition</h3>
-          <p className="text-sm capitalize">{lead.attribution?.channel ?? 'No attribution'}</p>
+          <p className="text-sm capitalize">
+            {lead.attribution?.channel === 'first_party'
+              ? 'Authorized integration'
+              : (lead.attribution?.channel ?? 'No attribution')}
+          </p>
           {lead.attribution?.campaign && (
             <p className="text-sm">Campaign: {lead.attribution.campaign}</p>
           )}
@@ -535,8 +539,10 @@ function ContactView({ contact, refresh }: { contact: Contact; refresh: () => vo
         <section className="rounded-xl border border-border p-5">
           <h3 className="font-semibold">First recorded touch</h3>
           <p className="mt-2 text-sm capitalize">
-            {contact.first_touch.channel} ·{' '}
-            {new Date(contact.first_touch.acceptedAt).toLocaleString()}
+            {contact.first_touch.channel === 'first_party'
+              ? 'Authorized integration'
+              : contact.first_touch.channel}{' '}
+            · {new Date(contact.first_touch.acceptedAt).toLocaleString()}
           </p>
           {contact.first_touch.campaign && (
             <p className="mt-2 text-sm">{contact.first_touch.campaign}</p>
@@ -634,7 +640,9 @@ function Timeline({ kind, id }: { kind: 'leads' | 'contacts'; id: string }) {
             {state.data.items.map((v) => (
               <li className="rounded-lg border border-border bg-card p-4 text-sm" key={v.id}>
                 <p className="font-medium">
-                  {v.event.replaceAll('.', ' · ').replaceAll('_', ' ')}
+                  {v.event === 'automation.activity'
+                    ? 'Automation recorded an activity'
+                    : v.event.replaceAll('.', ' · ').replaceAll('_', ' ')}
                   {kind === 'leads' && v.subject === 'contact' ? ' · shared contact' : ''}
                 </p>
                 <time className="mt-1 block text-xs text-muted-foreground">
@@ -644,6 +652,14 @@ function Timeline({ kind, id }: { kind: 'leads' | 'contacts'; id: string }) {
                   <p className="mt-2 capitalize">
                     {v.details.from.replaceAll('_', ' ')} → {v.details.to.replaceAll('_', ' ')}
                     {v.details.outcome ? ` · ${v.details.outcome}` : ''}
+                  </p>
+                )}
+                {v.event === 'automation.activity' && (
+                  <p className="mt-2 whitespace-pre-wrap">{v.details.message}</p>
+                )}
+                {v.integration_id && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Received from an authorized integration
                   </p>
                 )}
                 {v.reason && <p className="mt-2 whitespace-pre-wrap">{v.reason}</p>}

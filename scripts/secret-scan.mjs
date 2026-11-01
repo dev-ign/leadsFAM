@@ -62,6 +62,10 @@ try {
     path.join(canaryDirectory, '.env'),
     `OPENAI_API_KEY=sk-proj-${randomBytes(32).toString('hex')}\nSESSION_KEYS='${JSON.stringify({ canary: randomBytes(32).toString('base64') })}'\nSESSION_DATABASE_URL=${canaryDatabase.href}\n`,
   );
+  await writeFile(
+    path.join(canaryDirectory, 'integration.txt'),
+    'lf_ing_' + randomBytes(32).toString('base64url'),
+  );
   const reportPath = path.join(canaryDirectory, 'findings.json');
   const canary = scan(
     ['dir', canaryDirectory, '--report-format=json', '--report-path', reportPath],
@@ -70,13 +74,16 @@ try {
   const findings = JSON.parse(await readFile(reportPath, 'utf8'));
   if (
     canary.status !== 1 ||
-    !['leadops-sensitive-env', 'leadsfam-session-key', 'leadsfam-database-password'].every((rule) =>
-      findings.some((finding) => finding.RuleID === rule),
-    )
+    ![
+      'leadops-sensitive-env',
+      'leadsfam-session-key',
+      'leadsfam-database-password',
+      'leadsfam-integration-credential',
+    ].every((rule) => findings.some((finding) => finding.RuleID === rule))
   )
     throw new Error('Gitleaks detection canary failed');
   console.log(
-    'Secret-detection canary passed (scanner rejected synthetic provider, session and database credentials).',
+    'Secret-detection canary passed (scanner rejected synthetic provider, session, database and integration credentials).',
   );
 } finally {
   await rm(canaryDirectory, { recursive: true, force: true });

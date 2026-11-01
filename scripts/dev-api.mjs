@@ -10,6 +10,7 @@ const child = spawn(process.execPath, ['--import', 'tsx', '--watch', 'src/server
     SUPABASE_URL: identity.url,
     SUPABASE_PUBLIC_KEY: identity.publicKey,
     SESSION_DATABASE_URL: identity.databaseUrl,
+    INGRESS_DATABASE_URL: identity.ingressDatabaseUrl,
     SESSION_ACTIVE_KEY: identity.activeKey,
     SESSION_KEYS: JSON.stringify(identity.keys),
     CRM_CURSOR_KEY: identity.cursorKey,

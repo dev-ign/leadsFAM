@@ -25,6 +25,7 @@ const reasons = new Set([
   'delivery_job_conflict',
   'invalid_manifest',
   'source_limit',
+  'resource_limit',
 ]);
 export class DatabaseRpcFailure extends Error {
   constructor(

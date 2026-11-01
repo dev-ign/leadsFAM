@@ -1,0 +1,740 @@
+{
+  "at": "2026-10-31T00:31:37.594Z",
+  "schemaDigest": "3838d940ee6a6bf6f4b9ec52a50c6f0c6fc3319d6b5106e7277c7e1246c0010b",
+  "roles": [
+    {
+      "rolname": "leadsfam_automation",
+      "rolcanlogin": false,
+      "rolsuper": false,
+      "rolbypassrls": false,
+      "rolinherit": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolreplication": false
+    },
+    {
+      "rolname": "leadsfam_ingress",
+      "rolcanlogin": true,
+      "rolsuper": false,
+      "rolbypassrls": false,
+      "rolinherit": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolreplication": false
+    },
+    {
+      "rolname": "leadsfam_worker",
+      "rolcanlogin": true,
+      "rolsuper": false,
+      "rolbypassrls": false,
+      "rolinherit": false,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolreplication": false
+    }
+  ],
+  "tables": [
+    {
+      "name": "automation_jobs",
+      "rls": true,
+      "owner": "postgres"
+    },
+    {
+      "name": "automation_runs",
+      "rls": true,
+      "owner": "postgres"
+    },
+    {
+      "name": "automation_tool_executions",
+      "rls": true,
+      "owner": "postgres"
+    },
+    {
+      "name": "automation_versions",
+      "rls": true,
+      "owner": "postgres"
+    },
+    {
+      "name": "automation_workflows",
+      "rls": true,
+      "owner": "postgres"
+    },
+    {
+      "name": "domain_events",
+      "rls": true,
+      "owner": "postgres"
+    },
+    {
+      "name": "ingestion_attempts",
+      "rls": true,
+      "owner": "postgres"
+    },
+    {
+      "name": "ingestion_receipts",
+      "rls": true,
+      "owner": "postgres"
+    },
+    {
+      "name": "source_integrations",
+      "rls": true,
+      "owner": "postgres"
+    }
+  ],
+  "functions": [
+    {
+      "schema": "private",
+      "name": "automation_admin_generation",
+      "arguments": "p_org uuid, p_user uuid",
+      "owner": "leadsfam_policy",
+      "definer": true,
+      "config": ["search_path=\"\""],
+      "definition_hash": "8b2689c53cab60912319087ca173ce9f"
+    },
+    {
+      "schema": "private",
+      "name": "automation_claim",
+      "arguments": "",
+      "owner": "leadsfam_automation",
+      "definer": true,
+      "config": ["search_path=\"\""],
+      "definition_hash": "7ecb871885984c25fdab7586430ddbd5"
+    },
+    {
+      "schema": "private",
+      "name": "automation_creator_immutable",
+      "arguments": "",
+      "owner": "leadsfam_automation",
+      "definer": false,
+      "config": ["search_path=\"\""],
+      "definition_hash": "da3e757734c0f6fcceec64140aa8f309"
+    },
+    {
+      "schema": "private",
+      "name": "automation_execute",
+      "arguments": "p_job uuid, p_token uuid, p_generation integer",
+      "owner": "leadsfam_automation",
+      "definer": true,
+      "config": ["search_path=\"\""],
+      "definition_hash": "1d90697e1f5c57be56c1e62bf53238d1"
+    },
+    {
+      "schema": "private",
+      "name": "automation_lead_event",
+      "arguments": "",
+      "owner": "leadsfam_automation",
+      "definer": true,
+      "config": ["search_path=\"\""],
+      "definition_hash": "0db4c142d8453e07fc1dd210ec061c36"
+    },
+    {
+      "schema": "private",
+      "name": "automation_manage",
+      "arguments": "p_org uuid, p_kind text, p_action text, p_id uuid, p_version integer, p_data jsonb",
+      "owner": "leadsfam_automation",
+      "definer": true,
+      "config": ["search_path=\"\""],
+      "definition_hash": "4697111a2d395547f23480d57a808cfc"
+    },
+    {
+      "schema": "private",
+      "name": "automation_overview",
+      "arguments": "p_org uuid",
+      "owner": "leadsfam_automation",
+      "definer": true,
+      "config": ["search_path=\"\""],
+      "definition_hash": "cbb73b426c07fe4c55007d1f52d5c88a"
+    },
+    {
+      "schema": "private",
+      "name": "automation_validate",
+      "arguments": "p_definition jsonb",
+      "owner": "leadsfam_automation",
+      "definer": false,
+      "config": ["search_path=\"\""],
+      "definition_hash": "f8c66fce68a3ce38ea9bf753a0e7258e"
+    },
+    {
+      "schema": "private",
+      "name": "ingest_lead",
+      "arguments": "p_hash text, p_data jsonb, p_correlation uuid",
+      "owner": "leadsfam_automation",
+      "definer": true,
+      "config": ["search_path=\"\""],
+      "definition_hash": "a46d016cceec757b1f53e8503e80cf07"
+    },
+    {
+      "schema": "public",
+      "name": "automation_manage",
+      "arguments": "p_org uuid, p_kind text, p_action text, p_id uuid, p_version integer, p_data jsonb",
+      "owner": "postgres",
+      "definer": false,
+      "config": ["search_path=\"\""],
+      "definition_hash": "fe46f27e6d2c380bb8df6e14323cf280"
+    },
+    {
+      "schema": "public",
+      "name": "automation_overview",
+      "arguments": "p_org uuid",
+      "owner": "postgres",
+      "definer": false,
+      "config": ["search_path=\"\""],
+      "definition_hash": "1ef84e00df34a373d51700e5b8b73771"
+    }
+  ],
+  "policies": [
+    {
+      "schemaname": "private",
+      "tablename": "automation_jobs",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_runs",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_tool_executions",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_versions",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "automation_workflows",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "domain_events",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_attempts",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "ingestion_receipts",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "private",
+      "tablename": "source_integrations",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contact_emails",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contact_phones",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "contacts",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "crm_activities",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "lead_attributions",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "lead_sources",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "leads",
+      "policyname": "automation_execution",
+      "roles": ["leadsfam_automation"],
+      "cmd": "ALL",
+      "qual": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))",
+      "with_check": "((organization_id)::text = ( SELECT current_setting('leadsfam.automation_org'::text, true) AS current_setting))"
+    }
+  ],
+  "privileges": [
+    {
+      "role": "anon",
+      "signature": "private.automation_admin_generation(uuid, uuid)",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "private.automation_claim()",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "private.automation_creator_immutable()",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "private.automation_execute(uuid, uuid, integer)",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "private.automation_lead_event()",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "private.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "private.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "private.automation_validate(jsonb)",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "private.ingest_lead(text, jsonb, uuid)",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "public.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "anon",
+      "signature": "public.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.automation_admin_generation(uuid, uuid)",
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.automation_claim()",
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.automation_creator_immutable()",
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.automation_execute(uuid, uuid, integer)",
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.automation_lead_event()",
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": true
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.automation_overview(uuid)",
+      "execute": true
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.automation_validate(jsonb)",
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "signature": "private.ingest_lead(text, jsonb, uuid)",
+      "execute": false
+    },
+    {
+      "role": "authenticated",
+      "signature": "public.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": true
+    },
+    {
+      "role": "authenticated",
+      "signature": "public.automation_overview(uuid)",
+      "execute": true
+    },
+    {
+      "role": "service_role",
+      "signature": "private.automation_admin_generation(uuid, uuid)",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "private.automation_claim()",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "private.automation_creator_immutable()",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "private.automation_execute(uuid, uuid, integer)",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "private.automation_lead_event()",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "private.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "private.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "private.automation_validate(jsonb)",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "private.ingest_lead(text, jsonb, uuid)",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "public.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "service_role",
+      "signature": "public.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.automation_admin_generation(uuid, uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.automation_claim()",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.automation_creator_immutable()",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.automation_execute(uuid, uuid, integer)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.automation_lead_event()",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.automation_validate(jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "private.ingest_lead(text, jsonb, uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "public.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_runtime",
+      "signature": "public.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.automation_admin_generation(uuid, uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.automation_claim()",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.automation_creator_immutable()",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.automation_execute(uuid, uuid, integer)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.automation_lead_event()",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.automation_validate(jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "private.ingest_lead(text, jsonb, uuid)",
+      "execute": true
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "public.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_ingress",
+      "signature": "public.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.automation_admin_generation(uuid, uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.automation_claim()",
+      "execute": true
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.automation_creator_immutable()",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.automation_execute(uuid, uuid, integer)",
+      "execute": true
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.automation_lead_event()",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.automation_overview(uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.automation_validate(jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "private.ingest_lead(text, jsonb, uuid)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "public.automation_manage(uuid, text, text, uuid, integer, jsonb)",
+      "execute": false
+    },
+    {
+      "role": "leadsfam_worker",
+      "signature": "public.automation_overview(uuid)",
+      "execute": false
+    }
+  ],
+  "applied": [
+    {
+      "version": "20261030021555",
+      "name": "identity_and_tenancy"
+    },
+    {
+      "version": "20261030024441",
+      "name": "auth_recovery_fence"
+    },
+    {
+      "version": "20261030042302",
+      "name": "crm_foundation"
+    },
+    {
+      "version": "20261030042804",
+      "name": "crm_scope_evaluation"
+    },
+    {
+      "version": "20261030042952",
+      "name": "crm_operations"
+    },
+    {
+      "version": "20261030043959",
+      "name": "crm_intake_imports"
+    },
+    {
+      "version": "20261030044452",
+      "name": "crm_import_status_columns"
+    },
+    {
+      "version": "20261030135414",
+      "name": "crm_preview_matching"
+    },
+    {
+      "version": "20261030135652",
+      "name": "crm_batch_duplicate_review"
+    },
+    {
+      "version": "20261030140405",
+      "name": "crm_queries"
+    },
+    {
+      "version": "20261030141839",
+      "name": "crm_phone_regions"
+    },
+    {
+      "version": "20261030142638",
+      "name": "crm_contact_views_and_reopen_reason"
+    },
+    {
+      "version": "20261030151155",
+      "name": "crm_error_privacy_and_source_bound"
+    },
+    {
+      "version": "20261030152553",
+      "name": "crm_query_planning"
+    },
+    {
+      "version": "20261030153231",
+      "name": "crm_prefix_search"
+    },
+    {
+      "version": "20261030153709",
+      "name": "crm_candidate_joins"
+    },
+    {
+      "version": "20261030153945",
+      "name": "crm_assignment_query"
+    },
+    {
+      "version": "20261030212327",
+      "name": "crm_scoped_policy_planning"
+    },
+    {
+      "version": "20261030232445",
+      "name": "automation_foundation"
+    }
+  ]
+}

@@ -30,6 +30,17 @@ export function registerErrorHandlers(app: FastifyInstance) {
             CREDENTIALS_REJECTED: 'The credentials could not be verified.',
             NOT_FOUND: 'The requested resource is unavailable.',
             FORBIDDEN: 'You do not have permission for this action.',
+            IDEMPOTENCY_CONFLICT:
+              'This event ID was already used with different details. Retry with the original details.',
+            DUPLICATE_REVIEW_REQUIRED:
+              'Review the matching contact before submitting a new delivery.',
+            SERVER_INTEGRATION_REQUIRED: 'Send this request from your authorized backend.',
+            INGESTION_UNAVAILABLE:
+              'Intake is temporarily unavailable. Retry the same event ID with identical details.',
+            SOURCE_UNAVAILABLE:
+              'This lead source is archived or unavailable. Ask an administrator to review it.',
+            RESOURCE_LIMIT: 'This workspace has reached its integration or automation limit.',
+            VERSION_CONFLICT: 'A newer version was saved. Refresh and review before trying again.',
             RATE_LIMITED: 'Too many attempts. Please try again later.',
           } as Record<string, string>
         )[failure.code] ?? 'The request could not be completed.',

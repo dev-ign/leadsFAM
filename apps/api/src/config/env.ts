@@ -24,6 +24,7 @@ export interface AppConfig {
   corsOrigins: string[];
   identity?: IdentityConfig;
   crmCursorKey?: string;
+  ingressDatabaseUrl?: string;
 }
 
 // Errors name the invalid fields, never the supplied environment values.
@@ -129,7 +130,22 @@ export function parseEnv(environment: Record<string, string | undefined>): AppCo
     (env.NODE_ENV === 'production' && !crmCursorKey)
   )
     throw new Error('Invalid server configuration: CRM_CURSOR_KEY');
+  const ingressDatabaseUrl = environment.INGRESS_DATABASE_URL;
+  if (ingressDatabaseUrl) {
+    let url: URL;
+    try {
+      url = new URL(ingressDatabaseUrl);
+    } catch {
+      throw new Error('Invalid server configuration: INGRESS_DATABASE_URL');
+    }
+    if (
+      !['postgres:', 'postgresql:'].includes(url.protocol) ||
+      (env.NODE_ENV === 'production' && url.searchParams.get('sslmode') !== 'verify-full')
+    )
+      throw new Error('Invalid server configuration: INGRESS_DATABASE_URL');
+  }
   return {
+    ...(ingressDatabaseUrl ? { ingressDatabaseUrl } : {}),
     ...(crmCursorKey ? { crmCursorKey } : {}),
     ...(identity ? { identity } : {}),
     nodeEnv: env.NODE_ENV,
@@ -138,4 +154,22 @@ export function parseEnv(environment: Record<string, string | undefined>): AppCo
     logLevel: env.LOG_LEVEL,
     corsOrigins: [...new Set(origins)],
   };
+}
+
+export function parseWorkerEnv(environment: Record<string, string | undefined>): string {
+  try {
+    const connection = environment.WORKER_DATABASE_URL;
+    const mode = environment.NODE_ENV ?? 'development';
+    if (!connection || !['development', 'test', 'production'].includes(mode)) throw new Error();
+    const url = new URL(connection);
+    if (
+      !['postgres:', 'postgresql:'].includes(url.protocol) ||
+      (mode === 'production' && url.searchParams.get('sslmode') !== 'verify-full')
+    )
+      throw new Error();
+    return connection;
+  } catch {
+    // URL errors can include their raw input; never let credentials reach logs.
+    throw new Error('Invalid worker configuration: WORKER_DATABASE_URL');
+  }
 }

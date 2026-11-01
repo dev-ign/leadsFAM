@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-31T00:33:06.139Z",
+  "command": "pnpm verify:database",
+  "exitCode": 0,
+  "sqlAssertions": 127,
+  "databaseTestNodes": 37,
+  "identityTestNodes": 20,
+  "crmTestNodes": 38,
+  "automationTestNodes": 22,
+  "advisors": "no findings",
+  "generatedTypes": "no drift",
+  "rawLogSha256": "277860bf83f669c39071ad9756e5d835841a79f8c679dfd932a8f7a4ae0e745f",
+  "rawLog": "/tmp/leadsfam-phase03-clean-checks.log"
+}

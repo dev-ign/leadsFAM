@@ -7,6 +7,7 @@ import rateLimit from '@fastify/rate-limit';
 import { SessionStore } from '../modules/identity/sessions.js';
 import { registerIdentity } from '../modules/identity/routes.js';
 import { registerOrganizations } from '../modules/organizations/routes.js';
+import { registerAutomationManagement, registerIngress } from '../modules/automation/routes.js';
 import { registerCrm } from '../modules/crm/routes.js';
 import { IdentityFailure } from '../modules/identity/failure.js';
 import type { AppConfig } from '../config/env.js';
@@ -44,6 +45,7 @@ export function createApp(config: AppConfig, logger?: FastifyBaseLogger) {
       }),
   });
   void app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
+  registerIngress(app, config.ingressDatabaseUrl);
   void app.register(
     async (scoped) => {
       if (!config.identity) {
@@ -65,6 +67,7 @@ export function createApp(config: AppConfig, logger?: FastifyBaseLogger) {
       registerIdentity(scoped, store, config.nodeEnv === 'production', config.corsOrigins);
       registerOrganizations(scoped, store);
       registerCrm(scoped, store, config.crmCursorKey);
+      registerAutomationManagement(scoped, store);
       readiness = async () => {
         const deadline = new AbortController();
         try {

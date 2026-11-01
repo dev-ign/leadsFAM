@@ -27,3 +27,9 @@ description = "Non-default database passwords in connection URLs are secrets"
 regex = '''(?i)postgres(?:ql)?://[^:\s/@]+:([^@\s/]{12,})@'''
 secretGroup = 1
 keywords = ["postgres://", "postgresql://"]
+
+[[rules]]
+id = "leadsfam-integration-credential"
+description = "First-party intake bearer credentials must never enter source"
+regex = '''lf_ing_[A-Za-z0-9_-]{43}'''
+keywords = ["lf_ing_"]
