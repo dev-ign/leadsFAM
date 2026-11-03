@@ -1,3 +1,4 @@
+import { parseAiEnv } from '../modules/ai/provider.js';
 import { z } from 'zod';
 import type { IdentityConfig } from '../modules/identity/sessions.js';
 
@@ -31,6 +32,7 @@ export interface AppConfig {
 // Errors name the invalid fields, never the supplied environment values.
 export function parseEnv(environment: Record<string, string | undefined>): AppConfig {
   const mockWebhookSecret = parseCommunicationEnv(environment);
+  parseAiEnv(environment);
   const result = environmentSchema.safeParse(environment);
   if (!result.success) {
     const fields = [...new Set(result.error.issues.map((issue) => issue.path.join('.')))];
@@ -163,6 +165,7 @@ export function parseEnv(environment: Record<string, string | undefined>): AppCo
 
 export function parseWorkerEnv(environment: Record<string, string | undefined>): string {
   parseCommunicationEnv(environment);
+  parseAiEnv(environment);
   try {
     const connection = environment.WORKER_DATABASE_URL;
     const mode = environment.NODE_ENV ?? 'development';

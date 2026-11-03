@@ -12,6 +12,9 @@ import {
 } from '../features/organizations/pages';
 import { NotFoundPage } from '../routes/not-found';
 import { DraftProvider } from '../features/crm/draft-provider';
+const AgentsPage = lazy(() =>
+  import('../features/ai/pages').then((m) => ({ default: m.AgentsPage })),
+);
 const StatusPage = lazy(() => import('../routes/status').then((m) => ({ default: m.StatusPage })));
 const AuthPage = lazy(() =>
   import('../features/identity/auth-pages').then((m) => ({ default: m.AuthPage })),
@@ -120,6 +123,7 @@ export function AppRoutes() {
           <Route path="contacts/:id/edit" element={<ContactEditPage />} />
           <Route path="imports" element={<ImportsPage />} />
           <Route path="imports/:job" element={<ImportsPage />} />
+          <Route path="agents" element={<AgentsPage />} />
           <Route path="automations" element={<AutomationsPage />} />
           <Route path="automations/new" element={<AutomationEditorPage />} />
           <Route path="automations/:id/edit" element={<AutomationEditorPage />} />

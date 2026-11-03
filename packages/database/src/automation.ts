@@ -97,6 +97,28 @@ export class AutomationDatabase {
       ])
     ).rows[0]?.result as unknown;
   }
+  async claimAi(): Promise<unknown> {
+    if (this.mode !== 'worker') throw new Error('Invalid runtime capability');
+    return (await this.pool.query('select private.ai_claim() result')).rows[0]?.result as unknown;
+  }
+  async prepareAi(id: string, token: string, generation: number, model: string): Promise<unknown> {
+    if (this.mode !== 'worker') throw new Error('Invalid runtime capability');
+    return (
+      await this.pool.query(
+        'select private.ai_prepare($1::uuid,$2::uuid,$3::integer,$4::text) result',
+        [id, token, generation, model],
+      )
+    ).rows[0]?.result as unknown;
+  }
+  async finishAi(id: string, token: string, generation: number, result: unknown): Promise<void> {
+    if (this.mode !== 'worker') throw new Error('Invalid runtime capability');
+    await this.pool.query('select private.ai_finish($1::uuid,$2::uuid,$3::integer,$4::jsonb)', [
+      id,
+      token,
+      generation,
+      JSON.stringify(result),
+    ]);
+  }
   async close() {
     await this.pool.end();
   }

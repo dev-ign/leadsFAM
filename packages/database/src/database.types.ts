@@ -605,6 +605,14 @@ export type Database = {
     };
     Functions: {
       accept_invitation: { Args: { p_hash: string }; Returns: Json };
+      ai_manage: {
+        Args: { p_action: string; p_data?: Json; p_id?: string; p_org: string; p_version?: number };
+        Returns: Json;
+      };
+      ai_read: {
+        Args: { p_id?: string; p_kind: string; p_org: string; p_query?: Json };
+        Returns: Json;
+      };
       automation_manage: {
         Args: {
           p_action: string;

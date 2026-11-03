@@ -106,6 +106,23 @@ it('rejects malformed identity responses before presenting authenticated content
     reason: 'invalid-response',
   });
 });
+it('ignores a superseded session response without expiring the current session', async () => {
+  const controller = new AbortController();
+  const expired = vi.fn();
+  window.addEventListener('leadsfam-session-expired', expired);
+  try {
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => {
+      controller.abort();
+      return new Response(null, { status: 401 });
+    });
+    await expect(
+      createApiClient('https://api.example', fetcher).getSession(controller.signal),
+    ).rejects.toBe(controller.signal.reason);
+    expect(expired).not.toHaveBeenCalled();
+  } finally {
+    window.removeEventListener('leadsfam-session-expired', expired);
+  }
+});
 it('invalidates cached CSRF after cookie rotation and never automatically replays a rejected mutation', async () => {
   const session = {
     csrfToken: 'c'.repeat(43),

@@ -12,6 +12,7 @@ import {
   registerCommunications,
   registerCommunicationWebhooks,
 } from '../modules/communications/routes.js';
+import { registerAi } from '../modules/ai/routes.js';
 import { registerCrm } from '../modules/crm/routes.js';
 import { IdentityFailure } from '../modules/identity/failure.js';
 import type { AppConfig } from '../config/env.js';
@@ -79,6 +80,7 @@ export function createApp(config: AppConfig, logger?: FastifyBaseLogger) {
       registerCrm(scoped, store, config.crmCursorKey);
       registerAutomationManagement(scoped, store);
       registerCommunications(scoped, store);
+      registerAi(scoped, store);
       readiness = async () => {
         const deadline = new AbortController();
         try {

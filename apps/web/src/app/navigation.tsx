@@ -88,6 +88,7 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
                     { to: `/organizations/${org}/contacts`, label: 'Contacts', icon: Layers3 },
                     { to: `/organizations/${org}/automations`, label: 'Automations', icon: Bot },
                     { to: `/organizations/${org}/integrations`, label: 'Integrations', icon: Plug },
+                    { to: `/organizations/${org}/agents`, label: 'Agents', icon: Bot },
                     {
                       to: `/organizations/${org}/communications`,
                       label: 'Conversations',
@@ -111,21 +112,6 @@ export function Navigation({ onNavigate }: { onNavigate: () => void }) {
               </NavLink>
             ))}
           </div>
-          <p className="mb-3 mt-8 px-3 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            Coming later
-          </p>
-          <ul className="space-y-1">
-            {[{ label: 'Agents', icon: Bot }].map(({ label, icon: Icon }) => (
-              <li
-                key={label}
-                className="flex min-h-11 items-center gap-3 px-3 text-sm text-muted-foreground"
-              >
-                <Icon className="size-4" aria-hidden="true" />
-                <span>{label}</span>
-                <span className="sr-only"> — coming later</span>
-              </li>
-            ))}
-          </ul>
         </nav>
       </div>
       <div className="mt-auto p-4">

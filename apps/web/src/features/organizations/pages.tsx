@@ -106,11 +106,14 @@ export function OrganizationHome() {
 export function OrganizationRoute() {
   const { org } = useParams();
   const { state } = useIdentity();
+  const user = state.status === 'ready' ? state.session.user?.id : undefined;
+  const role =
+    state.status === 'ready'
+      ? state.organizations.find((membership) => membership.id === org)?.role
+      : undefined;
+  // Recreate tenant content for authority changes, not successful background checks.
   return org ? (
-    <OrganizationBoundary
-      key={`${org}/${state.status === 'ready' ? state.verification : 0}`}
-      org={org}
-    />
+    <OrganizationBoundary key={`${org}/${user}/${role}`} org={org} />
   ) : (
     <Navigate to="/" replace />
   );

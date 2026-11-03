@@ -260,7 +260,8 @@ describe('scoped drafts and CRM navigation', () => {
   });
   it('preserves contact fields on same-identity focus and cross-tab revalidation', async () => {
     app();
-    await userEvent.type(await nameField(), 'Same identity draft');
+    const field = await nameField();
+    await userEvent.type(field, 'Same identity draft');
     await userEvent.type(
       screen.getByRole('textbox', { name: 'Email 1 · primary' }),
       'private@example.test',
@@ -268,6 +269,7 @@ describe('scoped drafts and CRM navigation', () => {
     await act(async () => window.dispatchEvent(new Event('focus')));
     expect(await nameField()).toHaveValue('Same identity draft');
     await broadcast();
+    expect(await nameField()).toBe(field);
     expect(await nameField()).toHaveValue('Same identity draft');
     expect(screen.getByRole('textbox', { name: 'Email 1 · primary' })).toHaveValue(
       'private@example.test',
@@ -275,6 +277,118 @@ describe('scoped drafts and CRM navigation', () => {
     expect(JSON.stringify({ ...localStorage, ...sessionStorage })).not.toMatch(
       /Same identity|private@example/,
     );
+  });
+  it('keeps the sign-in form mounted during a stale focus check and throttles fresh checks', async () => {
+    const anonymous = { ...session(), purpose: 'anonymous' as const, user: null };
+    vi.mocked(apiClient.getSession).mockResolvedValue(anonymous);
+    const router = app('/sign-in');
+    const field = await screen.findByRole('textbox', { name: 'Email' });
+    await userEvent.type(field, 'unsaved@example.test');
+    const initialRequests = vi.mocked(apiClient.getSession).mock.calls.length;
+    for (let i = 0; i < 10; i++) fireEvent(window, new Event('focus'));
+    expect(apiClient.getSession).toHaveBeenCalledTimes(initialRequests);
+    let finish!: (value: typeof anonymous) => void;
+    vi.mocked(apiClient.getSession).mockReturnValueOnce(
+      new Promise((resolve) => (finish = resolve)),
+    );
+    vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 31_000);
+    await act(async () => {
+      for (let i = 0; i < 10; i++) window.dispatchEvent(new Event('focus'));
+    });
+    expect(apiClient.getSession).toHaveBeenCalledTimes(initialRequests + 1);
+    expect(screen.queryByText('Checking your session…')).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Email' })).toBe(field);
+    await act(async () => finish(anonymous));
+    expect(field).toHaveValue('unsaved@example.test');
+    expect(screen.getByRole('textbox', { name: 'Email' })).toBe(field);
+    expect(router.state.location.pathname).toBe('/sign-in');
+  });
+  it('preserves uncontrolled workspace input without refetching or remounting the page', async () => {
+    const router = app(`/organizations/${orgA.id}`);
+    const field = await screen.findByRole('textbox', { name: 'Title' });
+    await userEvent.type(field, 'Unsaved workspace note');
+    const requests = vi.mocked(apiClient.getSession).mock.calls.length;
+    const workspaceRequests = vi.mocked(apiClient.organization).mock.calls.length;
+    let finish!: (value: ReturnType<typeof session>) => void;
+    vi.mocked(apiClient.getSession).mockReturnValueOnce(
+      new Promise((resolve) => (finish = resolve)),
+    );
+    vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 31_000);
+    await act(async () => {
+      for (let i = 0; i < 10; i++) window.dispatchEvent(new Event('focus'));
+    });
+    expect(screen.getByRole('textbox', { name: 'Title' })).toBe(field);
+    expect(apiClient.getSession).toHaveBeenCalledTimes(requests + 1);
+    await act(async () => finish(session()));
+    expect(screen.getByRole('textbox', { name: 'Title' })).toBe(field);
+    expect(field).toHaveValue('Unsaved workspace note');
+    expect(apiClient.organization).toHaveBeenCalledTimes(workspaceRequests);
+    expect(apiClient.notes).toHaveBeenCalledTimes(1);
+    expect(router.state.location.pathname).toBe(`/organizations/${orgA.id}`);
+  });
+  it.each(['session', 'memberships'])(
+    'retains verified input through a transient %s failure and retry',
+    async (operation) => {
+      app(`/organizations/${orgA.id}`);
+      const field = await screen.findByRole('textbox', { name: 'Title' });
+      await userEvent.type(field, 'Keep during API restart');
+      if (operation === 'session')
+        vi.mocked(apiClient.getSession).mockRejectedValueOnce(new ApiClientError('network'));
+      else
+        vi.mocked(apiClient.organizations).mockRejectedValueOnce(new ApiClientError('http', 503));
+      await broadcast();
+      expect(await screen.findByRole('alert')).toHaveTextContent('could not recheck');
+      expect(screen.getByRole('textbox', { name: 'Title' })).toBe(field);
+      expect(field).toHaveValue('Keep during API restart');
+      await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+      await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
+      expect(screen.getByRole('textbox', { name: 'Title' })).toBe(field);
+      expect(field).toHaveValue('Keep during API restart');
+    },
+  );
+  it('blocks initial verification failure and hides old content when a different identity cannot load memberships', async () => {
+    vi.mocked(apiClient.getSession).mockRejectedValueOnce(new ApiClientError('network'));
+    app();
+    expect(await screen.findByRole('alert')).toHaveTextContent('could not verify');
+    expect(screen.queryByRole('textbox', { name: 'Display name' })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    await userEvent.type(await nameField(), 'Previous identity private work');
+    vi.mocked(apiClient.getSession).mockResolvedValue(session(userB));
+    vi.mocked(apiClient.organizations).mockRejectedValueOnce(new ApiClientError('network'));
+    await broadcast();
+    expect(await screen.findByRole('alert')).toHaveTextContent('could not verify');
+    expect(screen.queryByDisplayValue('Previous identity private work')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await nameField()).toHaveValue('');
+  });
+  it('rejects confirmed expiry during a pending recheck and ignores its late success', async () => {
+    app();
+    await userEvent.type(await nameField(), 'Revoked session draft');
+    let finish!: (value: ReturnType<typeof session>) => void;
+    vi.mocked(apiClient.getSession).mockReturnValueOnce(
+      new Promise((resolve) => (finish = resolve)),
+    );
+    await broadcast();
+    await act(async () => window.dispatchEvent(new Event('leadsfam-session-expired')));
+    expect(await screen.findByRole('alert')).toHaveTextContent('could not verify');
+    await act(async () => finish(session()));
+    expect(screen.queryByRole('textbox', { name: 'Display name' })).not.toBeInTheDocument();
+    vi.mocked(apiClient.getSession).mockResolvedValue({
+      ...session(),
+      purpose: 'anonymous',
+      user: null,
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Revoked session draft')).not.toBeInTheDocument();
+  });
+  it('does not treat a confirmed membership authorization denial as a transient outage', async () => {
+    app();
+    await userEvent.type(await nameField(), 'Previously authorized draft');
+    vi.mocked(apiClient.organizations).mockRejectedValueOnce(new ApiClientError('http', 403));
+    await broadcast();
+    expect(await screen.findByRole('alert')).toHaveTextContent('could not verify');
+    expect(screen.queryByRole('textbox', { name: 'Display name' })).not.toBeInTheDocument();
   });
   it('discards on cross-tab sign-out and never restores a prior user’s form', async () => {
     const router = app();
@@ -416,30 +530,44 @@ describe('guided automation experience', () => {
     runs: [],
     queue: { pending: 0, failed: 0, oldestPendingAt: null },
   });
-  it('reviews simple choices and saves a draft without activating it', async () => {
-    vi.spyOn(apiClient, 'saveWorkflow').mockResolvedValue(workflow);
-    vi.spyOn(apiClient, 'changeWorkflow').mockResolvedValue(workflow);
-    app(`/organizations/${orgA.id}/automations/new`);
-    expect(
-      await screen.findByRole('heading', { name: 'Create an automation' }),
-    ).toBeInTheDocument();
-    await userEvent.clear(screen.getByRole('textbox', { name: 'Automation name' }));
-    await userEvent.type(
-      screen.getByRole('textbox', { name: 'Automation name' }),
-      'Review inquiries',
-    );
-    await userEvent.click(screen.getByRole('button', { name: 'Review automation' }));
-    expect(
-      await screen.findByRole('heading', { name: 'Review your automation' }),
-    ).toBeInTheDocument();
-    expect(apiClient.saveWorkflow).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole('button', { name: 'Save draft' }));
-    await waitFor(() => expect(apiClient.saveWorkflow).toHaveBeenCalledOnce());
-    expect(apiClient.changeWorkflow).not.toHaveBeenCalled();
-    expect(
-      await screen.findByRole('heading', { name: 'Automations', level: 2 }),
-    ).toBeInTheDocument();
-  });
+  it.each(['activities.create', 'ai.analyze'] as const)(
+    'reviews %s and saves a draft without activating it',
+    async (tool) => {
+      vi.spyOn(apiClient, 'saveWorkflow').mockResolvedValue(workflow);
+      vi.spyOn(apiClient, 'changeWorkflow').mockResolvedValue(workflow);
+      app(`/organizations/${orgA.id}/automations/new`);
+      expect(
+        await screen.findByRole('heading', { name: 'Create an automation' }),
+      ).toBeInTheDocument();
+      await userEvent.clear(screen.getByRole('textbox', { name: 'Automation name' }));
+      await userEvent.type(
+        screen.getByRole('textbox', { name: 'Automation name' }),
+        'Review inquiries',
+      );
+      if (tool === 'ai.analyze') {
+        await userEvent.clear(screen.getByRole('textbox', { name: 'Internal activity' }));
+        await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Action' }), tool);
+        expect(
+          screen.queryByRole('textbox', { name: 'Internal activity' }),
+        ).not.toBeInTheDocument();
+        expect(screen.getByText(/queues a separate analysis for review/)).toBeInTheDocument();
+      }
+      await userEvent.click(screen.getByRole('button', { name: 'Review automation' }));
+      expect(
+        await screen.findByRole('heading', { name: 'Review your automation' }),
+      ).toBeInTheDocument();
+      expect(apiClient.saveWorkflow).not.toHaveBeenCalled();
+      await userEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+      await waitFor(() => expect(apiClient.saveWorkflow).toHaveBeenCalledOnce());
+      expect(vi.mocked(apiClient.saveWorkflow).mock.calls[0]?.[1].definition.steps[0]?.tool).toBe(
+        tool,
+      );
+      expect(apiClient.changeWorkflow).not.toHaveBeenCalled();
+      expect(
+        await screen.findByRole('heading', { name: 'Automations', level: 2 }),
+      ).toBeInTheDocument();
+    },
+  );
   it('requires reviewing the exact saved workflow before activation', async () => {
     vi.mocked(apiClient.automations).mockResolvedValue(overview([workflow]));
     vi.spyOn(apiClient, 'changeWorkflow').mockResolvedValue({

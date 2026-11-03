@@ -29,6 +29,8 @@ const reasons = new Set([
   'sending_paused',
   'recipient_ineligible',
   'suppression_review_required',
+  'ai_disabled',
+  'ai_limit_reached',
 ]);
 export class DatabaseRpcFailure extends Error {
   constructor(

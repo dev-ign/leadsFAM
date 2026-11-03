@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, lazy, Suspense, type FormEvent } from 'react';
 import { Link, useParams, useNavigate } from 'react-router';
 import { Button } from '@leadops/ui';
 import { can, leadFieldsSchema, type Lead, type Contact } from '@leadops/shared';
@@ -11,6 +11,7 @@ import { useDrafts } from './draft-context';
 import { ContactEditor } from './forms';
 import { CrmFailure } from './ui';
 import { crmMessage } from './errors';
+const LeadAi = lazy(() => import('../ai/pages').then((m) => ({ default: m.LeadAi })));
 export function LeadDetailPage() {
   return <Detail kind="leads" />;
 }
@@ -241,6 +242,9 @@ function LeadView({ lead, refresh }: { lead: Lead; refresh: () => void }) {
           )}
         </section>
       </div>
+      <Suspense fallback={<p role="status">Loading AI assistance…</p>}>
+        <LeadAi key={lead.id} lead={lead} />
+      </Suspense>
       <LeadActions key={`${lead.id}/${lead.version}`} lead={lead} refresh={refresh} />
       <section className="space-y-2">
         <h3 className="text-lg font-semibold">Communications</h3>
