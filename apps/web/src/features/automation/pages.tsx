@@ -233,7 +233,9 @@ function WorkflowSummary({
         </p>
       ))}
       <p className="whitespace-pre-wrap break-words">
-        Record an internal activity: “{support.definition.steps[0]?.arguments.message}”
+        {support.definition.steps[0]?.tool === 'ai.analyze'
+          ? 'Request AI analysis for human review. Workspace AI must be enabled. No message is sent.'
+          : `Record an internal activity: “${support.definition.steps[0]?.arguments.message}”`}
       </p>
     </div>
   );
@@ -429,29 +431,63 @@ function GuidedEditor({ workflow, sources }: { workflow?: Workflow; sources: Sou
               <div className="space-y-3 rounded-xl border border-border bg-card p-5">
                 <h3 className="font-semibold">2. What should happen next?</h3>
                 <p className="text-sm text-muted-foreground">
-                  Record an activity for your team on the lead.
+                  Choose a bounded action for your team.
                 </p>
                 <label className="block text-sm">
-                  Internal activity
-                  <textarea
-                    className="field min-h-28"
-                    required
-                    maxLength={300}
-                    value={draft.value.definition.steps[0]?.arguments.message ?? ''}
+                  Action
+                  <select
+                    className="field"
+                    value={draft.value.definition.steps[0]?.tool ?? 'activities.create'}
                     onChange={(e) =>
                       form.change({
                         ...draft.value,
                         definition: {
                           ...draft.value.definition,
-                          steps: draft.value.definition.steps.map((s) => ({
-                            ...s,
-                            arguments: { message: e.currentTarget.value },
+                          steps: draft.value.definition.steps.map((step) => ({
+                            ...step,
+                            tool: e.currentTarget.value as 'activities.create' | 'ai.analyze',
+                            arguments:
+                              e.currentTarget.value === 'ai.analyze'
+                                ? { message: 'AI analysis requested for human review.' }
+                                : step.arguments,
                           })),
                         },
                       })
                     }
-                  />
+                  >
+                    <option value="activities.create">Record an internal activity</option>
+                    <option value="ai.analyze">Request AI lead analysis</option>
+                  </select>
                 </label>
+                {draft.value.definition.steps[0]?.tool === 'ai.analyze' && (
+                  <p className="text-sm">
+                    Enable AI in Agents first. This action queues a separate analysis for review. It
+                    cannot send communications.
+                  </p>
+                )}
+                {draft.value.definition.steps[0]?.tool !== 'ai.analyze' && (
+                  <label className="block text-sm">
+                    Internal activity
+                    <textarea
+                      className="field min-h-28"
+                      required
+                      maxLength={300}
+                      value={draft.value.definition.steps[0]?.arguments.message ?? ''}
+                      onChange={(e) =>
+                        form.change({
+                          ...draft.value,
+                          definition: {
+                            ...draft.value.definition,
+                            steps: draft.value.definition.steps.map((s) => ({
+                              ...s,
+                              arguments: { message: e.currentTarget.value },
+                            })),
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                )}
               </div>
               <Button
                 type="button"
@@ -926,7 +962,7 @@ function ExecutionHistory({
                 View lead
               </Link>
               <p className="text-muted-foreground">
-                {r.completed_steps} {r.completed_steps === 1 ? 'activity' : 'activities'} recorded ·{' '}
+                {r.completed_steps} {r.completed_steps === 1 ? 'action' : 'actions'} recorded ·{' '}
                 {r.attempts} {r.attempts === 1 ? 'attempt' : 'attempts'}
               </p>
               {r.code && (

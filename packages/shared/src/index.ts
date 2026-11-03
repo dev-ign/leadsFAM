@@ -16,3 +16,4 @@ export * from './identity.js';
 export * from './crm.js';
 export * from './automation.js';
 export * from './communications.js';
+export * from './ai.js';

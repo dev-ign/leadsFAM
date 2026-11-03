@@ -4,8 +4,10 @@ import { Outlet, useLocation } from 'react-router';
 import { Button } from '@leadops/ui';
 import { Navigation } from './navigation';
 import { useTheme } from './use-theme';
+import { useIdentity } from '../features/identity/context';
 
 export function AppShell() {
+  const { state, refresh } = useIdentity();
   const { theme, toggleTheme } = useTheme();
   const dialog = useRef<HTMLDialogElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -88,6 +90,12 @@ export function AppShell() {
           tabIndex={-1}
           className="mx-auto max-w-7xl px-5 py-9 outline-none sm:px-8 lg:px-10 lg:py-11"
         >
+          {state.status === 'ready' && state.verificationError && (
+            <div role="alert" className="mb-4">
+              We could not recheck your session. Your work is still here.{' '}
+              <Button onClick={() => void refresh()}>Try again</Button>
+            </div>
+          )}
           <Suspense fallback={<p role="status">Loading page…</p>}>
             <Outlet />
           </Suspense>

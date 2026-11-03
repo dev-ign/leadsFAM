@@ -41,7 +41,7 @@ export const workflowDefinitionSchema = z
       .array(
         z.strictObject({
           id: z.string().regex(/^[a-zA-Z0-9_-]{1,40}$/),
-          tool: z.literal('activities.create'),
+          tool: z.enum(['activities.create', 'ai.analyze']),
           version: z.literal(1),
           arguments: activityToolArguments,
         }),

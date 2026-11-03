@@ -1,4 +1,9 @@
 import {
+  aiSettingsSchema,
+  aiHistorySchema,
+  aiRunSchema,
+  type aiSettingsInput,
+  type aiRequestInput,
   type messageDraftSchema,
   type permissionInputSchema,
   type suppressionInputSchema,
@@ -96,6 +101,8 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
       if (signal?.aborted) throw error;
       throw new ApiClientError('network');
     }
+    // A superseded identity check must not expire the current session or rotate CSRF.
+    signal?.throwIfAborted();
     if (!response.ok) {
       if (response.status === 401) window.dispatchEvent(new Event('leadsfam-session-expired'));
       let code: string | undefined;
@@ -114,6 +121,7 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
     } catch {
       throw new ApiClientError('invalid-response');
     }
+    signal?.throwIfAborted();
     const parsed = schema.safeParse(payload);
     if (!parsed.success) throw new ApiClientError('invalid-response');
     return parsed.data;
@@ -138,6 +146,31 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
   const resource = (id: string, kind: 'contacts' | 'leads', key: string) =>
     `${org(id)}/${kind}/${encodeURIComponent(key)}`;
   return {
+    aiSettings: (org: string, signal?: AbortSignal) =>
+      request(`/organizations/${org}/ai/settings`, aiSettingsSchema, 'GET', undefined, signal),
+    saveAiSettings: (org: string, version: number, input: z.infer<typeof aiSettingsInput>) =>
+      request(`/organizations/${org}/ai/settings`, okSchema, 'PUT', { ...input, version }),
+    aiHistory: (org: string, leadId?: string, cursor?: string, signal?: AbortSignal) =>
+      request(
+        `/organizations/${org}/ai/history?${new URLSearchParams({ ...(leadId ? { leadId } : {}), ...(cursor ? { cursor } : {}) })}`,
+        aiHistorySchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    requestAi: (org: string, id: string, input: z.infer<typeof aiRequestInput>) =>
+      request(`/organizations/${org}/ai/requests/${id}`, aiRunSchema, 'PUT', input),
+    saveAiDraft: (
+      org: string,
+      id: string,
+      input: { recipient: string; subject: string; body: string },
+    ) =>
+      request(
+        `/organizations/${org}/ai/requests/${id}/draft`,
+        communicationMessageSchema,
+        'POST',
+        input,
+      ),
     communicationSettings: (id: string, signal?: AbortSignal) =>
       request(
         `${org(id)}/communications/settings`,

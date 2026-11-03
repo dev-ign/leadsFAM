@@ -51,6 +51,8 @@ export class OrganizationService {
           'sending_paused',
           'recipient_ineligible',
           'suppression_review_required',
+          'ai_disabled',
+          'ai_limit_reached',
         ].includes(error.reason)
       )
         throw new IdentityFailure(409, error.reason.toUpperCase());
