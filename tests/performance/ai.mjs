@@ -10,6 +10,15 @@ const f = await fixture(),
   local = await localIdentity(),
   worker = new AutomationDatabase(local.workerDatabaseUrl, 'worker');
 try {
+  assert.equal(
+    (
+      await pool.query(
+        "select count(*)::int n from private.ai_runs where state in ('queued','claimed','retryable')",
+      )
+    ).rows[0].n,
+    0,
+    'Run the benchmark with other development workers stopped and no active AI requests.',
+  );
   const contact = randomUUID(),
     lead = randomUUID();
   await pool.query(
@@ -40,6 +49,25 @@ try {
         guidelines: '',
         restrictions: '',
         escalation: '',
+        knowledge: {
+          serviceDescriptions: [
+            {
+              service: 'Deep cleaning',
+              description: 'Residential deep cleaning following review of property details.',
+            },
+          ],
+          faqs: [
+            {
+              question: 'Do you offer estimates?',
+              answer: 'Our team reviews property details before estimating.',
+            },
+          ],
+          pricing: 'Our team reviews the property before providing an estimate.',
+          scheduling: 'Appointments require team confirmation.',
+          hours: '',
+          requiredInformation: ['Bathrooms', 'Furnished or empty'],
+          unsupportedRequests: ['Commercial offices'],
+        },
       },
     },
   ]);
@@ -65,7 +93,16 @@ try {
         assert.equal(r.items.length, 20);
         assert.ok(r.next);
       } else if (kind === 'crmRead') await rpc(f.ids.owner, 'crm_get', [f.org, 'lead', lead]);
-      else await processAi(worker, await worker.claimAi(), { enabled: false });
+      else {
+        const claim = await worker.claimAi();
+        assert.ok(claim, 'A competing development worker claimed this benchmark request.');
+        assert.equal(
+          (await pool.query('select organization_id from private.ai_runs where id=$1', [claim.id]))
+            .rows[0].organization_id,
+          f.org,
+        );
+        await processAi(worker, claim, { enabled: false });
+      }
       samples.push(performance.now() - start);
     }
     const sorted = [...samples].sort((a, b) => a - b);
@@ -97,7 +134,8 @@ try {
     dailyAdmissionPlan,
   };
   await writeFile(
-    new URL('../../docs/phases/benchmarks/phase-05/results.json', import.meta.url),
+    process.argv.find((v) => v.startsWith('--output='))?.slice(9) ??
+      new URL('../../docs/phases/benchmarks/phase-05/results.json', import.meta.url),
     JSON.stringify(result, null, 2) + '\n',
   );
   console.log(JSON.stringify({ measurements, historyIndex: plan[0]['QUERY PLAN'][0].Plan }));

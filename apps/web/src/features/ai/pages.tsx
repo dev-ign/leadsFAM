@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '@leadops/ui';
-import { aiSettingsInput, can, type AiSettings, type AiRun, type Lead } from '@leadops/shared';
+import {
+  aiSettingsInput,
+  emptyBusinessKnowledge,
+  can,
+  type AiSettings,
+  type AiRun,
+  type Lead,
+} from '@leadops/shared';
 import { apiClient, ApiClientError } from '../../lib/api-client';
 import { useOrganization } from '../organizations/context';
 import { useQuery } from '../crm/use-query';
@@ -52,7 +59,13 @@ export function AgentsPage() {
 }
 function SettingsForm({ settings, refresh }: { settings: AiSettings; refresh: () => void }) {
   const { organization } = useOrganization();
-  const [value, setValue] = useState(settings),
+  const [value, setValue] = useState({
+      ...settings,
+      business: {
+        ...settings.business,
+        knowledge: settings.business.knowledge ?? emptyBusinessKnowledge,
+      },
+    }),
     [busy, setBusy] = useState(false),
     [error, setError] = useState('');
   const allowed = can(organization.role, 'crm_manage');
@@ -65,6 +78,11 @@ function SettingsForm({ settings, refresh }: { settings: AiSettings; refresh: ()
       concurrentLimit: value.concurrentLimit,
       business: {
         ...value.business,
+        knowledge: {
+          ...value.business.knowledge,
+          requiredInformation: value.business.knowledge.requiredInformation.filter((v) => v.trim()),
+          unsupportedRequests: value.business.knowledge.unsupportedRequests.filter((v) => v.trim()),
+        },
         services: value.business.services.filter((v) => v.trim()),
         serviceAreas: value.business.serviceAreas.filter((v) => v.trim()),
         questions: value.business.questions.filter((v) => v.trim()),
@@ -72,7 +90,7 @@ function SettingsForm({ settings, refresh }: { settings: AiSettings; refresh: ()
     });
     if (!parsed.success) {
       setError(
-        'Check the field lengths and request limits. Lists must have one item per line, at most 10 services/areas and 8 questions.',
+        'Check the field lengths and request limits. Lists must have one item per line, at most 10 services/areas and 8 questions or requirements. Complete each added service description and FAQ.',
       );
       return;
     }
@@ -190,6 +208,207 @@ function SettingsForm({ settings, refresh }: { settings: AiSettings; refresh: ()
             </label>
           );
         })}
+        <section className="space-y-4" aria-label="Business knowledge">
+          <h4 className="font-semibold">Approved business knowledge</h4>
+          <p className="text-sm text-muted-foreground">
+            Only enter facts your team has approved. Leave unknown policies blank. Saving creates a
+            new knowledge version; previous results stay unchanged.
+          </p>
+          {(
+            [
+              'pricing',
+              'scheduling',
+              'hours',
+              'requiredInformation',
+              'unsupportedRequests',
+            ] as const
+          ).map((key) => {
+            const current = value.business.knowledge[key];
+            const names = {
+              pricing: 'Approved pricing or estimate policy',
+              scheduling: 'Scheduling policy (not live availability)',
+              hours: 'Operating hours',
+              requiredInformation: 'Information required to qualify (one per line)',
+              unsupportedRequests: 'Unsupported requests (one per line)',
+            };
+            return (
+              <label key={key} className="block text-sm">
+                {names[key]}
+                <textarea
+                  className="field"
+                  maxLength={Array.isArray(current) ? 1280 : key === 'hours' ? 300 : 600}
+                  value={Array.isArray(current) ? current.join('\n') : current}
+                  onChange={(e) =>
+                    setValue({
+                      ...value,
+                      business: {
+                        ...value.business,
+                        knowledge: {
+                          ...value.business.knowledge,
+                          [key]: Array.isArray(current)
+                            ? e.currentTarget.value.split('\n')
+                            : e.currentTarget.value,
+                        },
+                      },
+                    })
+                  }
+                />
+              </label>
+            );
+          })}
+          <h4 className="font-semibold">Services in detail</h4>
+          {value.business.knowledge.serviceDescriptions.map((item, index) => (
+            <div key={index} className="space-y-2 rounded border border-border p-3">
+              <label className="block text-sm">
+                Service {index + 1}
+                <select
+                  className="field"
+                  value={item.service}
+                  onChange={(e) => {
+                    const items = [...value.business.knowledge.serviceDescriptions];
+                    items[index] = { ...item, service: e.currentTarget.value };
+                    setValue({
+                      ...value,
+                      business: {
+                        ...value.business,
+                        knowledge: { ...value.business.knowledge, serviceDescriptions: items },
+                      },
+                    });
+                  }}
+                >
+                  <option value="">Choose a saved service</option>
+                  {value.business.services.filter(Boolean).map((service) => (
+                    <option key={service}>{service}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="block text-sm">
+                Approved service description {index + 1}
+                <textarea
+                  className="field"
+                  maxLength={400}
+                  value={item.description}
+                  onChange={(e) => {
+                    const items = [...value.business.knowledge.serviceDescriptions];
+                    items[index] = { ...item, description: e.currentTarget.value };
+                    setValue({
+                      ...value,
+                      business: {
+                        ...value.business,
+                        knowledge: { ...value.business.knowledge, serviceDescriptions: items },
+                      },
+                    });
+                  }}
+                />
+              </label>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setValue({
+                    ...value,
+                    business: {
+                      ...value.business,
+                      knowledge: {
+                        ...value.business.knowledge,
+                        serviceDescriptions: value.business.knowledge.serviceDescriptions.filter(
+                          (_, i) => i !== index,
+                        ),
+                      },
+                    },
+                  })
+                }
+              >
+                Remove service details {index + 1}
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            disabled={value.business.knowledge.serviceDescriptions.length >= 10}
+            onClick={() =>
+              setValue({
+                ...value,
+                business: {
+                  ...value.business,
+                  knowledge: {
+                    ...value.business.knowledge,
+                    serviceDescriptions: [
+                      ...value.business.knowledge.serviceDescriptions,
+                      { service: '', description: '' },
+                    ],
+                  },
+                },
+              })
+            }
+          >
+            Add service details
+          </Button>
+          <h4 className="font-semibold">Frequently asked questions</h4>
+          {value.business.knowledge.faqs.map((faq, index) => (
+            <div key={index} className="space-y-2 rounded border border-border p-3">
+              {(['question', 'answer'] as const).map((key) => (
+                <label key={key} className="block text-sm">
+                  {key === 'question' ? 'Customer question' : 'Approved answer'} {index + 1}
+                  <textarea
+                    className="field"
+                    maxLength={key === 'question' ? 160 : 400}
+                    value={faq[key]}
+                    onChange={(e) => {
+                      const faqs = [...value.business.knowledge.faqs];
+                      faqs[index] = { ...faq, [key]: e.currentTarget.value };
+                      setValue({
+                        ...value,
+                        business: {
+                          ...value.business,
+                          knowledge: { ...value.business.knowledge, faqs },
+                        },
+                      });
+                    }}
+                  />
+                </label>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setValue({
+                    ...value,
+                    business: {
+                      ...value.business,
+                      knowledge: {
+                        ...value.business.knowledge,
+                        faqs: value.business.knowledge.faqs.filter((_, i) => i !== index),
+                      },
+                    },
+                  })
+                }
+              >
+                Remove question {index + 1}
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            disabled={value.business.knowledge.faqs.length >= 8}
+            onClick={() =>
+              setValue({
+                ...value,
+                business: {
+                  ...value.business,
+                  knowledge: {
+                    ...value.business.knowledge,
+                    faqs: [...value.business.knowledge.faqs, { question: '', answer: '' }],
+                  },
+                },
+              })
+            }
+          >
+            Add approved question and answer
+          </Button>
+        </section>
         <label className="block text-sm">
           Preferred tone
           <select
@@ -418,6 +637,10 @@ function RunResult({ run, lead }: { run: AiRun; lead?: Lead }) {
       'Real AI is not configured or the provider rejected the request. Ask an administrator to check server configuration.',
     RATE_LIMITED:
       'The provider limited this request. Automatic retries are bounded to three attempts. Create a new request after the limit clears.',
+    INPUT_LIMIT:
+      'This inquiry and its business or conversation context exceed the AI size limit. Ask an administrator to shorten the business knowledge before intentionally requesting again.',
+    CANCELLED_UNCERTAIN:
+      'The worker stopped before confirming inference. Review provider usage before requesting again.',
     INVALID_OUTPUT:
       'The provider returned unsupported or ungrounded output. No result or draft was saved.',
     INFERENCE_UNCERTAIN:
@@ -455,26 +678,53 @@ function RunResult({ run, lead }: { run: AiRun; lead?: Lead }) {
             Recommended priority: {result.analysis.priority}. This is not a verified customer fact.
           </p>
           <p>{result.reasoning}</p>
+          {result.analysis.intentCategory && (
+            <p>Customer intent: {label(result.analysis.intentCategory)}</p>
+          )}
+          {result.analysis.serviceFit && (
+            <p>
+              Service match: {label(result.analysis.serviceFit)}. Location match:{' '}
+              {label(result.analysis.areaFit ?? 'unknown')}.
+            </p>
+          )}
+          {result.analysis.humanReview && (
+            <p className="font-medium">A person should review this inquiry before acting.</p>
+          )}
+          {result.analysis.conflictingInformation && (
+            <p>Customer details changed or conflict. Confirm the latest information.</p>
+          )}
+          {!!result.grounding?.questions.length && (
+            <div>
+              <p className="font-medium">Business information still needed</p>
+              <ul>
+                {result.grounding.questions.map((q) => (
+                  <li key={q}>{q}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <p>Suggested next action: {label(result.analysis.nextAction)}</p>
           <dl className="space-y-2">
-            {(['intent', 'service', 'urgency', 'location', 'timeframe'] as const).map((k) => (
-              <div key={k}>
-                <dt className="font-medium capitalize">{k}</dt>
-                <dd>
-                  {result.analysis[k] ? (
-                    <>
-                      <q>{result.analysis[k]?.quote}</q>
-                      <span className="text-xs text-muted-foreground">
-                        {' '}
-                        — {result.analysis[k]?.source}
-                      </span>
-                    </>
-                  ) : (
-                    'Unknown — confirm with the customer'
-                  )}
-                </dd>
-              </div>
-            ))}
+            {(['intent', 'service', 'urgency', 'location', 'timeframe', 'budget'] as const).map(
+              (k) => (
+                <div key={k}>
+                  <dt className="font-medium capitalize">{k}</dt>
+                  <dd>
+                    {result.analysis[k] ? (
+                      <>
+                        <q>{result.analysis[k]?.quote}</q>
+                        <span className="text-xs text-muted-foreground">
+                          {' '}
+                          — {result.analysis[k]?.source}
+                        </span>
+                      </>
+                    ) : (
+                      'Unknown — confirm with the customer'
+                    )}
+                  </dd>
+                </div>
+              ),
+            )}
           </dl>
           {!!result.analysis.requirements.length && (
             <ul>
@@ -509,6 +759,19 @@ function RunResult({ run, lead }: { run: AiRun; lead?: Lead }) {
           Run {run.id} · {run.trigger} · {run.provider} / {run.model ?? 'not executed'} · prompt{' '}
           {run.prompt_version} · analysis v{run.analysis_version} · attempts {run.attempts}
         </p>
+        {result?.grounding && (
+          <p>
+            Business knowledge version {result.grounding.knowledgeVersion}. Inquiry received{' '}
+            {new Date(result.grounding.inquiryAt).toLocaleString()}. Recent messages considered:{' '}
+            {result.grounding.conversationIds.length}. Relative timeframes retain the customer's
+            wording.
+          </p>
+        )}
+        {result?.grounding?.knowledge.map((k, i) => (
+          <p key={i}>
+            Approved {k.reference.category}: {k.text}
+          </p>
+        ))}
         <p>
           Duration: {run.duration_ms === null ? 'unavailable' : `${run.duration_ms} ms`}.
           Input/output tokens: {run.input_tokens ?? 'not reported'} /{' '}

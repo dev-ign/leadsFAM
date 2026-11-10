@@ -4,6 +4,7 @@ import {
   AiFailure,
   openAiProvider,
   questionText,
+  knowledgeText,
   simulationProvider,
   validateGroundedOutput,
   type AiConfig,
@@ -12,7 +13,7 @@ import {
 } from './provider.js';
 
 export async function processAi(
-  db: AutomationDatabase,
+  db: Pick<AutomationDatabase, 'prepareAi' | 'finishAi'>,
   claimInput: unknown,
   config: AiConfig,
   stop?: AbortSignal,
@@ -26,18 +27,19 @@ export async function processAi(
     config.model ?? 'unconfigured',
   );
   if (prepared === null) return;
-  const envelope = aiEnvelopeSchema.parse(prepared);
   const started = Date.now();
   let usage: Usage = {},
     code: string | null = null;
-  let result: ReturnType<typeof aiOutcomeSchema.parse> | null = null;
+  let providerModel: string | null = null;
+  let result: ReturnType<typeof aiOutcomeSchema.parse> | null;
   const signal = stop
-    ? AbortSignal.any([stop, AbortSignal.timeout(config.deadlineMs ?? 8000)])
-    : AbortSignal.timeout(config.deadlineMs ?? 8000);
+    ? AbortSignal.any([stop, AbortSignal.timeout(config.deadlineMs ?? 15000)])
+    : AbortSignal.timeout(config.deadlineMs ?? 15000);
   let aborted: (() => void) | undefined;
   try {
+    const envelope = aiEnvelopeSchema.parse(prepared);
     if (signal.aborted) throw new AiFailure('CANCELLED_UNCERTAIN');
-    if (Buffer.byteLength(JSON.stringify(envelope.source)) > (config.maxInputBytes ?? 10000))
+    if (Buffer.byteLength(JSON.stringify(envelope.source)) > (config.maxInputBytes ?? 24000))
       throw new AiFailure('INPUT_LIMIT');
     const provider =
       override ??
@@ -49,12 +51,17 @@ export async function processAi(
     });
     const answer = await Promise.race([
       provider.execute(
-        envelope.task === 'analysis' ? { ...envelope.source, contactName: '' } : envelope.source,
+        {
+          ...envelope.source,
+          contactName: envelope.task === 'analysis' ? '' : envelope.source.contactName,
+          request: { task: envelope.task, channel: envelope.channel, kind: envelope.kind },
+        },
         signal,
       ),
       failure,
     ]);
     usage = answer.usage;
+    providerModel = answer.model ?? null;
     const output = validateGroundedOutput(answer.output, envelope.source);
     const a = output.analysis;
     const reasoning =
@@ -70,25 +77,45 @@ export async function processAi(
       const formal = envelope.source.business.tone === 'formal';
       const greeting = firstName ? `${formal ? 'Hello' : 'Hi'} ${firstName},` : 'Hello,';
       const thanks = `Thank you for contacting${envelope.source.business.name ? ` ${envelope.source.business.name}` : ' our team'}.`;
-      const handoff = envelope.kind === 'handoff' || a.nextAction === 'human_review';
-      const service = envelope.source.business.services.find(
-        (s) => s.toLowerCase() === a.service?.quote.toLowerCase(),
-      );
+      const handoff =
+        envelope.kind === 'handoff' ||
+        a.status === 'requires_manual_review' ||
+        a.conflictingInformation ||
+        a.serviceFit === 'unsupported' ||
+        a.areaFit === 'unsupported';
+      const service =
+        a.serviceFit === 'supported' && a.approvedService !== null
+          ? envelope.source.business.services[a.approvedService]
+          : undefined;
       const questions = handoff
         ? []
         : output.plan.questions
+            .filter((q) => q !== 'scope' || output.plan.businessQuestions.length === 0)
             .slice(0, envelope.channel === 'sms' ? 2 : 3)
             .map((q) => questionText[q]);
+      const approvedFacts = handoff
+        ? []
+        : output.plan.knowledge.map((ref) => knowledgeText(envelope.source, ref));
+      const businessQuestions = handoff
+        ? []
+        : output.plan.businessQuestions.map((index) => envelope.source.business.questions[index]!);
+      // Compose only server wording and exact, validated approved facts/questions.
+      // Customer excerpts and arbitrary provider prose never enter the customer message.
+      const safeText = (text: string) =>
+        !/https?:|www\.|[\w.+-]+@[\w.-]+|system prompt|ignore.{0,40}instruction/i.test(text);
+      if (![envelope.source.business.name, service ?? '', ...businessQuestions].every(safeText))
+        throw new AiFailure('INVALID_OUTPUT');
       const body = [
         greeting,
         thanks,
-        ...(service ? [`Regarding your inquiry about ${service}:`] : []),
+        ...(service ? [`About your ${service.toLowerCase()} request:`] : []),
+        ...approvedFacts.slice(0, envelope.channel === 'sms' ? 1 : 3),
         handoff
           ? 'Your inquiry needs a team review before we can recommend the next step.'
           : envelope.kind === 'acknowledgment'
             ? 'We have received your inquiry for review.'
             : 'To help our team review your inquiry:',
-        ...questions,
+        ...[...businessQuestions, ...questions].slice(0, envelope.channel === 'sms' ? 2 : 3),
         'Thank you.',
       ].join(envelope.channel === 'sms' ? ' ' : '\n\n');
       proposal = {
@@ -101,8 +128,25 @@ export async function processAi(
         body,
       };
     }
-    result = aiOutcomeSchema.parse({ analysis: a, proposal, reasoning });
+    result = aiOutcomeSchema.parse({
+      analysis: a,
+      proposal,
+      reasoning,
+      grounding: {
+        knowledgeVersion: envelope.source.knowledgeVersion,
+        inquiryAt: envelope.source.inquiryAt,
+        knowledge: output.plan.knowledge.map((reference) => ({
+          reference,
+          text: knowledgeText(envelope.source, reference),
+        })),
+        questions: a.requiredAnswers
+          .filter((r) => r.evidence === null)
+          .map((r) => envelope.source.business.knowledge.requiredInformation[r.index]!),
+        conversationIds: envelope.source.conversation.map((m) => m.id),
+      },
+    });
   } catch (error) {
+    result = null;
     if (error instanceof AiFailure) {
       code = error.code;
       usage = { ...usage, ...error.usage };
@@ -117,7 +161,7 @@ export async function processAi(
     config.outputRate !== undefined
       ? Math.ceil(usage.inputTokens * config.inputRate + usage.outputTokens * config.outputRate)
       : null;
-  await db.finishAi(claim.id, claim.token, claim.generation, {
+  const completion = {
     result,
     code,
     retryable: code === 'RATE_LIMITED',
@@ -126,5 +170,25 @@ export async function processAi(
     outputTokens: usage.outputTokens ?? null,
     estimatedCostMicrousd: estimate,
     pricingVersion: estimate === null ? null : (config.pricingVersion ?? null),
-  });
+    providerModel,
+  };
+  try {
+    await db.finishAi(claim.id, claim.token, claim.generation, completion);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'lease_lost') throw error;
+    // One recovery attempt, with the original fence and supplied metadata.
+    // Never repeat inference or retry the result that failed persistence.
+    try {
+      await db.finishAi(claim.id, claim.token, claim.generation, {
+        ...completion,
+        result: null,
+        code: code ?? 'INVALID_OUTPUT',
+      });
+    } catch (recoveryError) {
+      // An uncertain first commit may already have consumed this fence. A
+      // competing completion/recovery must not be overwritten or finalized twice.
+      if (!(recoveryError instanceof Error && recoveryError.message === 'lease_lost'))
+        throw recoveryError;
+    }
+  }
 }
