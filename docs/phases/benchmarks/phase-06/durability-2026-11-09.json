@@ -1,0 +1,141 @@
+{
+  "at": "2026-11-09T18:41:16.010Z",
+  "target": "LeadsFam loopback development stack",
+  "realInference": false,
+  "reset": false,
+  "migrationsApplied": false,
+  "stages": [
+    {
+      "stage": "corrected durability fixture regressions",
+      "status": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "stage": "remaining affected AI database/security regressions",
+      "status": 0,
+      "tests": 21,
+      "pass": 21,
+      "fail": 0,
+      "skipped": 0
+    }
+  ],
+  "fixtureCorrections": [
+    {
+      "stages": [
+        {
+          "stage": "new durability regressions",
+          "status": 1,
+          "tests": 5,
+          "pass": 1,
+          "fail": 4,
+          "skipped": 0
+        }
+      ],
+      "correction": "Completed the new knowledge fixture using existing emptyBusinessKnowledge defaults. No validator was relaxed."
+    },
+    {
+      "stages": [
+        {
+          "stage": "corrected durability fixture regressions",
+          "status": 1,
+          "tests": 4,
+          "pass": 3,
+          "fail": 1,
+          "skipped": 0
+        }
+      ],
+      "correction": "Used a complete valid completion envelope when testing a consumed fence. Required-field validation correctly precedes lease validation."
+    }
+  ],
+  "reusedPassingTests": [
+    "lost completion acknowledgment cannot overwrite a committed result or finalize twice",
+    "oversized valid worker output fails once with reported metadata or absent usage, never another inference",
+    "completion constraint failure recovers through the original fenced RPC without another inference",
+    "oversized completion retains authority, staleness, expired-lease and concurrent-finish protections"
+  ],
+  "serverEncoding": "UTF8",
+  "before": {
+    "public.organizations": {
+      "rows": 2,
+      "sha256": "0bb26f0a33b88e04c04104ed931e8347cf5ade2bb34a7fb83d54ad5ecebe5ff6"
+    },
+    "public.organization_memberships": {
+      "rows": 2,
+      "sha256": "b69b0790be384fe9e6c5ec644c696abf66cb1cf23a5d03d3e331986f8e881d22"
+    },
+    "public.contacts": {
+      "rows": 4,
+      "sha256": "94d65f70993feb698ecada65e16f37efee4021f5437c092c649fc06e2d9d0f2e"
+    },
+    "public.leads": {
+      "rows": 5,
+      "sha256": "169520bfea00bcc9bb135614acbc7af719e345d16a94ce963e5ab4cfc6d79d89"
+    },
+    "private.ai_settings": {
+      "rows": 1,
+      "sha256": "35b8203f0fe6e4356736f7e2c9b92386431dd390fc81accc508e8b20c0f5caa8"
+    },
+    "private.ai_runs": {
+      "rows": 9,
+      "sha256": "6251d740623d0da7c290ce08d119328456404affe874b6b68039e1f35989e073"
+    },
+    "private.ai_attempts": {
+      "rows": 9,
+      "sha256": "d4ca6bc1db2ae8115704feb0f5a11e84c414cb54515a65e4df14201a2de1309a"
+    },
+    "private.communication_messages": {
+      "rows": 3,
+      "sha256": "0c6b547de467db42e171c8556ec3049d26c31485e71fd1e1a898a9fd6c85156a"
+    },
+    "private.communication_jobs": {
+      "rows": 1,
+      "sha256": "353dbd136c39cb9929b87f13fa91255ae1c76b13bf216fb82da03808fe49549d"
+    }
+  },
+  "after": {
+    "public.organizations": {
+      "rows": 2,
+      "sha256": "0bb26f0a33b88e04c04104ed931e8347cf5ade2bb34a7fb83d54ad5ecebe5ff6"
+    },
+    "public.organization_memberships": {
+      "rows": 2,
+      "sha256": "b69b0790be384fe9e6c5ec644c696abf66cb1cf23a5d03d3e331986f8e881d22"
+    },
+    "public.contacts": {
+      "rows": 4,
+      "sha256": "94d65f70993feb698ecada65e16f37efee4021f5437c092c649fc06e2d9d0f2e"
+    },
+    "public.leads": {
+      "rows": 5,
+      "sha256": "169520bfea00bcc9bb135614acbc7af719e345d16a94ce963e5ab4cfc6d79d89"
+    },
+    "private.ai_settings": {
+      "rows": 1,
+      "sha256": "35b8203f0fe6e4356736f7e2c9b92386431dd390fc81accc508e8b20c0f5caa8"
+    },
+    "private.ai_runs": {
+      "rows": 9,
+      "sha256": "6251d740623d0da7c290ce08d119328456404affe874b6b68039e1f35989e073"
+    },
+    "private.ai_attempts": {
+      "rows": 9,
+      "sha256": "d4ca6bc1db2ae8115704feb0f5a11e84c414cb54515a65e4df14201a2de1309a"
+    },
+    "private.communication_messages": {
+      "rows": 3,
+      "sha256": "0c6b547de467db42e171c8556ec3049d26c31485e71fd1e1a898a9fd6c85156a"
+    },
+    "private.communication_jobs": {
+      "rows": 1,
+      "sha256": "353dbd136c39cb9929b87f13fa91255ae1c76b13bf216fb82da03808fe49549d"
+    }
+  },
+  "recordsPreserved": true,
+  "catalogPreserved": true,
+  "catalogSha256": "4b621c892d928cad9752330d3c66cc912280499478f6ce42caea30b0177e4e4a",
+  "status": "passed",
+  "stoppedWithVolumesPreserved": true
+}

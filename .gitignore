@@ -25,6 +25,7 @@ service-account*.json
 .aws/
 .secrets/
 /docs/**
+!/docs/ROADMAP.md
 !/docs/architecture/
 !/docs/architecture/phase-03.md
 !/docs/phases/
@@ -42,3 +43,9 @@ service-account*.json
 !/docs/phases/phase-04-manual.md
 !/docs/phases/benchmarks/phase-04/
 !/docs/phases/benchmarks/phase-04/**
+
+!/docs/architecture/phase-06.md
+!/docs/phases/phase-06-report.md
+!/docs/phases/phase-06-manual.md
+!/docs/phases/benchmarks/phase-06/
+!/docs/phases/benchmarks/phase-06/**

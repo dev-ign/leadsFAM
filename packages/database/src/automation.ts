@@ -112,12 +112,16 @@ export class AutomationDatabase {
   }
   async finishAi(id: string, token: string, generation: number, result: unknown): Promise<void> {
     if (this.mode !== 'worker') throw new Error('Invalid runtime capability');
-    await this.pool.query('select private.ai_finish($1::uuid,$2::uuid,$3::integer,$4::jsonb)', [
-      id,
-      token,
-      generation,
-      JSON.stringify(result),
-    ]);
+    // Match ai_runs.result's 16000-byte JSONB-text constraint exactly, after
+    // PostgreSQL normalization/escaping, rather than estimating compact JSON.
+    // The same fenced RPC still decides authority, staleness and retry state.
+    await this.pool.query(
+      `select private.ai_finish($1::uuid,$2::uuid,$3::integer,
+        case when octet_length(($4::jsonb->'result')::text)>16000
+          then $4::jsonb || '{"result":null,"code":"INVALID_OUTPUT","retryable":false}'::jsonb
+          else $4::jsonb end)`,
+      [id, token, generation, JSON.stringify(result)],
+    );
   }
   async close() {
     await this.pool.end();

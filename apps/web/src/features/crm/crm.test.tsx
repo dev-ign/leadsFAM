@@ -2,7 +2,13 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
-import type { Contact, Lead, AutomationOverview, Workflow } from '@leadops/shared';
+import {
+  aiSettingsSchema,
+  type Contact,
+  type Lead,
+  type AutomationOverview,
+  type Workflow,
+} from '@leadops/shared';
 import { AppRoutes } from '../../app/app';
 import { apiClient, ApiClientError } from '../../lib/api-client';
 const orgA = {
@@ -96,6 +102,67 @@ beforeEach(() => {
 });
 
 describe('CRM confirmed workflows', () => {
+  it('edits approved business knowledge through plain forms and saves the versioned settings', async () => {
+    vi.spyOn(apiClient, 'aiSettings').mockResolvedValue(
+      aiSettingsSchema.parse({
+        enabled: false,
+        provider: 'simulation',
+        dailyLimit: 10,
+        concurrentLimit: 1,
+        version: 3,
+        business: {
+          name: 'FreshNest',
+          description: '',
+          services: ['Deep cleaning'],
+          serviceAreas: ['Tampa'],
+          tone: 'warm',
+          questions: [],
+          guidelines: '',
+          restrictions: '',
+          escalation: '',
+        },
+      }),
+    );
+    vi.spyOn(apiClient, 'aiHistory').mockResolvedValue({ items: [], next: null });
+    const save = vi.spyOn(apiClient, 'saveAiSettings').mockResolvedValue({ ok: true });
+    app(`/organizations/${orgA.id}/agents`);
+    await userEvent.type(
+      await screen.findByLabelText('Approved pricing or estimate policy'),
+      'Request an estimate after property review.',
+    );
+    await userEvent.type(
+      screen.getByLabelText('Information required to qualify (one per line)'),
+      'Bathrooms\nFurnished or empty',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Add approved question and answer' }));
+    await userEvent.type(
+      screen.getByLabelText('Customer question 1'),
+      'Do you provide move-out cleaning?',
+    );
+    await userEvent.type(screen.getByLabelText('Approved answer 1'), 'Please request an estimate.');
+    await userEvent.click(screen.getByRole('button', { name: 'Save AI settings' }));
+    await waitFor(() =>
+      expect(save).toHaveBeenCalledWith(
+        orgA.id,
+        3,
+        expect.objectContaining({
+          business: expect.objectContaining({
+            knowledge: expect.objectContaining({
+              pricing: 'Request an estimate after property review.',
+              requiredInformation: ['Bathrooms', 'Furnished or empty'],
+              faqs: [
+                {
+                  question: 'Do you provide move-out cleaning?',
+                  answer: 'Please request an estimate.',
+                },
+              ],
+            }),
+          }),
+        }),
+      ),
+    );
+  });
+
   it('submits server filters, follows cursors and rejects a late previous-query response', async () => {
     let finish!: (value: { items: Lead[]; cursor: string | null }) => void;
     vi.mocked(apiClient.leads)

@@ -1,0 +1,20 @@
+{
+  "environment": "loopback local development; synthetic fixture only",
+  "counts": {
+    "new_leads": 2,
+    "simulated_successes": 4,
+    "real_runs": 0,
+    "workflow_successes": 1,
+    "mock_delivered": 1,
+    "unexpected_recipients": 0,
+    "pending_ai": 0
+  },
+  "observedViewport": {
+    "width": 862,
+    "documentWidth": 862
+  },
+  "smsCharacters": 258,
+  "browserWarningErrors": [],
+  "liveProviderValidated": false,
+  "fixtureCleanupVerified": true
+}
