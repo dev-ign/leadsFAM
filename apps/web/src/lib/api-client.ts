@@ -1,6 +1,10 @@
 import {
   aiSettingsSchema,
   aiHistorySchema,
+  conversationRecommendationsSchema,
+  conversationRecommendationSchema,
+  type conversationEvaluationInput,
+  type recommendationDecisionInput,
   aiRunSchema,
   type aiSettingsInput,
   type aiRequestInput,
@@ -147,6 +151,41 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
   const resource = (id: string, kind: 'contacts' | 'leads', key: string) =>
     `${org(id)}/${kind}/${encodeURIComponent(key)}`;
   return {
+    conversationRecommendations: (
+      id: string,
+      conversation: string,
+      cursor?: string,
+      signal?: AbortSignal,
+    ) =>
+      request(
+        `${org(id)}/ai/conversations/${encodeURIComponent(conversation)}${queryString({ cursor })}`,
+        conversationRecommendationsSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    evaluateConversation: (
+      id: string,
+      key: string,
+      input: z.infer<typeof conversationEvaluationInput>,
+    ) =>
+      request(
+        `${org(id)}/ai/recommendations/${encodeURIComponent(key)}`,
+        conversationRecommendationSchema,
+        'PUT',
+        input,
+      ),
+    reviewRecommendation: (
+      id: string,
+      key: string,
+      input: z.infer<typeof recommendationDecisionInput>,
+    ) =>
+      request(
+        `${org(id)}/ai/recommendations/${encodeURIComponent(key)}/review`,
+        conversationRecommendationSchema,
+        'POST',
+        input,
+      ),
     inboundReview: (id: string, cursor?: string, signal?: AbortSignal) =>
       request(
         `${org(id)}/communications/inbound${queryString({ cursor })}`,

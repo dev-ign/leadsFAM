@@ -1,0 +1,39 @@
+{
+  "node": "26.13.0",
+  "ui": {
+    "file": "apps/web/src/features/crm/crm.test.tsx",
+    "pass": 32,
+    "fail": 0,
+    "afterBrowserFocusCorrection": {
+      "pass": 1,
+      "skipped": 31,
+      "fail": 0
+    }
+  },
+  "newAuthHTTP": {
+    "file": "tests/ai/http.test.mjs",
+    "pass": 5,
+    "fail": 0
+  },
+  "orderingAndRollback": {
+    "file": "tests/ai/database.test.mjs",
+    "pass": 3,
+    "fail": 0
+  },
+  "initialCorrections": [
+    "The new shared fixture first omitted the existing required lead version increment; six cases stopped in fixture setup.",
+    "A synthetic supported-service area was added to the fixture instead of weakening the existing qualifier escalation for unknown area. An unsupported permission field was removed.",
+    "The default shell selected Node 20, causing unchanged ESM dependencies to fail before HTTP/UI behavior ran. Verification switched to pinned Node 26.13.0; no dependency changes.",
+    "A browser stale-error focus gap was corrected; the affected UI case and actual browser error focus passed."
+  ],
+  "status": "passed",
+  "finalStatic": {
+    "webBuildAndTypecheckAfterFocusCorrection": "passed",
+    "focusedESLint": "passed",
+    "packageBoundaries": 6,
+    "formattingDiffAndDocumentationLinks": "passed",
+    "secretCanaryWorkingTreeAndHistory": "passed",
+    "historyCommitsScanned": 11,
+    "developmentServiceListeners": "none observed"
+  }
+}

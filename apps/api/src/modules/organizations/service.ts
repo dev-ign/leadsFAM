@@ -53,6 +53,9 @@ export class OrganizationService {
           'suppression_review_required',
           'ai_disabled',
           'ai_limit_reached',
+          'conversation_ineligible',
+          'stale_recommendation',
+          'orchestration_simulation_required',
         ].includes(error.reason)
       )
         throw new IdentityFailure(409, error.reason.toUpperCase());

@@ -1,0 +1,77 @@
+{
+  "at": "2026-11-10T06:02:51.739Z",
+  "node": "26.13.0",
+  "reset": false,
+  "realProviders": false,
+  "stages": [
+    {
+      "name": "AI database/lifecycle and existing qualification",
+      "exitCode": 0,
+      "logSha256": "ff81ca67956b35006c998833e350138abaa1461ea473b7d7cdaba29081808e50",
+      "tests": 35,
+      "pass": 35,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "name": "Existing AI real-Auth HTTP",
+      "exitCode": 0,
+      "logSha256": "ff5d8346083644a7c874bc19b7020a7a3906980feaa8089237f856f94f68108c",
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "name": "Communications/inbound and approval regression",
+      "exitCode": 0,
+      "logSha256": "071dee36ad2130ce51461be7f3cb0becf296b6d3625d6f08b752da5dce464e67",
+      "tests": 33,
+      "pass": 33,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "name": "Automation/workflow regression",
+      "exitCode": 0,
+      "logSha256": "61f75cd9b87cf7b351cb4111b3ce394813187633405b211084787151ca92d54c",
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "name": "CRM/Auth workflow regression",
+      "exitCode": 0,
+      "logSha256": "a01c1c775e4cdbece687e65b1456a4d4d2d0b5f2998c101788e9d49def1fa8fa",
+      "tests": 38,
+      "pass": 38,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "name": "Core database/RLS concurrency regression",
+      "exitCode": 0,
+      "logSha256": "b555e88e353c18d97d973a8ff4c7ae68c78ebc7b7c0c18c393c705713a2e79ee",
+      "tests": 37,
+      "pass": 37,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "name": "pgTAP security",
+      "exitCode": 0,
+      "logSha256": "e750042e99857e462cd45c17e4dcc6092ee861cb2bf5025f4a89a4651fd4d063"
+    },
+    {
+      "name": "Local advisors",
+      "exitCode": 0,
+      "logSha256": "025531333aadfa15d33fde09c0dc48b3a87feb8581d06857e492a89148f98aae"
+    },
+    {
+      "name": "Public type drift",
+      "exitCode": 0,
+      "logSha256": "e95decc238d4a7be837331e0860142ecaa616d367b82b71443efc9733288ee9a"
+    }
+  ]
+}

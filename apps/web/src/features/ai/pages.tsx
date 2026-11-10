@@ -526,6 +526,16 @@ export function LeadAi({ lead }: { lead: Lead }) {
       </fieldset>
       {busy && <p role="status">Requesting AI assistance…</p>}
       {error && <p role="alert">{error}</p>}
+      <p className="text-sm">
+        For an incoming reply’s suggested next action, open its conversation. Recommendations have
+        separate review and freshness checks.
+      </p>
+      <Link
+        className="underline"
+        to={`/organizations/${organization.id}/communications?leadId=${lead.id}`}
+      >
+        Review conversation next actions
+      </Link>
       <RunHistory key={refreshKey} lead={lead} />
     </section>
   );
@@ -747,6 +757,13 @@ function RunResult({ run, lead }: { run: AiRun; lead?: Lead }) {
               to={`${'/organizations/' + organization.id}/communications?leadId=${run.lead_id}`}
             >
               Open saved communication draft
+            </Link>
+          ) : run.recommendation_conversation_id ? (
+            <Link
+              className="underline"
+              to={`/organizations/${organization.id}/communications/${run.recommendation_conversation_id}`}
+            >
+              Review this conversation’s next action
             </Link>
           ) : (
             lead && result.proposal && <DraftReview key={run.id} lead={lead} run={run} />

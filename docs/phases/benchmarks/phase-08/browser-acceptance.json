@@ -1,0 +1,148 @@
+{
+  "at": "2026-11-10T16:00:18.065Z",
+  "syntheticOnly": true,
+  "realProviders": false,
+  "finalCounts": {
+    "receipts": 4,
+    "recommendations": 4,
+    "ai": 4,
+    "outgoing": 2,
+    "pending_outbound": 0
+  },
+  "recommendations": [
+    {
+      "state": "accepted",
+      "kind": "ASK_FOR_INFORMATION",
+      "version": 3,
+      "decision": "prepare",
+      "reviewed_at": "2026-11-10T06:08:01.631Z",
+      "has_message": true
+    },
+    {
+      "state": "stale",
+      "kind": "ASK_FOR_INFORMATION",
+      "version": 3,
+      "decision": null,
+      "reviewed_at": null,
+      "has_message": false
+    },
+    {
+      "state": "stale",
+      "kind": "HUMAN_ATTENTION",
+      "version": 3,
+      "decision": null,
+      "reviewed_at": null,
+      "has_message": false
+    },
+    {
+      "state": "dismissed",
+      "kind": "HUMAN_ATTENTION",
+      "version": 4,
+      "decision": "dismiss",
+      "reviewed_at": "2026-11-10T06:14:04.126Z",
+      "has_message": false
+    }
+  ],
+  "preparedMessage": {
+    "state": "delivered",
+    "version": 3,
+    "separately_approved": true,
+    "exact_human_edit": true
+  },
+  "canonicalLeadUnchanged": true,
+  "performance": {
+    "samples": 20,
+    "p50": 9.992708000005223,
+    "p95": 11.284999999974389,
+    "maximum": 25.363833000010345,
+    "rawSamplesRetained": false,
+    "scope": "Local Fastify-injected authenticated read, small synthetic history, excludes TCP/TLS. Timings observed before interruption."
+  },
+  "observationsBeforeInterruption": [
+    {
+      "receipts": 1,
+      "recommendations": 0,
+      "ai": 0,
+      "outgoing": 1,
+      "pending_outbound": 0
+    },
+    {
+      "receipts": 1,
+      "recommendations": 1,
+      "ai": 1,
+      "outgoing": 2,
+      "pending_outbound": 0
+    },
+    {
+      "afterOriginalReplay": true,
+      "receipts": 1,
+      "recommendations": 1,
+      "ai": 1,
+      "outgoing": 2,
+      "pending_outbound": 0
+    },
+    {
+      "afterCorrectionBeforeExplicitEvaluation": true,
+      "receipts": 3,
+      "recommendations": 2,
+      "ai": 2,
+      "outgoing": 2,
+      "pending_outbound": 0
+    }
+  ],
+  "interruption": "The fixture controller was terminated by an intentional turn interruption before its final evidence write. Browser observations/tool outputs and persisted fixture outcomes were reconciled before scoped cleanup; no test scenario was claimed from a lost buffer.",
+  "cleaned": true,
+  "preservedBusinessTables": 12,
+  "businessRecordsPreserved": true,
+  "after": {
+    "public.organizations": {
+      "rows": 2,
+      "hash": "30339125e47b8a2b8917c3fb05f0b36761dd8f95965a2e9779f16ae05f3b76f8"
+    },
+    "public.organization_memberships": {
+      "rows": 2,
+      "hash": "9da4514d83bf446fbabbfaa56b0122807edde17cda27661c4a00a1c5b46dc930"
+    },
+    "public.contacts": {
+      "rows": 4,
+      "hash": "d3007e21bebd12d3bf0bf7727b4856bafdd88847f82fb8b7e46b63d8b1902be8"
+    },
+    "public.leads": {
+      "rows": 5,
+      "hash": "ebd283369c297e96b3777b1b5e0a1262211a357418cf014006c3d84dde96a360"
+    },
+    "private.source_integrations": {
+      "rows": 5,
+      "hash": "d20f110ac2db34abf78d973e89ea72f58efc9a84cec542d786d7cc88bb3a8563"
+    },
+    "private.ai_settings": {
+      "rows": 1,
+      "hash": "68e8471e2c64e5c8cd1f063c222d4cfa43de27d67b202990e1efa09c9b2ca52c"
+    },
+    "private.ai_runs": {
+      "rows": 9,
+      "hash": "0303158213da5ea2b659ecd87091725b733e8d86e74f2c765a6a469c1136695d"
+    },
+    "private.ai_attempts": {
+      "rows": 9,
+      "hash": "8598d10f698a0d222379c6c295cc326e05066fcab551344297bae1aaf879a11a"
+    },
+    "private.communication_messages": {
+      "rows": 3,
+      "hash": "975236694c9ae899db53df423c12e7d86ff59d467badee574ae813b4f72b1cc1"
+    },
+    "private.communication_jobs": {
+      "rows": 1,
+      "hash": "31ede307159ba18fedc3d60ad848ea42360e4dbcc60d1518bbd143ed64b1c731"
+    },
+    "private.conversations": {
+      "rows": 2,
+      "hash": "87c3ff169d0b561f043756f39eeaf77e3c2b3c23b577f0513049334680b370e5"
+    },
+    "private.inbound_receipts": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    }
+  },
+  "stoppedWithVolumesPreserved": true
+}

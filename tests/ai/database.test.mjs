@@ -1,7 +1,7 @@
 import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID, createHash, randomBytes } from 'node:crypto';
-import { fixture, pool, rpc } from '../database/fixture.mjs';
+import { fixture, pool, rpc, actor, waitForLock } from '../database/fixture.mjs';
 import { localIdentity } from '../../scripts/local-identity.mjs';
 import { AutomationDatabase, createSessionPool } from '../../packages/database/dist/index.js';
 import { processAi } from '../../apps/api/dist/modules/ai/execute.js';
@@ -1431,3 +1431,488 @@ test('authenticated inbound corrections enter only the existing manual six-messa
     );
     assert.equal((await history(f)).items[0].state, 'succeeded');
   }));
+
+async function orchestrationFixture(
+  f,
+  body = 'I need Deep cleaning in Exampletown. Please help with my inquiry.',
+) {
+  await pool.query(
+    "update public.leads set description='Synthetic cleaning inquiry',version=version+1 where id=$1",
+    [f.lead],
+  );
+  await manage(
+    f,
+    'settings',
+    null,
+    { ...settings, business: { ...business, serviceAreas: ['Exampletown'] } },
+    2,
+  );
+  const secret = 'lf_inb_' + randomBytes(32).toString('base64url'),
+    credentialHash = createHash('sha256').update(secret).digest('hex');
+  await rpc(f.ids.owner, 'automation_manage', [
+    f.org,
+    'integration',
+    'create',
+    null,
+    null,
+    { name: 'Synthetic Phase 08 replies', capability: 'mock_inbound', credentialHash },
+  ]);
+  const data = {
+    eventId: randomUUID(),
+    channel: 'email',
+    sender: f.email,
+    subject: 'Synthetic inquiry',
+    body,
+    replyTo: null,
+    occurredAt: null,
+  };
+  const received = await ingress.ingestInbound(credentialHash, data);
+  const message = (
+    await pool.query('select * from private.communication_messages where id=$1', [
+      received.messageId,
+    ])
+  ).rows[0];
+  f.conversation = message.conversation_id;
+  f.inboundHash = credentialHash;
+  f.inboundData = data;
+  f.incoming = (extra = {}) =>
+    ingress.ingestInbound(credentialHash, { ...data, eventId: randomUUID(), ...extra });
+  f.replay = () => ingress.ingestInbound(credentialHash, data);
+  return message;
+}
+const recommendations = (f, person = f.ids.owner) =>
+  rpc(person, 'ai_read', [f.org, 'conversation', f.conversation, {}]);
+async function evaluateConversation(f, id = randomUUID(), person = f.ids.owner) {
+  const source = await recommendations(f, person);
+  return manage(
+    f,
+    'conversation_evaluate',
+    id,
+    { conversationId: f.conversation, sourceVersion: source.sourceVersion },
+    null,
+    person,
+  );
+}
+const decide = (f, r, decision, person = f.ids.owner) =>
+  manage(f, 'conversation_review', r.id, { decision }, r.version, person);
+async function qualifyConversation(f) {
+  const rec = await evaluateConversation(f);
+  const claim = await worker.claimAi();
+  assert.equal(claim.id, rec.ai_run_id);
+  await processAi(worker, claim, config);
+  return (await recommendations(f)).items.find((r) => r.id === rec.id);
+}
+async function orchestrationConsent(f) {
+  await rpc(f.ids.owner, 'communication_manage', [
+    f.org,
+    'permission',
+    null,
+    null,
+    {
+      contactId: f.contact,
+      channel: 'email',
+      purpose: 'transactional',
+      recipient: f.email,
+      status: 'granted',
+      source: 'manual',
+      collectedAt: new Date().toISOString(),
+      jurisdiction: 'US',
+      policyVersion: 'synthetic-v1',
+      evidence: 'fictional-only',
+    },
+  ]);
+}
+
+test('Phase 08 eligibility is human-triggered and concurrent source requests share one existing AI run', () =>
+  setup(async (f) => {
+    await orchestrationFixture(f);
+    const initial = await recommendations(f);
+    assert.equal(initial.eligible, true);
+    assert.equal(initial.items.length, 0);
+    assert.equal((await history(f)).items.length, 0);
+    const results = await Promise.all([evaluateConversation(f), evaluateConversation(f)]);
+    assert.equal(results[0].id, results[1].id);
+    assert.equal((await history(f)).items.length, 1);
+    await f.replay();
+    assert.equal((await evaluateConversation(f)).id, results[0].id);
+    await processAi(worker, await worker.claimAi(), config);
+    const ready = (await recommendations(f)).items[0];
+    assert.equal(ready.state, 'pending_review');
+    assert.equal(ready.kind, 'ASK_FOR_INFORMATION');
+    assert.equal(ready.evaluation.provider, 'simulation');
+    assert.equal(ready.evaluation.input_tokens, null);
+    assert.equal(ready.message_id, null);
+    assert.equal(
+      (
+        await pool.query(
+          'select count(*)::int n from private.communication_jobs where organization_id=$1',
+          [f.org],
+        )
+      ).rows[0].n,
+      0,
+    );
+  }));
+
+test('Phase 08 immutable vocabulary gives conflicts, cancellation and escalation precedence over missing details', () =>
+  setup(async (f) => {
+    const basic = {
+      intentCategory: 'service_inquiry',
+      serviceFit: 'supported',
+      areaFit: 'unknown',
+      urgencyLevel: 'routine',
+      missing: ['location'],
+      requiredAnswers: [],
+      conflictingInformation: false,
+      humanReview: true,
+      nextAction: 'ask_questions',
+      status: 'needs_information',
+    };
+    const kind = async (a, cancel = false) =>
+      (
+        await pool.query('select private.orchestration_kind($1,$2) kind', [
+          JSON.stringify(a),
+          cancel,
+        ])
+      ).rows[0].kind;
+    assert.equal(await kind(basic), 'ASK_FOR_INFORMATION');
+    for (const override of [
+      { conflictingInformation: true },
+      { serviceFit: 'unsupported' },
+      { areaFit: 'unsupported' },
+      { urgencyLevel: 'urgent' },
+      { intentCategory: 'complaint' },
+      { nextAction: 'human_review' },
+      { serviceFit: 'unknown' },
+    ])
+      assert.equal(await kind({ ...basic, ...override }), 'HUMAN_ATTENTION');
+    assert.equal(await kind(basic, true), 'HUMAN_ATTENTION');
+    assert.equal(
+      await kind({
+        ...basic,
+        missing: [],
+        humanReview: false,
+        status: 'qualified_for_review',
+        nextAction: 'acknowledge',
+      }),
+      'PREPARE_FOLLOW_UP',
+    );
+    assert.equal(
+      await kind({ ...basic, missing: [], humanReview: false, nextAction: 'ask_questions' }),
+      'NO_ACTION',
+    );
+    await orchestrationFixture(f, 'Actually, cancel my Deep cleaning request.');
+    const rec = await qualifyConversation(f);
+    assert.equal(rec.kind, 'HUMAN_ATTENTION');
+    await assert.rejects(decide(f, rec, 'prepare'), { message: 'forbidden' });
+  }));
+
+test('Phase 08 review/preparation is atomic, consent-gated and idempotent without overwriting human edits', () =>
+  setup(async (f) => {
+    await orchestrationFixture(f);
+    const rec = await qualifyConversation(f);
+    await assert.rejects(decide(f, rec, 'prepare'), { message: 'recipient_ineligible' });
+    assert.equal((await recommendations(f)).items[0].state, 'pending_review');
+    await assert.rejects(
+      manage(f, 'save_draft', rec.ai_run_id, {
+        recipient: f.email,
+        ...rec.evaluation.result.proposal,
+      }),
+      { message: 'forbidden' },
+    );
+    await orchestrationConsent(f);
+    const results = await Promise.all([decide(f, rec, 'prepare'), decide(f, rec, 'prepare')]);
+    assert.equal(results[0].message_id, results[1].message_id);
+    assert.equal(results[0].state, 'accepted');
+    let message = (
+      await pool.query('select * from private.communication_messages where id=$1', [
+        results[0].message_id,
+      ])
+    ).rows[0];
+    assert.equal(message.state, 'draft');
+    assert.equal(message.approved_at, null);
+    assert.equal(message.recipient, f.email);
+    const edited = {
+      id: message.id,
+      contactId: f.contact,
+      leadId: f.lead,
+      channel: 'email',
+      purpose: 'transactional',
+      recipient: f.email,
+      subject: message.subject,
+      body: 'Human-reviewed synthetic wording.',
+    };
+    await rpc(f.ids.owner, 'communication_manage', [
+      f.org,
+      'draft',
+      message.id,
+      message.version,
+      edited,
+    ]);
+    await decide(f, rec, 'prepare');
+    message = (
+      await pool.query('select * from private.communication_messages where id=$1', [message.id])
+    ).rows[0];
+    assert.equal(message.body, edited.body);
+    assert.equal(message.version, 2);
+    assert.equal(
+      (
+        await pool.query(
+          'select count(*)::int n from private.communication_jobs where organization_id=$1',
+          [f.org],
+        )
+      ).rows[0].n,
+      0,
+    );
+    assert.equal(
+      (
+        await pool.query(
+          "select count(*)::int n from private.communication_messages where organization_id=$1 and direction='outbound'",
+          [f.org],
+        )
+      ).rows[0].n,
+      1,
+    );
+  }));
+
+test('Phase 08 concurrent decisions fence conflicts, preserve deferral history and deny foreign/revoked authority', () =>
+  setup(async (f) => {
+    await orchestrationFixture(f);
+    const rec = await qualifyConversation(f);
+    await assert.rejects(recommendations(f, f.ids.other), { message: 'not_found' });
+    await assert.rejects(decide(f, rec, 'accept', f.ids.other), { message: 'not_found' });
+    const deferred = await decide(f, rec, 'defer');
+    assert.equal(deferred.state, 'deferred');
+    assert.equal((await decide(f, rec, 'defer')).version, deferred.version);
+    const outcomes = await Promise.allSettled([
+      decide(f, deferred, 'accept'),
+      decide(f, deferred, 'dismiss'),
+    ]);
+    assert.equal(outcomes.filter((x) => x.status === 'fulfilled').length, 1);
+    assert.equal(outcomes.find((x) => x.status === 'rejected').reason.message, 'version_conflict');
+    assert.equal(
+      (
+        await pool.query(
+          "select count(*)::int n from private.security_events where organization_id=$1 and event like 'orchestration.%'",
+          [f.org],
+        )
+      ).rows[0].n,
+      4,
+    );
+    await f.incoming({ body: 'Please review my Deep cleaning inquiry again.' });
+    const other = await qualifyConversation(f);
+    await pool.query(
+      'update public.organization_memberships set revoked_at=now() where organization_id=$1 and user_id=$2',
+      [f.org, f.ids.member.user],
+    );
+    await assert.rejects(decide(f, other, 'dismiss', f.ids.member), /not_found|forbidden/);
+    for (const role of [
+      'anon',
+      'authenticated',
+      'service_role',
+      'leadsfam_runtime',
+      'leadsfam_worker',
+      'leadsfam_ingress',
+    ]) {
+      assert.equal(
+        (
+          await pool.query(
+            "select has_table_privilege($1,'private.conversation_recommendations','SELECT') v",
+            [role],
+          )
+        ).rows[0].v,
+        false,
+      );
+      assert.equal(
+        (
+          await pool.query(
+            "select has_function_privilege($1,'private.orchestration_manage(uuid,text,uuid,integer,jsonb,uuid)','EXECUTE') v",
+            [role],
+          )
+        ).rows[0].v,
+        false,
+      );
+    }
+  }));
+
+test('Phase 08 conversation/knowledge changes invalidate review and in-flight results, while failure remains durable', () =>
+  setup(async (f) => {
+    await orchestrationFixture(f);
+    let rec = await qualifyConversation(f);
+    await f.incoming({ body: 'Actually, I need a different Deep cleaning scope.' });
+    assert.equal((await recommendations(f)).items[0].stale, true);
+    await assert.rejects(decide(f, rec, 'accept'), { message: 'stale_recommendation' });
+    rec = await qualifyConversation(f);
+    assert.equal(rec.kind, 'HUMAN_ATTENTION');
+    await manage(
+      f,
+      'settings',
+      null,
+      { ...settings, business: { ...business, description: 'Changed approved context' } },
+      3,
+    );
+    await assert.rejects(decide(f, rec, 'dismiss'), { message: 'stale_recommendation' });
+    const pending = await evaluateConversation(f),
+      claim = await worker.claimAi();
+    await f.incoming({ body: 'Deep cleaning, with one additional request.' });
+    await processAi(worker, claim, config);
+    let stale = (await recommendations(f)).items.find((r) => r.id === pending.id);
+    assert.equal(stale.state, 'stale');
+    const failed = await evaluateConversation(f);
+    await processAi(worker, await worker.claimAi(), config, undefined, {
+      async execute() {
+        throw new AiFailure('INVALID_OUTPUT');
+      },
+    });
+    stale = (await recommendations(f)).items.find((r) => r.id === failed.id);
+    assert.equal(stale.state, 'failed');
+    assert.equal(stale.evaluation.state, 'failed');
+    assert.equal(stale.message_id, null);
+    assert.notEqual((await evaluateConversation(f)).id, failed.id);
+  }));
+
+test('Phase 08 unlinked replies stay in review and late linking invalidates even an unchanged six-message context', () =>
+  setup(async (f) => {
+    await orchestrationFixture(f);
+    const unknown = await f.incoming({
+      sender: 'unmatched-synthetic@example.test',
+      body: 'Deep cleaning reply',
+    });
+    assert.equal(unknown.state, 'needs_review');
+    for (let index = 0; index < 7; index++)
+      await f.incoming({ body: `Deep cleaning in Exampletown, detail ${index}.` });
+    const rec = await qualifyConversation(f);
+    assert.equal((await recommendations(f)).items[0].stale, false);
+    const before = (
+      await pool.query('select private.crm_fingerprint(private.ai_source($1,$2)) hash', [
+        f.org,
+        f.lead,
+      ])
+    ).rows[0].hash;
+    await rpc(f.ids.owner, 'communication_manage', [
+      f.org,
+      'resolve_inbound',
+      unknown.receiptId,
+      null,
+      { contactId: f.contact, leadId: f.lead },
+    ]);
+    const after = (
+      await pool.query('select private.crm_fingerprint(private.ai_source($1,$2)) hash', [
+        f.org,
+        f.lead,
+      ])
+    ).rows[0].hash;
+    assert.equal(before, after); // The old receipt is outside the six newest context messages.
+    assert.equal((await recommendations(f)).items[0].stale, true);
+    await assert.rejects(decide(f, rec, 'accept'), { message: 'stale_recommendation' });
+    const source = await recommendations(f);
+    await assert.rejects(
+      manage(f, 'conversation_evaluate', randomUUID(), {
+        conversationId: f.conversation,
+        sourceVersion: source.sourceVersion,
+        recipient: 'forged@example.test',
+      }),
+      { message: 'invalid_fields' },
+    );
+  }));
+
+test('Phase 08 a rolled-back preparation has no partial decision or draft, and committed acknowledgment can be safely replayed', () =>
+  setup(async (f) => {
+    await orchestrationFixture(f);
+    const rec = await qualifyConversation(f);
+    await orchestrationConsent(f);
+    const session = await actor(f.ids.owner);
+    try {
+      await session.client.query('select public.ai_manage($1,$2,$3,$4,$5)', [
+        f.org,
+        'conversation_review',
+        rec.id,
+        rec.version,
+        { decision: 'prepare' },
+      ]);
+    } finally {
+      await session.close();
+    }
+    assert.equal((await recommendations(f)).items[0].state, 'pending_review');
+    assert.equal(
+      (
+        await pool.query(
+          'select count(*)::int n from private.communication_messages where organization_id=$1 and id=$2',
+          [f.org, rec.ai_run_id],
+        )
+      ).rows[0].n,
+      0,
+    );
+    await decide(f, rec, 'prepare'); // Successful commit; discard the acknowledgment.
+    const replay = await decide(f, rec, 'prepare');
+    assert.equal(replay.message_id, rec.ai_run_id);
+    assert.equal(
+      (
+        await pool.query(
+          'select count(*)::int n from private.communication_messages where organization_id=$1 and id=$2',
+          [f.org, rec.ai_run_id],
+        )
+      ).rows[0].n,
+      1,
+    );
+  }));
+
+test('Phase 08 delivered-reply and human-review transactions have an explicit commit ordering', async () => {
+  for (const order of ['reply_first', 'review_first'])
+    await setup(async (f) => {
+      await orchestrationFixture(f);
+      const rec = await qualifyConversation(f);
+      const direct = createSessionPool(local.ingressDatabaseUrl),
+        incoming = await direct.connect(),
+        human = await actor(f.ids.owner);
+      try {
+        const data = {
+          ...f.inboundData,
+          eventId: randomUUID(),
+          body: 'A newer Deep cleaning reply in Exampletown.',
+        };
+        if (order === 'reply_first') {
+          await incoming.query('begin');
+          await incoming.query('select private.inbound_ingest($1,$2::jsonb)', [
+            f.inboundHash,
+            JSON.stringify(data),
+          ]);
+          const pending = human.client.query('select public.ai_manage($1,$2,$3,$4,$5)', [
+            f.org,
+            'conversation_review',
+            rec.id,
+            rec.version,
+            { decision: 'accept' },
+          ]);
+          const denied = assert.rejects(pending, { message: 'stale_recommendation' });
+          await waitForLock(human.pid);
+          await incoming.query('commit');
+          await denied;
+          await human.close();
+        } else {
+          await human.client.query('select public.ai_manage($1,$2,$3,$4,$5)', [
+            f.org,
+            'conversation_review',
+            rec.id,
+            rec.version,
+            { decision: 'accept' },
+          ]);
+          const pid = (await incoming.query('select pg_backend_pid() pid')).rows[0].pid;
+          const pending = incoming.query('select private.inbound_ingest($1,$2::jsonb)', [
+            f.inboundHash,
+            JSON.stringify(data),
+          ]);
+          await waitForLock(pid);
+          await human.close(true);
+          await pending;
+          const current = (await recommendations(f)).items[0];
+          assert.equal(current.state, 'accepted');
+          assert.equal(current.stale, true);
+        }
+      } finally {
+        await human.close();
+        await incoming.query('rollback');
+        incoming.release();
+        await direct.end();
+      }
+    });
+});

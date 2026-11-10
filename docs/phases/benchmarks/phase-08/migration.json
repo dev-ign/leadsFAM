@@ -1,0 +1,349 @@
+{
+  "at": "2026-11-10T05:52:13.540Z",
+  "reset": false,
+  "rehearsal": "passed",
+  "status": "passed",
+  "existingTablesPreserved": 42,
+  "before": {
+    "private.ai_attempts": {
+      "rows": 9,
+      "hash": "8598d10f698a0d222379c6c295cc326e05066fcab551344297bae1aaf879a11a"
+    },
+    "private.ai_runs": {
+      "rows": 9,
+      "hash": "0303158213da5ea2b659ecd87091725b733e8d86e74f2c765a6a469c1136695d"
+    },
+    "private.ai_settings": {
+      "rows": 1,
+      "hash": "68e8471e2c64e5c8cd1f063c222d4cfa43de27d67b202990e1efa09c9b2ca52c"
+    },
+    "private.app_sessions": {
+      "rows": 1,
+      "hash": "2526ac34d957a1bbbb6a6c3e6a42d74eadfe6b3af1ec3a4a9560be5278acd58a"
+    },
+    "private.auth_guards": {
+      "rows": 1,
+      "hash": "318f4b4f376c8540ef163766d729000305e5d2d8c617e40a3d22ab83b046be87"
+    },
+    "private.automation_jobs": {
+      "rows": 6,
+      "hash": "5cc85363d530cb387c10eecc97c768d5d1863fc4186adb7361a9abce3641191e"
+    },
+    "private.automation_runs": {
+      "rows": 3,
+      "hash": "54d2ec47f116f7e67e0cb4b74ec119d270b743a5ad8e6ba63a8faf268ae02515"
+    },
+    "private.automation_tool_executions": {
+      "rows": 3,
+      "hash": "1938fb6b6ff378ac19d6cc34faf9059d26a254594f2e91381fbbb434c6d5f23b"
+    },
+    "private.automation_versions": {
+      "rows": 4,
+      "hash": "9024bfc184d96a58bd1a32cbb6814e53e456a1ef1ed60436171d331e814105c2"
+    },
+    "private.automation_workflows": {
+      "rows": 2,
+      "hash": "2d3ebca0c678c61682477d397f4b4f8ed37d23ed90bed366f55ec0eecc83eb10"
+    },
+    "private.communication_budgets": {
+      "rows": 4,
+      "hash": "e3409b583a35b29ee2ea6c5938d7be50026609cc46bc6b2ad6eb1ad4f7b61476"
+    },
+    "private.communication_events": {
+      "rows": 10,
+      "hash": "cdbd5a28edc06c92cfc6de0d5047d8e01cfc39417b12342650326b0feebcb38f"
+    },
+    "private.communication_jobs": {
+      "rows": 1,
+      "hash": "31ede307159ba18fedc3d60ad848ea42360e4dbcc60d1518bbd143ed64b1c731"
+    },
+    "private.communication_messages": {
+      "rows": 3,
+      "hash": "975236694c9ae899db53df423c12e7d86ff59d467badee574ae813b4f72b1cc1"
+    },
+    "private.communication_permissions": {
+      "rows": 2,
+      "hash": "dfc476e149b212b06afd8334c02b74b01f67fc455f1dbf613d0053c57387a4d8"
+    },
+    "private.communication_provider_budget": {
+      "rows": 1,
+      "hash": "1c235e4fab4908b9a6becda86b53ae79cd03288b5dda5e5aa3dae8d8b6ddef4c"
+    },
+    "private.communication_settings": {
+      "rows": 1,
+      "hash": "07a01d625520c1d97b92d878702068476bef05b12649c43a84e61a43f3d39c96"
+    },
+    "private.communication_suppressions": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.conversations": {
+      "rows": 2,
+      "hash": "87c3ff169d0b561f043756f39eeaf77e3c2b3c23b577f0513049334680b370e5"
+    },
+    "private.crm_request_receipts": {
+      "rows": 7,
+      "hash": "6cb5d2be6dd80162b371bb71908cd5acfabbfb157a33d3d6507eab38b686b879"
+    },
+    "private.domain_events": {
+      "rows": 5,
+      "hash": "f7d3cd3d109b747c284e0c8df2c95b53581b6e3d025cc46f2e5b967f0de74548"
+    },
+    "private.inbound_receipts": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.ingestion_attempts": {
+      "rows": 1,
+      "hash": "877de7b2b4b83e93933763bd27b0f95ef4d7df30429cac0cbc6e37f610c37062"
+    },
+    "private.ingestion_receipts": {
+      "rows": 1,
+      "hash": "09b34f9dd72734b51f152fb2cff9e30fec4faf7130cfb6de617d11d90aa9ae4a"
+    },
+    "private.lead_import_attempts": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.lead_import_jobs": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.lead_import_rows": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.security_events": {
+      "rows": 1809,
+      "hash": "260b22f604fac22cccb6c75afbd203c07304524a5807ed73da68cc77c6d15eb7"
+    },
+    "private.settings": {
+      "rows": 1,
+      "hash": "9aa17ad7831b6071d11dd82157456794c196be8030b2b663b0c47424ee45d73d"
+    },
+    "private.source_integrations": {
+      "rows": 5,
+      "hash": "d20f110ac2db34abf78d973e89ea72f58efc9a84cec542d786d7cc88bb3a8563"
+    },
+    "public.contact_emails": {
+      "rows": 4,
+      "hash": "6bf94de5e313f2601ee72d465624bb8a500c4c26ec02ba203d65c1747048d2b4"
+    },
+    "public.contact_phones": {
+      "rows": 2,
+      "hash": "0bde14e7f81cebc731b5f6c62fb534079a2cb958ca014b0a5ce1f9b7e2e4e8e1"
+    },
+    "public.contacts": {
+      "rows": 4,
+      "hash": "d3007e21bebd12d3bf0bf7727b4856bafdd88847f82fb8b7e46b63d8b1902be8"
+    },
+    "public.crm_activities": {
+      "rows": 15,
+      "hash": "f8584f3f57b48e425c15e4af438a53b61c61787bb7f03ceefe9436096df1ed62"
+    },
+    "public.lead_attributions": {
+      "rows": 5,
+      "hash": "2ea2dc44eccb62247a9f9410ec8cb9c2c8faba468bdd6d66deaaa9c13032f407"
+    },
+    "public.lead_sources": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "public.leads": {
+      "rows": 5,
+      "hash": "ebd283369c297e96b3777b1b5e0a1262211a357418cf014006c3d84dde96a360"
+    },
+    "public.organization_invitations": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "public.organization_memberships": {
+      "rows": 2,
+      "hash": "9da4514d83bf446fbabbfaa56b0122807edde17cda27661c4a00a1c5b46dc930"
+    },
+    "public.organization_notes": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "public.organizations": {
+      "rows": 2,
+      "hash": "30339125e47b8a2b8917c3fb05f0b36761dd8f95965a2e9779f16ae05f3b76f8"
+    },
+    "public.profiles": {
+      "rows": 2,
+      "hash": "fa467eb2230ed6aa4202e307fc4df9ec0bfa77deb71143f8be58cbe22184bb6f"
+    }
+  },
+  "after": {
+    "private.ai_attempts": {
+      "rows": 9,
+      "hash": "8598d10f698a0d222379c6c295cc326e05066fcab551344297bae1aaf879a11a"
+    },
+    "private.ai_runs": {
+      "rows": 9,
+      "hash": "0303158213da5ea2b659ecd87091725b733e8d86e74f2c765a6a469c1136695d"
+    },
+    "private.ai_settings": {
+      "rows": 1,
+      "hash": "68e8471e2c64e5c8cd1f063c222d4cfa43de27d67b202990e1efa09c9b2ca52c"
+    },
+    "private.app_sessions": {
+      "rows": 1,
+      "hash": "2526ac34d957a1bbbb6a6c3e6a42d74eadfe6b3af1ec3a4a9560be5278acd58a"
+    },
+    "private.auth_guards": {
+      "rows": 1,
+      "hash": "318f4b4f376c8540ef163766d729000305e5d2d8c617e40a3d22ab83b046be87"
+    },
+    "private.automation_jobs": {
+      "rows": 6,
+      "hash": "5cc85363d530cb387c10eecc97c768d5d1863fc4186adb7361a9abce3641191e"
+    },
+    "private.automation_runs": {
+      "rows": 3,
+      "hash": "54d2ec47f116f7e67e0cb4b74ec119d270b743a5ad8e6ba63a8faf268ae02515"
+    },
+    "private.automation_tool_executions": {
+      "rows": 3,
+      "hash": "1938fb6b6ff378ac19d6cc34faf9059d26a254594f2e91381fbbb434c6d5f23b"
+    },
+    "private.automation_versions": {
+      "rows": 4,
+      "hash": "9024bfc184d96a58bd1a32cbb6814e53e456a1ef1ed60436171d331e814105c2"
+    },
+    "private.automation_workflows": {
+      "rows": 2,
+      "hash": "2d3ebca0c678c61682477d397f4b4f8ed37d23ed90bed366f55ec0eecc83eb10"
+    },
+    "private.communication_budgets": {
+      "rows": 4,
+      "hash": "e3409b583a35b29ee2ea6c5938d7be50026609cc46bc6b2ad6eb1ad4f7b61476"
+    },
+    "private.communication_events": {
+      "rows": 10,
+      "hash": "cdbd5a28edc06c92cfc6de0d5047d8e01cfc39417b12342650326b0feebcb38f"
+    },
+    "private.communication_jobs": {
+      "rows": 1,
+      "hash": "31ede307159ba18fedc3d60ad848ea42360e4dbcc60d1518bbd143ed64b1c731"
+    },
+    "private.communication_messages": {
+      "rows": 3,
+      "hash": "975236694c9ae899db53df423c12e7d86ff59d467badee574ae813b4f72b1cc1"
+    },
+    "private.communication_permissions": {
+      "rows": 2,
+      "hash": "dfc476e149b212b06afd8334c02b74b01f67fc455f1dbf613d0053c57387a4d8"
+    },
+    "private.communication_provider_budget": {
+      "rows": 1,
+      "hash": "1c235e4fab4908b9a6becda86b53ae79cd03288b5dda5e5aa3dae8d8b6ddef4c"
+    },
+    "private.communication_settings": {
+      "rows": 1,
+      "hash": "07a01d625520c1d97b92d878702068476bef05b12649c43a84e61a43f3d39c96"
+    },
+    "private.communication_suppressions": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.conversations": {
+      "rows": 2,
+      "hash": "87c3ff169d0b561f043756f39eeaf77e3c2b3c23b577f0513049334680b370e5"
+    },
+    "private.crm_request_receipts": {
+      "rows": 7,
+      "hash": "6cb5d2be6dd80162b371bb71908cd5acfabbfb157a33d3d6507eab38b686b879"
+    },
+    "private.domain_events": {
+      "rows": 5,
+      "hash": "f7d3cd3d109b747c284e0c8df2c95b53581b6e3d025cc46f2e5b967f0de74548"
+    },
+    "private.inbound_receipts": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.ingestion_attempts": {
+      "rows": 1,
+      "hash": "877de7b2b4b83e93933763bd27b0f95ef4d7df30429cac0cbc6e37f610c37062"
+    },
+    "private.ingestion_receipts": {
+      "rows": 1,
+      "hash": "09b34f9dd72734b51f152fb2cff9e30fec4faf7130cfb6de617d11d90aa9ae4a"
+    },
+    "private.lead_import_attempts": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.lead_import_jobs": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.lead_import_rows": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "private.security_events": {
+      "rows": 1809,
+      "hash": "260b22f604fac22cccb6c75afbd203c07304524a5807ed73da68cc77c6d15eb7"
+    },
+    "private.settings": {
+      "rows": 1,
+      "hash": "9aa17ad7831b6071d11dd82157456794c196be8030b2b663b0c47424ee45d73d"
+    },
+    "private.source_integrations": {
+      "rows": 5,
+      "hash": "d20f110ac2db34abf78d973e89ea72f58efc9a84cec542d786d7cc88bb3a8563"
+    },
+    "public.contact_emails": {
+      "rows": 4,
+      "hash": "6bf94de5e313f2601ee72d465624bb8a500c4c26ec02ba203d65c1747048d2b4"
+    },
+    "public.contact_phones": {
+      "rows": 2,
+      "hash": "0bde14e7f81cebc731b5f6c62fb534079a2cb958ca014b0a5ce1f9b7e2e4e8e1"
+    },
+    "public.contacts": {
+      "rows": 4,
+      "hash": "d3007e21bebd12d3bf0bf7727b4856bafdd88847f82fb8b7e46b63d8b1902be8"
+    },
+    "public.crm_activities": {
+      "rows": 15,
+      "hash": "f8584f3f57b48e425c15e4af438a53b61c61787bb7f03ceefe9436096df1ed62"
+    },
+    "public.lead_attributions": {
+      "rows": 5,
+      "hash": "2ea2dc44eccb62247a9f9410ec8cb9c2c8faba468bdd6d66deaaa9c13032f407"
+    },
+    "public.lead_sources": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "public.leads": {
+      "rows": 5,
+      "hash": "ebd283369c297e96b3777b1b5e0a1262211a357418cf014006c3d84dde96a360"
+    },
+    "public.organization_invitations": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "public.organization_memberships": {
+      "rows": 2,
+      "hash": "9da4514d83bf446fbabbfaa56b0122807edde17cda27661c4a00a1c5b46dc930"
+    },
+    "public.organization_notes": {
+      "rows": 0,
+      "hash": "7957f9b6083775c37d75ee83d718b61564902a03c45ebd7b13ffe4372c7fcf07"
+    },
+    "public.organizations": {
+      "rows": 2,
+      "hash": "30339125e47b8a2b8917c3fb05f0b36761dd8f95965a2e9779f16ae05f3b76f8"
+    },
+    "public.profiles": {
+      "rows": 2,
+      "hash": "fa467eb2230ed6aa4202e307fc4df9ec0bfa77deb71143f8be58cbe22184bb6f"
+    }
+  },
+  "delta": "The AI history review-link function was separately rehearsed with rollback and applied after the initial migration; it changed no business rows.",
+  "initialHarnessCorrection": "The first snapshot used the restricted runtime connection and failed with 42501 before schema work; the verified local administration connection was then used."
+}

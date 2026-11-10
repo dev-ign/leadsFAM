@@ -2,6 +2,10 @@ import { z } from 'zod';
 import type { FastifyInstance } from 'fastify';
 import {
   aiHistorySchema,
+  conversationRecommendationsSchema,
+  conversationRecommendationSchema,
+  conversationEvaluationInput,
+  recommendationDecisionInput,
   aiRequestInput,
   aiRunSchema,
   aiSettingsInput,
@@ -18,6 +22,45 @@ import type { SessionStore } from '../identity/sessions.js';
 export function registerAi(app: FastifyInstance, store: SessionStore) {
   const service = new OrganizationService(store),
     base = '/organizations/:org/ai';
+  app.get(`${base}/conversations/:id`, async (request) => {
+    const { org, id } = validated(resourceParamsSchema, request.params);
+    const query = validated(
+      z.strictObject({ cursor: z.string().max(200).optional() }),
+      request.query,
+    );
+    return conversationRecommendationsSchema.parse(
+      await service.rpc(
+        requireApplication(request),
+        'ai_read',
+        { p_org: org, p_kind: 'conversation', p_id: id, p_query: query },
+        request.id,
+      ),
+    );
+  });
+  app.put(`${base}/recommendations/:id`, async (request) => {
+    const { org, id } = validated(resourceParamsSchema, request.params);
+    const data = validated(conversationEvaluationInput, request.body);
+    return conversationRecommendationSchema.parse(
+      await service.rpc(
+        requireApplication(request),
+        'ai_manage',
+        { p_org: org, p_action: 'conversation_evaluate', p_id: id, p_data: data },
+        request.id,
+      ),
+    );
+  });
+  app.post(`${base}/recommendations/:id/review`, async (request) => {
+    const { org, id } = validated(resourceParamsSchema, request.params);
+    const { version, ...data } = validated(recommendationDecisionInput, request.body);
+    return conversationRecommendationSchema.parse(
+      await service.rpc(
+        requireApplication(request),
+        'ai_manage',
+        { p_org: org, p_action: 'conversation_review', p_id: id, p_version: version, p_data: data },
+        request.id,
+      ),
+    );
+  });
   app.get(`${base}/settings`, async (request) => {
     const { org } = validated(orgParamsSchema, request.params);
     validated(z.strictObject({}), request.query);

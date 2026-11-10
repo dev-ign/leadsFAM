@@ -1,8 +1,9 @@
 import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHmac } from 'node:crypto';
 import { harness } from '../crm/fixture.mjs';
 import { AutomationDatabase } from '../../packages/database/dist/index.js';
+import { deriveMockInboundCredential } from '../../apps/api/dist/modules/automation/routes.js';
 import { processAi } from '../../apps/api/dist/modules/ai/execute.js';
 import { processCommunication } from '../../apps/api/dist/modules/communications/dispatch.js';
 const h = await harness(),
@@ -197,4 +198,249 @@ test('real Auth HTTP: AI configuration, analysis, email/SMS review, exact approv
         assert.equal(delivered.json().provider, 'mock');
       },
     );
+});
+
+test('Phase 08 real Auth HTTP: scoped evaluation, exact review, safe draft handoff and stale denial', async (t) => {
+  const person = await h.account(),
+    org = await h.organization(person),
+    base = `/organizations/${org}`,
+    foreign = await h.account();
+  await h.organization(foreign);
+  const business = {
+    name: 'FreshNest Phase 08 (synthetic)',
+    description: '',
+    services: ['Deep cleaning'],
+    serviceAreas: ['Exampletown'],
+    tone: 'warm',
+    questions: [],
+    guidelines: '',
+    restrictions: '',
+    escalation: '',
+  };
+  let result = await person.client.request(`${base}/ai/settings`, {
+    method: 'PUT',
+    body: {
+      version: 1,
+      enabled: true,
+      provider: 'simulation',
+      dailyLimit: 50,
+      concurrentLimit: 1,
+      business,
+    },
+  });
+  assert.equal(result.statusCode, 200, result.body);
+  const email = `phase08-${randomUUID()}@example.test`;
+  result = await person.client.request(`${base}/leads`, {
+    method: 'POST',
+    headers: { 'idempotency-key': randomUUID() },
+    body: {
+      contact: {
+        mode: 'create',
+        data: { kind: 'person', displayName: 'Michael Synthetic', emails: [email], phones: [] },
+      },
+      lead: {
+        title: 'Synthetic cleaning inquiry',
+        description: 'Fictional inquiry',
+        priority: 'normal',
+      },
+      attribution: {},
+    },
+  });
+  assert.equal(result.statusCode, 200, result.body);
+  const lead = result.json();
+  result = await person.client.request(`${base}/integrations`, {
+    method: 'POST',
+    body: { name: 'Synthetic Phase 08 replies', capability: 'mock_inbound' },
+  });
+  assert.equal(result.statusCode, 200, result.body);
+  const integration = result.json().integration;
+  const key = deriveMockInboundCredential(
+    h.identity.mockWebhookSecret,
+    integration.id,
+    integration.credential_generation,
+  );
+  async function deliver(body = 'I need Deep cleaning in Exampletown.', eventId = randomUUID()) {
+    const raw = JSON.stringify({ eventId, channel: 'email', sender: email, body }),
+      time = String(Math.floor(Date.now() / 1000));
+    const signature = createHmac('sha256', Buffer.from(key.slice(7), 'base64url'))
+      .update(`${time}.`)
+      .update(raw)
+      .digest('hex');
+    return h.app.inject({
+      method: 'POST',
+      url: '/webhooks/mock/inbound',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${key}`,
+        'x-mock-timestamp': time,
+        'x-mock-signature': signature,
+      },
+      payload: raw,
+    });
+  }
+  result = await deliver();
+  assert.equal(result.statusCode, 200, result.body);
+  const message = (
+      await h.admin.query('select * from private.communication_messages where id=$1', [
+        result.json().messageId,
+      ])
+    ).rows[0],
+    conversation = message.conversation_id;
+  const url = `${base}/ai/conversations/${conversation}`;
+  let rec;
+  await t.test(
+    'read is scoped and receipt alone enqueues neither AI nor communication',
+    async () => {
+      assert.equal((await h.browser().request(url)).statusCode, 401);
+      assert.equal((await foreign.client.request(url)).statusCode, 404);
+      result = await person.client.request(url);
+      assert.equal(result.statusCode, 200, result.body);
+      assert.equal(result.json().eligible, true);
+      assert.equal(result.json().items.length, 0);
+      assert.equal(
+        (
+          await h.admin.query(
+            'select count(*)::int n from private.ai_runs where organization_id=$1',
+            [org],
+          )
+        ).rows[0].n,
+        0,
+      );
+    },
+  );
+  await t.test(
+    'strict CSRF and deduplicated requests reuse existing simulation execution',
+    async () => {
+      const source = (await person.client.request(url)).json(),
+        input = { conversationId: conversation, sourceVersion: source.sourceVersion };
+      assert.equal(
+        (
+          await person.client.request(`${base}/ai/recommendations/${randomUUID()}`, {
+            method: 'PUT',
+            headers: { 'x-csrf-token': 'forged' },
+            body: input,
+          })
+        ).statusCode,
+        403,
+      );
+      assert.equal(
+        (
+          await person.client.request(`${base}/ai/recommendations/${randomUUID()}`, {
+            method: 'PUT',
+            body: { ...input, tool: 'send' },
+          })
+        ).statusCode,
+        400,
+      );
+      const responses = await Promise.all(
+        [randomUUID(), randomUUID()].map((id) =>
+          person.client.request(`${base}/ai/recommendations/${id}`, { method: 'PUT', body: input }),
+        ),
+      );
+      for (const r of responses) assert.equal(r.statusCode, 200, r.body);
+      assert.equal(responses[0].json().id, responses[1].json().id);
+      rec = responses[0].json();
+      await processAi(worker, await worker.claimAi(), { enabled: false });
+      result = await person.client.request(url);
+      assert.equal(result.statusCode, 200, result.body);
+      rec = result.json().items[0];
+      assert.equal(rec.kind, 'ASK_FOR_INFORMATION');
+      assert.equal(rec.evaluation.recommendation_conversation_id, conversation);
+    },
+  );
+  await t.test(
+    'preparation requires consent and creates exactly one editable unapproved draft',
+    async () => {
+      const review = `${base}/ai/recommendations/${rec.id}/review`,
+        input = { version: rec.version, decision: 'prepare' };
+      assert.equal(
+        (await foreign.client.request(review, { method: 'POST', body: input })).statusCode,
+        404,
+      );
+      assert.equal(
+        (
+          await person.client.request(review, {
+            method: 'POST',
+            body: { ...input, recipient: 'forged@example.test' },
+          })
+        ).statusCode,
+        400,
+      );
+      assert.equal(
+        (await person.client.request(review, { method: 'POST', body: input })).statusCode,
+        409,
+      );
+      result = await person.client.request(`${base}/communications/permission`, {
+        method: 'POST',
+        body: {
+          contactId: lead.contact_id,
+          channel: 'email',
+          purpose: 'transactional',
+          recipient: email,
+          status: 'granted',
+          source: 'Synthetic explicit request',
+          collectedAt: new Date().toISOString(),
+          jurisdiction: 'US',
+          policyVersion: 'synthetic-v1',
+          evidence: 'fictional-only',
+        },
+      });
+      assert.equal(result.statusCode, 200, result.body);
+      const responses = await Promise.all(
+        [0, 1].map(() => person.client.request(review, { method: 'POST', body: input })),
+      );
+      for (const r of responses) assert.equal(r.statusCode, 200, r.body);
+      assert.equal(responses[0].json().message_id, responses[1].json().message_id);
+      result = await person.client.request(
+        `${base}/communications/messages/${responses[0].json().message_id}`,
+      );
+      assert.equal(result.statusCode, 200, result.body);
+      assert.equal(result.json().state, 'draft');
+      assert.equal(result.json().recipient, email);
+      assert.equal(
+        (
+          await h.admin.query(
+            'select count(*)::int n from private.communication_jobs where organization_id=$1',
+            [org],
+          )
+        ).rows[0].n,
+        0,
+      );
+    },
+  );
+  await t.test(
+    'a committed correction and changed business knowledge invalidate prior review actions',
+    async () => {
+      result = await deliver('Actually, I need a different Deep cleaning scope in Exampletown.');
+      assert.equal(result.statusCode, 200, result.body);
+      const source = (await person.client.request(url)).json();
+      assert.equal(source.items[0].stale, true);
+      result = await person.client.request(`${base}/ai/recommendations/${randomUUID()}`, {
+        method: 'PUT',
+        body: { conversationId: conversation, sourceVersion: source.sourceVersion },
+      });
+      assert.equal(result.statusCode, 200, result.body);
+      await processAi(worker, await worker.claimAi(), { enabled: false });
+      rec = (await person.client.request(url)).json().items[0];
+      assert.equal(rec.kind, 'HUMAN_ATTENTION');
+      result = await person.client.request(`${base}/ai/settings`, {
+        method: 'PUT',
+        body: {
+          version: 2,
+          enabled: true,
+          provider: 'simulation',
+          dailyLimit: 50,
+          concurrentLimit: 1,
+          business: { ...business, description: 'Changed approved context' },
+        },
+      });
+      assert.equal(result.statusCode, 200, result.body);
+      result = await person.client.request(`${base}/ai/recommendations/${rec.id}/review`, {
+        method: 'POST',
+        body: { version: rec.version, decision: 'accept' },
+      });
+      assert.equal(result.statusCode, 409, result.body);
+      assert.equal(result.json().error.code, 'STALE_RECOMMENDATION');
+    },
+  );
 });

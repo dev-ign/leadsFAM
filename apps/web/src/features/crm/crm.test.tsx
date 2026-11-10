@@ -4,6 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router';
 import {
   aiSettingsSchema,
+  aiRunSchema,
+  type ConversationRecommendation,
   type Contact,
   type Lead,
   type AutomationOverview,
@@ -97,6 +99,13 @@ beforeEach(() => {
   });
   vi.spyOn(apiClient, 'members').mockResolvedValue([]);
   vi.spyOn(apiClient, 'activity').mockResolvedValue({ items: [], cursor: null });
+  vi.spyOn(apiClient, 'conversationRecommendations').mockResolvedValue({
+    eligible: false,
+    reason: 'NO_ATTRIBUTED_REPLY',
+    sourceVersion: null,
+    items: [],
+    next: null,
+  });
   vi.spyOn(apiClient, 'inboundReview').mockResolvedValue({ items: [], next: null });
   vi.spyOn(apiClient, 'contact').mockResolvedValue(contact());
   vi.spyOn(apiClient, 'lead').mockResolvedValue(lead());
@@ -970,4 +979,136 @@ it('creates an inbound-only integration without revealing a signing credential',
     }),
   );
   expect(screen.queryByRole('region', { name: 'Integration credential' })).not.toBeInTheDocument();
+});
+
+it('evaluates a reply only on request, reviews evidence, confirms an unapproved draft and blocks stale actions', async () => {
+  const id = '99999999-9999-4999-8999-999999999999',
+    source = 'a'.repeat(64);
+  const run = aiRunSchema.parse({
+    id,
+    lead_id: lead().id,
+    task: 'draft',
+    channel: 'email',
+    kind: 'follow_up',
+    trigger: 'manual',
+    state: 'succeeded',
+    provider: 'simulation',
+    model: 'simulation-v2',
+    prompt_version: 'lead-assist-v2',
+    analysis_version: 2,
+    attempts: 1,
+    code: null,
+    message_id: null,
+    input_tokens: null,
+    output_tokens: null,
+    estimated_cost_microusd: null,
+    pricing_version: null,
+    duration_ms: 4,
+    created_at: '2026-11-10T12:00:00Z',
+    finished_at: '2026-11-10T12:00:01Z',
+    result: {
+      analysis: {
+        intent: { source: `conversation.${id}`, quote: 'Deep cleaning' },
+        service: null,
+        status: 'needs_information',
+        priority: 'normal',
+        urgency: null,
+        requirements: [],
+        location: null,
+        timeframe: null,
+        missing: ['location'],
+        nextAction: 'ask_questions',
+        uncertainty: 'insufficient_information',
+      },
+      proposal: { subject: 'A few details', body: 'What is the service location?' },
+      reasoning: 'The service location is still unknown.',
+    },
+  });
+  let rec: ConversationRecommendation = {
+    id,
+    conversation_id: id,
+    contact_id: contact().id,
+    lead_id: lead().id,
+    trigger_message_id: id,
+    ai_run_id: id,
+    source_version: source,
+    knowledge_version: 2,
+    contract_version: 1,
+    kind: 'ASK_FOR_INFORMATION',
+    state: 'pending_review',
+    version: 2,
+    message_id: null,
+    created_by: userA,
+    created_at: '2026-11-10T12:00:00Z',
+    reviewed_by: null,
+    reviewed_at: null,
+    decision: null,
+    stale: false,
+    evaluation: run,
+  };
+  let requested = false;
+  vi.mocked(apiClient.conversationRecommendations).mockImplementation(async () => ({
+    eligible: true,
+    reason: null,
+    sourceVersion: source,
+    items: requested ? [rec] : [],
+    next: null,
+  }));
+  vi.spyOn(apiClient, 'communicationHistory').mockResolvedValue({
+    messages: [],
+    events: [],
+    next: null,
+  });
+  const evaluate = vi.spyOn(apiClient, 'evaluateConversation').mockImplementation(async () => {
+    requested = true;
+    return rec;
+  });
+  const review = vi.spyOn(apiClient, 'reviewRecommendation').mockImplementation(async () => {
+    rec = {
+      ...rec,
+      state: 'accepted',
+      version: 3,
+      decision: 'prepare',
+      reviewed_by: userA,
+      reviewed_at: '2026-11-10T12:01:00Z',
+      message_id: id,
+    };
+    return rec;
+  });
+  const send = vi.spyOn(apiClient, 'sendMessage'),
+    legacy = vi.spyOn(apiClient, 'requestAi');
+  app(`/organizations/${orgA.id}/communications/${id}`);
+  await screen.findByRole('button', { name: 'Evaluate latest reply (simulation)' });
+  expect(evaluate).not.toHaveBeenCalled();
+  await userEvent.click(screen.getByRole('button', { name: 'Evaluate latest reply (simulation)' }));
+  await userEvent.click(
+    await screen.findByText('Review explanation, evidence and proposed wording'),
+  );
+  expect(screen.getByText('The service location is still unknown.')).toBeInTheDocument();
+  expect(screen.getByText('What is the service location?')).toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Prepare follow-up draft' }));
+  const confirm = await screen.findByRole('button', {
+    name: 'Accept and prepare unapproved draft',
+  });
+  await waitFor(() => expect(confirm).toHaveFocus());
+  expect(review).not.toHaveBeenCalled();
+  review.mockRejectedValueOnce(new ApiClientError('http', 409, 'VERSION_CONFLICT'));
+  await userEvent.click(confirm);
+  const error = await screen.findByRole('alert');
+  await waitFor(() => expect(error).toHaveFocus());
+  expect(screen.queryByRole('link', { name: 'Open saved message' })).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: 'Prepare follow-up draft' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Accept and prepare unapproved draft' }),
+  );
+  await screen.findByRole('link', { name: 'Open saved message' });
+  expect(review).toHaveBeenCalledWith(orgA.id, id, { version: 2, decision: 'prepare' });
+  expect(send).not.toHaveBeenCalled();
+  expect(legacy).not.toHaveBeenCalled();
+  rec = { ...rec, stale: true };
+  await userEvent.click(screen.getByRole('button', { name: 'Refresh next actions' }));
+  await screen.findByText(
+    'The conversation or approved business settings changed. This suggestion cannot prepare a new draft. Evaluate the latest reply.',
+  );
+  expect(screen.queryByRole('button', { name: 'Prepare follow-up draft' })).not.toBeInTheDocument();
 });
