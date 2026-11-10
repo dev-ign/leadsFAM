@@ -11,6 +11,8 @@ Planning decision: November 9, 2026 (America/New_York). The product owner select
 - Phase 06: locally implemented versioned business knowledge, grounded lead qualification, bounded conversation context, reviewed proposals and evaluations. Local implementation and synthetic tests are not live-model or customer-rollout acceptance. See the [engineering report](phases/phase-06-report.md) for actual verification and the final durability correction.
 - Phase 07: locally implemented and accepted synthetic inbound email/SMS, durable receipts/replay protection, conservative conversation matching, explicit human linking and existing UI/context integration. The final feature-branch Git/CI checkpoint is separately authorized on `codex/phase-07-inbound-communications`; see the [Phase 07 report](phases/phase-07-report.md).
 
+- Phase 08: locally implemented human-triggered simulation evaluation, source-bound suggested next actions, exact-version accept/dismiss/defer, stale-result rejection and explicit unapproved-draft handoff. Uncommitted engineering review is pending on `codex/phase-08-conversation-orchestration`; see the [Phase 08 report](phases/phase-08-report.md).
+
 No real-provider inbound connector, live communication delivery or live-model usefulness has been accepted. Conversation context has been exercised through authenticated synthetic ingress. Human approval and mock-only sending remain required.
 
 ## Selected phase sequence
@@ -22,7 +24,7 @@ No real-provider inbound connector, live communication delivery or live-model us
 | 09    | Operational Safety and Observability                          | Extend audit trails, tenant quotas, failure diagnostics, cost accounting/visibility, operator controls and realistic multi-tenant load verification. Extend existing tooling before introducing infrastructure.           |
 | 10    | Real Integrations and AI Acceptance                           | Configure approved provider accounts, benchmark models, validate provider-specific signed inbound webhooks, test separately authorized controlled outbound delivery and close outstanding Phase 06 live acceptance gates. |
 
-The [November 9 closure review](phases/benchmarks/phase-06/closure-review-2026-11-09.md) preserves the earlier Phase 07 proposal. The subsequent product-owner implementation brief defined Phase 07's local scope and acceptance; its actual results are in the [Phase 07 report](phases/phase-07-report.md). Phases 08–10 remain planning objectives, not implemented or automatically authorized capabilities.
+The [November 9 closure review](phases/benchmarks/phase-06/closure-review-2026-11-09.md) preserves the earlier Phase 07 proposal. The subsequent product-owner implementation brief defined Phase 07's local scope and acceptance; its actual results are in the [Phase 07 report](phases/phase-07-report.md). The subsequent Phase 08 implementation brief defines its local simulation and human-review scope; actual results are in the [Phase 08 report](phases/phase-08-report.md). Phases 09–10 remain planning objectives, not implemented or automatically authorized capabilities.
 
 ## Open Phase 06 acceptance gates
 

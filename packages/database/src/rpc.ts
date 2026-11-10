@@ -31,6 +31,9 @@ const reasons = new Set([
   'suppression_review_required',
   'ai_disabled',
   'ai_limit_reached',
+  'conversation_ineligible',
+  'stale_recommendation',
+  'orchestration_simulation_required',
 ]);
 export class DatabaseRpcFailure extends Error {
   constructor(

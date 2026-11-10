@@ -109,6 +109,7 @@ export async function harness() {
       await connection.query('begin');
       await connection.query("set local session_replication_role='replica'");
       for (const [schema, table] of [
+        ['private', 'conversation_recommendations'],
         ['private', 'ai_attempts'],
         ['private', 'ai_runs'],
         ['private', 'ai_settings'],

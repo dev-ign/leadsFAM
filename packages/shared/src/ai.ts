@@ -186,6 +186,7 @@ export const aiRunSchema = z.strictObject({
   code: z.string().max(60).nullable(),
   result: aiOutcomeSchema.nullable(),
   message_id: z.uuid().nullable(),
+  recommendation_conversation_id: z.uuid().nullable().optional(),
   input_tokens: z.int().nonnegative().nullable(),
   output_tokens: z.int().nonnegative().nullable(),
   estimated_cost_microusd: z.number().nonnegative().nullable(),
@@ -213,3 +214,55 @@ export const aiEnvelopeSchema = z.strictObject({
 export type AiSource = z.infer<typeof aiSourceSchema>;
 export type AiRun = z.infer<typeof aiRunSchema>;
 export type AiSettings = z.infer<typeof aiSettingsSchema>;
+
+export const conversationEvaluationInput = z.strictObject({
+  conversationId: z.uuid(),
+  sourceVersion: z.string().regex(/^[a-f0-9]{64}$/),
+});
+export const recommendationDecisionInput = z.strictObject({
+  version: z.int().positive(),
+  decision: z.enum(['accept', 'dismiss', 'defer', 'prepare']),
+});
+export const conversationRecommendationSchema = z.strictObject({
+  id: z.uuid(),
+  conversation_id: z.uuid(),
+  contact_id: z.uuid(),
+  lead_id: z.uuid(),
+  trigger_message_id: z.uuid(),
+  ai_run_id: z.uuid(),
+  source_version: z.string().regex(/^[a-f0-9]{64}$/),
+  knowledge_version: z.int().positive(),
+  contract_version: z.literal(1),
+  kind: z
+    .enum(['ASK_FOR_INFORMATION', 'PREPARE_FOLLOW_UP', 'HUMAN_ATTENTION', 'NO_ACTION'])
+    .nullable(),
+  state: z.enum([
+    'evaluating',
+    'pending_review',
+    'accepted',
+    'dismissed',
+    'deferred',
+    'stale',
+    'failed',
+  ]),
+  version: z.int().positive(),
+  message_id: z.uuid().nullable(),
+  created_by: z.uuid(),
+  created_at: z.string(),
+  reviewed_by: z.uuid().nullable(),
+  reviewed_at: z.string().nullable(),
+  decision: z.enum(['accept', 'dismiss', 'defer', 'prepare']).nullable(),
+  stale: z.boolean(),
+  evaluation: aiRunSchema,
+});
+export const conversationRecommendationsSchema = z.strictObject({
+  eligible: z.boolean(),
+  reason: z.enum(['LEAD_UNAVAILABLE', 'NO_ATTRIBUTED_REPLY', 'RECENT_CONTEXT_REQUIRED']).nullable(),
+  sourceVersion: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/)
+    .nullable(),
+  items: z.array(conversationRecommendationSchema).max(20),
+  next: z.string().nullable(),
+});
+export type ConversationRecommendation = z.infer<typeof conversationRecommendationSchema>;

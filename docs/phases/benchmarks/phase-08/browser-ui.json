@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-10",
+  "syntheticOnly": true,
+  "observed": {
+    "signedReplyVisibleBeforeAnyEvaluation": true,
+    "manualEvaluationProducedMissingInformationRecommendation": true,
+    "quotedEvidenceAndUnknownsVisible": true,
+    "confirmationFocusedAndKeyboardActivated": true,
+    "preparedDraftInitiallyUnapproved": true,
+    "humanEditedAndKeyboardSavedExactDraft": true,
+    "separatelyApprovedMockDelivery": true,
+    "replayKeptReceiptAndDidNotMultiplyRecommendationOrDraft": true,
+    "committedCorrectionBlockedOpenStalePreparation": true,
+    "manualAttributionInvalidatedOpenReview": true,
+    "staleErrorFocusedAfterCorrection": true,
+    "manualLinkEnteredBoundedSixMessageContext": true,
+    "humanAttentionHadNoPrepareControl": true,
+    "deferDidNotScheduleAndDismissRecorded": true,
+    "secondUserListedOnlyOwnWorkspace": true,
+    "foreignConversationUnavailableWithoutCustomerContent": true
+  },
+  "wrapping": [
+    {
+      "cssViewport": 390,
+      "documentWidth": 390,
+      "allMessageParagraphsWrap": true
+    },
+    {
+      "cssViewport": 702,
+      "documentWidth": 702
+    }
+  ],
+  "viewportReset": true,
+  "consoleScope": "Only the resumed tab was sampled after the intentional interruption; earlier console buffer unavailable.",
+  "resumedConsole": [],
+  "limits": "Focused keyboard/responsive workflow checks, not screen-reader certification or production capacity."
+}

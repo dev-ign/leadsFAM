@@ -10,6 +10,7 @@ import {
   type Contact,
   type InboundReview,
 } from '@leadops/shared';
+import { ConversationNextAction } from '../ai/conversation';
 import { apiClient } from '../../lib/api-client';
 import { useOrganization } from '../organizations/context';
 import { useQuery } from '../crm/use-query';
@@ -162,6 +163,7 @@ function History({ id }: { id: string }) {
         </Button>
       </div>
       {action.error && <p role="alert">{action.error}</p>}
+      <ConversationNextAction conversationId={id} />
       {state.status === 'loading' ? (
         <p role="status">Loading messages…</p>
       ) : state.status === 'error' ? (
