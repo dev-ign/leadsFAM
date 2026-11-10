@@ -14,6 +14,7 @@ import {
   communicationHistorySchema,
   communicationEventPageSchema,
   communicationEligibilitySchema,
+  inboundReviewPageSchema,
   automationOverviewSchema,
   integrationCredentialSchema,
   integrationSchema,
@@ -146,6 +147,21 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
   const resource = (id: string, kind: 'contacts' | 'leads', key: string) =>
     `${org(id)}/${kind}/${encodeURIComponent(key)}`;
   return {
+    inboundReview: (id: string, cursor?: string, signal?: AbortSignal) =>
+      request(
+        `${org(id)}/communications/inbound${queryString({ cursor })}`,
+        inboundReviewPageSchema,
+        'GET',
+        undefined,
+        signal,
+      ),
+    linkInbound: (id: string, key: string, input: { contactId: string; leadId: string }) =>
+      request(
+        `${org(id)}/communications/inbound/${encodeURIComponent(key)}/link`,
+        communicationMessageSchema,
+        'POST',
+        input,
+      ),
     aiSettings: (org: string, signal?: AbortSignal) =>
       request(`/organizations/${org}/ai/settings`, aiSettingsSchema, 'GET', undefined, signal),
     saveAiSettings: (org: string, version: number, input: z.infer<typeof aiSettingsInput>) =>
@@ -271,8 +287,10 @@ export function createApiClient(baseUrl: string, fetcher: typeof fetch = globalT
         'POST',
         { version: generation },
       ),
-    createIntegration: (id: string, input: { name: string; sourceId?: string }) =>
-      request(`${org(id)}/integrations`, integrationCredentialSchema, 'POST', input),
+    createIntegration: (
+      id: string,
+      input: { name: string; sourceId?: string; capability?: 'lead_intake' | 'mock_inbound' },
+    ) => request(`${org(id)}/integrations`, integrationCredentialSchema, 'POST', input),
     changeIntegration: (
       id: string,
       key: string,

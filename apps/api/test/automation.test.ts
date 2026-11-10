@@ -131,3 +131,40 @@ describe('Phase 04 mock provider and webhook trust boundaries', () => {
     ).toBe(false);
   });
 });
+
+describe('Phase 07 inbound contract', () => {
+  it('accepts bounded plain customer text and rejects proposed authority and invalid Unicode', async () => {
+    const { inboundMessageInput, integrationCreateSchema } = await import('@leadops/shared');
+    const input = {
+      eventId: 'synthetic:1',
+      channel: 'email',
+      sender: 'customer@example.test',
+      body: '  Actually three bedrooms.\r\nThank you. 🙂  ',
+    };
+    expect(inboundMessageInput.parse(input).body).toBe(input.body);
+    for (const extra of [
+      { organizationId: crypto.randomUUID() },
+      { contactId: crypto.randomUUID() },
+      { leadId: crypto.randomUUID() },
+      { approve: true },
+      { body: '\0' },
+      { body: '\ud800' },
+      { body: 'x'.repeat(4001) },
+      { channel: 'sms', sender: '+12025550123', body: 'x'.repeat(1601) },
+    ])
+      expect(inboundMessageInput.safeParse({ ...input, ...extra }).success).toBe(false);
+    expect(integrationCreateSchema.parse({ name: 'Existing intake' }).capability).toBe(
+      'lead_intake',
+    );
+  });
+  it('derives separate rotating server-only signing credentials for each mock connector', async () => {
+    const { deriveMockInboundCredential } = await import('../src/modules/automation/routes.js');
+    const root = Buffer.alloc(32, 9).toString('base64'),
+      id = crypto.randomUUID();
+    const key = deriveMockInboundCredential(root, id, 1);
+    expect(key).toMatch(/^lf_inb_[A-Za-z0-9_-]{43}$/);
+    expect(deriveMockInboundCredential(root, id, 1)).toBe(key);
+    expect(deriveMockInboundCredential(root, id, 2)).not.toBe(key);
+    expect(deriveMockInboundCredential(root, crypto.randomUUID(), 1)).not.toBe(key);
+  });
+});

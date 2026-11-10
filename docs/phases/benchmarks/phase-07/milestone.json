@@ -1,0 +1,146 @@
+{
+  "at": "2026-11-10T01:21:45.359Z",
+  "reset": false,
+  "realProviders": false,
+  "stages": [
+    {
+      "stage": "communications remaining/expanded database cases",
+      "status": 0,
+      "tests": 19,
+      "pass": 19,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "stage": "existing communications Auth HTTP",
+      "status": 0,
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "stage": "automation regression",
+      "status": 0,
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "stage": "AI database/context and human proposal compatibility",
+      "status": 0,
+      "tests": 32,
+      "pass": 32,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "stage": "pgTAP security",
+      "status": 0
+    },
+    {
+      "stage": "local advisors",
+      "status": 0
+    },
+    {
+      "stage": "public database type compatibility",
+      "status": 0
+    }
+  ],
+  "before": {
+    "public.organizations": {
+      "rows": 2,
+      "hash": "0bb26f0a33b88e04c04104ed931e8347cf5ade2bb34a7fb83d54ad5ecebe5ff6"
+    },
+    "public.organization_memberships": {
+      "rows": 2,
+      "hash": "b69b0790be384fe9e6c5ec644c696abf66cb1cf23a5d03d3e331986f8e881d22"
+    },
+    "public.contacts": {
+      "rows": 4,
+      "hash": "94d65f70993feb698ecada65e16f37efee4021f5437c092c649fc06e2d9d0f2e"
+    },
+    "public.leads": {
+      "rows": 5,
+      "hash": "169520bfea00bcc9bb135614acbc7af719e345d16a94ce963e5ab4cfc6d79d89"
+    },
+    "private.source_integrations": {
+      "rows": 5,
+      "hash": "6b53d85f9dc2dfa89c4102ceb9219fd4a5ee750040e69bdbd5ad0a534cbc57b0"
+    },
+    "private.ai_settings": {
+      "rows": 1,
+      "hash": "35b8203f0fe6e4356736f7e2c9b92386431dd390fc81accc508e8b20c0f5caa8"
+    },
+    "private.ai_runs": {
+      "rows": 9,
+      "hash": "6251d740623d0da7c290ce08d119328456404affe874b6b68039e1f35989e073"
+    },
+    "private.ai_attempts": {
+      "rows": 9,
+      "hash": "d4ca6bc1db2ae8115704feb0f5a11e84c414cb54515a65e4df14201a2de1309a"
+    },
+    "private.communication_messages": {
+      "rows": 3,
+      "hash": "181a2500e3ab2dc09e3539058ef6afab9f2b12aed16aa68e11feb6fdd25700b9"
+    },
+    "private.communication_jobs": {
+      "rows": 1,
+      "hash": "353dbd136c39cb9929b87f13fa91255ae1c76b13bf216fb82da03808fe49549d"
+    },
+    "private.inbound_receipts": {
+      "rows": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "after": {
+    "public.organizations": {
+      "rows": 2,
+      "hash": "0bb26f0a33b88e04c04104ed931e8347cf5ade2bb34a7fb83d54ad5ecebe5ff6"
+    },
+    "public.organization_memberships": {
+      "rows": 2,
+      "hash": "b69b0790be384fe9e6c5ec644c696abf66cb1cf23a5d03d3e331986f8e881d22"
+    },
+    "public.contacts": {
+      "rows": 4,
+      "hash": "94d65f70993feb698ecada65e16f37efee4021f5437c092c649fc06e2d9d0f2e"
+    },
+    "public.leads": {
+      "rows": 5,
+      "hash": "169520bfea00bcc9bb135614acbc7af719e345d16a94ce963e5ab4cfc6d79d89"
+    },
+    "private.source_integrations": {
+      "rows": 5,
+      "hash": "6b53d85f9dc2dfa89c4102ceb9219fd4a5ee750040e69bdbd5ad0a534cbc57b0"
+    },
+    "private.ai_settings": {
+      "rows": 1,
+      "hash": "35b8203f0fe6e4356736f7e2c9b92386431dd390fc81accc508e8b20c0f5caa8"
+    },
+    "private.ai_runs": {
+      "rows": 9,
+      "hash": "6251d740623d0da7c290ce08d119328456404affe874b6b68039e1f35989e073"
+    },
+    "private.ai_attempts": {
+      "rows": 9,
+      "hash": "d4ca6bc1db2ae8115704feb0f5a11e84c414cb54515a65e4df14201a2de1309a"
+    },
+    "private.communication_messages": {
+      "rows": 3,
+      "hash": "181a2500e3ab2dc09e3539058ef6afab9f2b12aed16aa68e11feb6fdd25700b9"
+    },
+    "private.communication_jobs": {
+      "rows": 1,
+      "hash": "353dbd136c39cb9929b87f13fa91255ae1c76b13bf216fb82da03808fe49549d"
+    },
+    "private.inbound_receipts": {
+      "rows": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "recordsPreserved": true,
+  "status": "passed",
+  "stoppedWithVolumesPreserved": true
+}

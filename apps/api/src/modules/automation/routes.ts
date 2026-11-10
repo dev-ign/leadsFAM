@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { FastifyInstance } from 'fastify';
 import { AutomationDatabase } from '@leadops/database';
@@ -22,7 +22,15 @@ import { normalizeContact } from '../crm/normalize.js';
 
 const hash = (value: string) => createHash('sha256').update(value).digest('hex');
 const credential = () => `lf_ing_${randomBytes(32).toString('base64url')}`;
-export function registerAutomationManagement(app: FastifyInstance, store: SessionStore) {
+export function deriveMockInboundCredential(root: string, id: string, generation: number) {
+  return `lf_inb_${createHmac('sha256', Buffer.from(root, 'base64')).update(`leadsfam.mock-inbound.v1:${id}:${generation}`).digest('base64url')}`;
+}
+export function registerAutomationManagement(
+  app: FastifyInstance,
+  store: SessionStore,
+  mockSecret?: string,
+  production = false,
+) {
   const service = new OrganizationService(store),
     base = '/organizations/:org';
   app.get(`${base}/automations`, async (request) => {
@@ -57,8 +65,14 @@ export function registerAutomationManagement(app: FastifyInstance, store: Sessio
   });
   app.post(`${base}/integrations`, async (request) => {
     const { org } = validated(orgParamsSchema, request.params),
-      input = validated(integrationCreateSchema, request.body),
-      secret = credential();
+      input = validated(integrationCreateSchema, request.body);
+    if (input.capability === 'mock_inbound' && (!mockSecret || production))
+      throw new IdentityFailure(503, 'INGESTION_UNAVAILABLE');
+    const id = randomUUID(),
+      secret =
+        input.capability === 'mock_inbound'
+          ? deriveMockInboundCredential(mockSecret!, id, 1)
+          : credential();
     const integration = integrationSchema.parse(
       await service.rpc(
         requireApplication(request),
@@ -67,12 +81,15 @@ export function registerAutomationManagement(app: FastifyInstance, store: Sessio
           p_org: org,
           p_kind: 'integration',
           p_action: 'create',
+          p_id: id,
           p_data: { ...input, credentialHash: hash(secret) },
         },
         request.id,
       ),
     );
-    return { integration, credential: secret };
+    return input.capability === 'mock_inbound'
+      ? { integration }
+      : { integration, credential: secret };
   });
   app.post(`${base}/integrations/:id/:action`, async (request) => {
     const { org, id, action } = validated(
@@ -80,7 +97,23 @@ export function registerAutomationManagement(app: FastifyInstance, store: Sessio
         request.params,
       ),
       { version } = validated(crmVersionSchema, request.body);
-    const secret = action === 'rotate' ? credential() : null;
+    let secret: string | null = null;
+    if (action === 'rotate') {
+      const overview = automationOverviewSchema.parse(
+        await service.rpc(
+          requireApplication(request),
+          'automation_overview',
+          { p_org: org },
+          request.id,
+        ),
+      );
+      const current = overview.integrations.find((i) => i.id === id);
+      if (!current) throw new IdentityFailure(404, 'NOT_FOUND');
+      if (current.capability === 'mock_inbound') {
+        if (!mockSecret || production) throw new IdentityFailure(503, 'INGESTION_UNAVAILABLE');
+        secret = deriveMockInboundCredential(mockSecret, id, version + 1);
+      } else secret = credential();
+    }
     const integration = integrationSchema.parse(
       await service.rpc(
         requireApplication(request),
@@ -96,7 +129,9 @@ export function registerAutomationManagement(app: FastifyInstance, store: Sessio
         request.id,
       ),
     );
-    return secret ? { integration, credential: secret } : { integration };
+    return secret && integration.capability === 'lead_intake'
+      ? { integration, credential: secret }
+      : { integration };
   });
   app.post(`${base}/automations`, async (request) => {
     const { org } = validated(orgParamsSchema, request.params),

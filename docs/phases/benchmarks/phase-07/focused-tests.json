@@ -1,0 +1,39 @@
+{
+  "at": "2026-11-10T01:15:32.868Z",
+  "reset": false,
+  "realProviders": false,
+  "stages": [
+    {
+      "file": "tests/communications/database.test.mjs",
+      "pattern": "inbound email/SMS replies",
+      "status": 0
+    },
+    {
+      "file": "tests/communications/http.test.mjs",
+      "pattern": "real Auth HTTP: inbound authority",
+      "status": 0
+    },
+    {
+      "file": "tests/ai/database.test.mjs",
+      "pattern": "authenticated inbound corrections",
+      "status": 0
+    }
+  ],
+  "previousAttempt": {
+    "at": "2026-11-10T01:13:53.180Z",
+    "reset": false,
+    "realProviders": false,
+    "stages": [
+      {
+        "file": "tests/communications/database.test.mjs",
+        "pattern": "^inbound ",
+        "status": 1
+      }
+    ],
+    "stoppedWithVolumesPreserved": true
+  },
+  "fixtureCorrection": "Used the existing due(f) helper before the mock delivery reconciliation pass, preserving its two-second schedule.",
+  "reusedPassingDatabaseCases": 4,
+  "status": "passed",
+  "stoppedWithVolumesPreserved": true
+}

@@ -1,14 +1,14 @@
 import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { randomUUID } from 'node:crypto';
-import { AutomationDatabase } from '../../packages/database/dist/index.js';
+import { randomUUID, randomBytes, createHash } from 'node:crypto';
+import { AutomationDatabase, createSessionPool } from '../../packages/database/dist/index.js';
 import { localIdentity } from '../../scripts/local-identity.mjs';
 import { processCommunication } from '../../apps/api/dist/modules/communications/dispatch.js';
 import {
   UnsubmittedProviderError,
   mockProvider,
 } from '../../apps/api/dist/modules/communications/providers.js';
-import { fixture, pool, rpc } from '../database/fixture.mjs';
+import { fixture, pool, rpc, waitForLock } from '../database/fixture.mjs';
 
 const settings = {
   paused: false,
@@ -681,3 +681,504 @@ test('immutable lifecycle events have complete bounded keyset pagination and ten
     assert.equal(new Set([...first.items, ...next.items].map((x) => x.id)).size, 106);
     await assert.rejects(read(f, 'events', m.id, {}, f.ids.other), /not_found/);
   }));
+
+const inboundHash = (key) => createHash('sha256').update(key).digest('hex');
+async function connector(f, capability = 'mock_inbound', person = f.ids.owner) {
+  const key = 'lf_inb_' + randomBytes(32).toString('base64url');
+  const integration = await rpc(person, 'automation_manage', [
+    f.org,
+    'integration',
+    'create',
+    null,
+    null,
+    { name: 'Synthetic replies', capability, credentialHash: inboundHash(key) },
+  ]);
+  return { key, hash: inboundHash(key), integration };
+}
+const incoming = (f, extra = {}) => ({
+  eventId: randomUUID(),
+  channel: 'email',
+  sender: f.recipient,
+  subject: 'Synthetic reply',
+  body: '  Actually three bedrooms.\nPlease confirm an estimate. 🙂  ',
+  replyTo: null,
+  occurredAt: null,
+  ...extra,
+});
+
+test('inbound capability, least privilege, revoked and rotated authority fail closed', () =>
+  setup(async (f) => {
+    const intake = await connector(f, 'lead_intake'),
+      c = await connector(f);
+    for (const role of [
+      'anon',
+      'authenticated',
+      'service_role',
+      'leadsfam_runtime',
+      'leadsfam_worker',
+      'leadsfam_ingress',
+    ])
+      assert.equal(
+        (
+          await pool.query(
+            "select has_table_privilege($1,'private.inbound_receipts','SELECT') allowed",
+            [role],
+          )
+        ).rows[0].allowed,
+        false,
+      );
+    assert.equal(
+      (
+        await pool.query(
+          "select has_function_privilege('leadsfam_ingress','private.inbound_context(text,boolean)','EXECUTE') allowed",
+        )
+      ).rows[0].allowed,
+      false,
+    );
+    await assert.rejects(ingress.authorizeInbound(intake.hash), {
+      message: 'credentials_rejected',
+    });
+    await assert.rejects(ingress.ingest(intake.hash, {}, randomUUID())); // Shape is still checked on the intake-only path.
+    await assert.rejects(ingress.ingest(c.hash, {}, randomUUID()), {
+      message: 'credentials_rejected',
+    });
+    await assert.rejects(worker.ingestInbound(c.hash, incoming(f)), {
+      message: 'Invalid runtime capability',
+    });
+    await assert.rejects(
+      ingress.ingestInbound(c.hash, { ...incoming(f), organizationId: f.otherOrg }),
+      { message: 'invalid_fields' },
+    );
+    await assert.rejects(
+      pool.query("update private.source_integrations set capability='lead_intake' where id=$1", [
+        c.integration.id,
+      ]),
+      { message: 'immutable_identity' },
+    );
+    let current = await rpc(f.ids.owner, 'automation_manage', [
+      f.org,
+      'integration',
+      'paused',
+      c.integration.id,
+      1,
+      {},
+    ]);
+    await assert.rejects(ingress.authorizeInbound(c.hash), { message: 'credentials_rejected' });
+    current = await rpc(f.ids.owner, 'automation_manage', [
+      f.org,
+      'integration',
+      'active',
+      current.id,
+      current.version,
+      {},
+    ]);
+    await ingress.authorizeInbound(c.hash);
+    assert.equal(current.credential_generation, 1);
+    const replacement = 'lf_inb_' + randomBytes(32).toString('base64url');
+    current = await rpc(f.ids.owner, 'automation_manage', [
+      f.org,
+      'integration',
+      'rotate',
+      current.id,
+      current.version,
+      { credentialHash: inboundHash(replacement) },
+    ]);
+    assert.equal(current.credential_generation, 4);
+    await assert.rejects(ingress.authorizeInbound(c.hash), { message: 'credentials_rejected' });
+    await ingress.authorizeInbound(inboundHash(replacement));
+    await pool.query(
+      "update private.source_integrations set expires_at=now()-interval '1 second' where id=$1",
+      [current.id],
+    );
+    await assert.rejects(ingress.authorizeInbound(inboundHash(replacement)), {
+      message: 'credentials_rejected',
+    });
+    const delegated = await connector(f, 'mock_inbound', f.ids.admin);
+    await pool.query(
+      'update public.organization_memberships set revoked_at=now() where organization_id=$1 and user_id=$2',
+      [f.org, f.ids.admin.user],
+    );
+    await assert.rejects(ingress.authorizeInbound(delegated.hash), {
+      message: 'credentials_rejected',
+    });
+  }));
+
+test('inbound email/SMS replies retain exact normalized content, provenance and one effect under replay', () =>
+  setup(async (f) => {
+    const c = await connector(f);
+    await manage(f, 'settings', null, null, settings);
+    const initialEvents = (
+      await pool.query(
+        'select count(*)::int n from private.domain_events where organization_id=$1',
+        [f.org],
+      )
+    ).rows[0].n;
+    for (const channel of ['email', 'sms']) {
+      const draft = f.draft(channel),
+        input = incoming(f, {
+          channel,
+          sender: channel === 'email' ? f.recipient : '+12025550123',
+          subject: channel === 'email' ? 'Synthetic reply' : '',
+          occurredAt: '2001-01-01T00:00:00Z',
+        });
+      await manage(f, 'permission', null, null, f.consent(channel));
+      await manage(f, 'draft', draft.id, null, draft);
+      await manage(f, 'send', draft.id, 1);
+      await processCommunication(worker, await worker.claimCommunication());
+      await due(f);
+      await processCommunication(worker, await worker.claimCommunication());
+      input.replyTo = draft.id;
+      const results = await Promise.all([
+        ingress.ingestInbound(c.hash, input),
+        ingress.ingestInbound(c.hash, input),
+      ]);
+      assert.equal(results[0].messageId, results[1].messageId);
+      assert.equal(results[0].state, 'linked');
+      assert.equal(results.filter((r) => r.replayed).length, 1);
+      await assert.rejects(
+        ingress.ingestInbound(c.hash, { ...input, body: 'Conflicting synthetic text' }),
+        { message: 'idempotency_conflict' },
+      );
+      const message = (
+        await pool.query('select * from private.communication_messages where id=$1', [
+          results[0].messageId,
+        ])
+      ).rows[0];
+      assert.equal(message.body, input.body);
+      assert.equal(message.created_by, null);
+      assert.equal(message.created_by_integration, c.integration.id);
+      assert.equal(message.direction, 'inbound');
+      assert.equal(message.lead_id, f.lead);
+      assert.equal(message.contact_id, f.contact);
+      assert.equal(message.authorized_by, null);
+      assert.equal(message.approved_at, null);
+      assert.equal(message.state, 'delivered');
+      assert.ok(message.created_at.getUTCFullYear() > 2001);
+      const late = await ingress.ingestInbound(c.hash, {
+        ...input,
+        eventId: randomUUID(),
+        occurredAt: '1999-01-01T00:00:00Z',
+      });
+      const timeline = await read(f, 'history', message.conversation_id);
+      assert.deepEqual(
+        timeline.messages.filter((m) => m.direction === 'inbound').map((m) => m.id),
+        [message.id, late.messageId],
+      );
+      const storedTime = (
+        await pool.query(
+          'select occurred_at,received_at from private.inbound_receipts where id=$1',
+          [late.receiptId],
+        )
+      ).rows[0];
+      assert.equal(storedTime.occurred_at.getUTCFullYear(), 1999);
+      assert.ok(storedTime.received_at >= message.created_at);
+      const readBack = await read(f, 'message', message.id);
+      assert.equal(readBack.integration_name, 'Synthetic replies');
+      await assert.rejects(manage(f, 'send', message.id, message.version), {
+        message: 'forbidden',
+      });
+      await assert.rejects(
+        manage(f, 'draft', message.id, message.version, { ...draft, id: message.id }),
+        { message: 'forbidden' },
+      );
+      await assert.rejects(
+        pool.query(
+          'insert into private.communication_jobs(organization_id,message_id) values($1,$2)',
+          [f.org, message.id],
+        ),
+        { message: 'inbound_not_sendable' },
+      );
+      await assert.rejects(
+        pool.query("update private.inbound_receipts set body='Changed' where id=$1", [
+          results[0].receiptId,
+        ]),
+        { message: 'immutable_identity' },
+      );
+      await assert.rejects(
+        pool.query("update private.communication_messages set body='Changed' where id=$1", [
+          message.id,
+        ]),
+        { message: 'immutable_identity' },
+      );
+    }
+    assert.equal(
+      (
+        await pool.query(
+          'select count(*)::int n from private.domain_events where organization_id=$1',
+          [f.org],
+        )
+      ).rows[0].n,
+      initialEvents,
+    );
+    assert.equal(
+      (await pool.query('select status from public.leads where id=$1', [f.lead])).rows[0].status,
+      'new',
+    );
+    assert.equal(
+      (
+        await pool.query('select count(*)::int n from private.ai_runs where organization_id=$1', [
+          f.org,
+        ])
+      ).rows[0].n,
+      0,
+    );
+  }));
+
+test('inbound matching isolates identical senders and defers unknown, ambiguous and unverifiable references', () =>
+  setup(async (f) => {
+    const c = await connector(f),
+      foreign = randomUUID();
+    await pool.query(
+      "insert into public.contacts(id,organization_id,kind,display_name,created_by) values($1,$2,'person','Foreign synthetic customer',$3)",
+      [foreign, f.otherOrg, f.ids.other.user],
+    );
+    await pool.query('insert into public.contact_emails values($1,$2,1,$3,$3)', [
+      f.otherOrg,
+      foreign,
+      f.recipient,
+    ]);
+    const unique = await ingress.ingestInbound(c.hash, incoming(f));
+    assert.equal(unique.state, 'linked');
+    const unknown = await ingress.ingestInbound(
+      c.hash,
+      incoming(f, { sender: 'unknown@example.test' }),
+    );
+    assert.equal(unknown.state, 'needs_review');
+    let review = await read(f, 'inbound');
+    assert.equal(review.items.find((r) => r.id === unknown.receiptId).reason, 'unknown_customer');
+    const otherLead = randomUUID();
+    await pool.query(
+      "insert into public.leads(id,organization_id,contact_id,title,created_by) values($1,$2,$3,'Another synthetic inquiry',$4)",
+      [otherLead, f.org, f.contact, f.ids.owner.user],
+    );
+    const ambiguous = await ingress.ingestInbound(c.hash, incoming(f));
+    assert.equal(ambiguous.state, 'needs_review');
+    const foreignConversation = randomUUID(),
+      foreignMessage = randomUUID();
+    await pool.query(
+      "insert into private.conversations(id,organization_id,contact_id,channel) values($1,$2,$3,'email')",
+      [foreignConversation, f.otherOrg, foreign],
+    );
+    await pool.query(
+      "insert into private.communication_messages(id,organization_id,conversation_id,contact_id,channel,purpose,sender,recipient,subject,body,state,created_by) values($1,$2,$3,$4,'email','transactional','FreshNest <mock@example.test>',$5,'Synthetic','Synthetic','delivered',$6)",
+      [foreignMessage, f.otherOrg, foreignConversation, foreign, f.recipient, f.ids.other.user],
+    );
+    const wrong = await ingress.ingestInbound(c.hash, incoming(f, { replyTo: foreignMessage }));
+    assert.equal(wrong.state, 'needs_review');
+    assert.equal(wrong.messageId, null);
+    review = await read(f, 'inbound');
+    assert.equal(review.items.find((r) => r.id === wrong.receiptId).reason, 'reply_unverified');
+    assert.equal(
+      review.items.find((r) => r.id === ambiguous.receiptId).reason,
+      'multiple_conversations',
+    );
+    await assert.rejects(read(f, 'inbound', null, {}, f.ids.other), { message: 'not_found' });
+    await assert.rejects(
+      manage(f, 'resolve_inbound', unknown.receiptId, null, { contactId: foreign, leadId: f.lead }),
+      { message: 'not_found' },
+    );
+    await assert.rejects(
+      manage(
+        f,
+        'resolve_inbound',
+        unknown.receiptId,
+        null,
+        { contactId: f.contact, leadId: f.lead },
+        f.ids.other,
+      ),
+      { message: 'not_found' },
+    );
+    const links = await Promise.all(
+      [0, 1].map(() =>
+        manage(f, 'resolve_inbound', unknown.receiptId, null, {
+          contactId: f.contact,
+          leadId: f.lead,
+        }),
+      ),
+    );
+    assert.equal(links[0].id, links[1].id);
+    assert.equal(links[0].created_by_integration, c.integration.id);
+    await assert.rejects(
+      manage(f, 'resolve_inbound', unknown.receiptId, null, {
+        contactId: f.contact,
+        leadId: otherLead,
+      }),
+      { message: 'idempotency_conflict' },
+    );
+    assert.equal(
+      (
+        await pool.query(
+          'select count(*)::int n from private.communication_messages where organization_id=$1 and created_by_integration=$2',
+          [f.org, c.integration.id],
+        )
+      ).rows[0].n,
+      2,
+    );
+    assert.equal(
+      (
+        await pool.query(
+          'select count(*)::int n from private.communication_jobs where organization_id=$1',
+          [f.org],
+        )
+      ).rows[0].n,
+      0,
+    );
+    const noLead = randomUUID();
+    await pool.query(
+      "insert into public.contacts(id,organization_id,kind,display_name,created_by) values($1,$2,'person','No-lead synthetic customer',$3)",
+      [noLead, f.org, f.ids.owner.user],
+    );
+    await pool.query('insert into public.contact_emails values($1,$2,1,$3,$3)', [
+      f.org,
+      noLead,
+      'nolead@example.test',
+    ]);
+    const unassigned = await ingress.ingestInbound(
+      c.hash,
+      incoming(f, { sender: 'nolead@example.test' }),
+    );
+    assert.equal(
+      (await read(f, 'inbound')).items.find((r) => r.id === unassigned.receiptId).reason,
+      'no_matching_lead',
+    );
+    await assert.rejects(
+      manage(f, 'resolve_inbound', unassigned.receiptId, null, {
+        contactId: noLead,
+        leadId: f.lead,
+      }),
+      { message: 'not_found' },
+    );
+    await pool.query(
+      'update public.contact_emails set value=$1,normalized=$1 where organization_id=$2 and contact_id=$3',
+      [f.recipient, f.org, noLead],
+    );
+    const shared = await ingress.ingestInbound(c.hash, incoming(f));
+    assert.equal(
+      (await read(f, 'inbound')).items.find((r) => r.id === shared.receiptId).reason,
+      'multiple_contacts',
+    );
+  }));
+
+test('inbound receipt retries survive rollback and lost acknowledgment without changing history', () =>
+  setup(async (f) => {
+    const c = await connector(f),
+      input = incoming(f),
+      direct = createSessionPool(local.ingressDatabaseUrl),
+      client = await direct.connect();
+    try {
+      await client.query('begin');
+      await client.query('select private.inbound_ingest($1,$2::jsonb)', [
+        c.hash,
+        JSON.stringify(input),
+      ]);
+      await client.query('rollback');
+      assert.equal(
+        (
+          await pool.query(
+            'select count(*)::int n from private.inbound_receipts where integration_id=$1',
+            [c.integration.id],
+          )
+        ).rows[0].n,
+        0,
+      );
+      await ingress.ingestInbound(c.hash, input); // Model a successful commit whose response was lost.
+      const replay = await ingress.ingestInbound(c.hash, input);
+      assert.equal(replay.replayed, true);
+      assert.equal(
+        (
+          await pool.query(
+            'select count(*)::int n from private.inbound_receipts where integration_id=$1',
+            [c.integration.id],
+          )
+        ).rows[0].n,
+        1,
+      );
+      assert.equal(
+        (
+          await pool.query(
+            'select count(*)::int n from private.communication_messages where created_by_integration=$1',
+            [c.integration.id],
+          )
+        ).rows[0].n,
+        1,
+      );
+    } finally {
+      await client.query('rollback');
+      client.release();
+      await direct.end();
+    }
+  }));
+
+test('inbound revocation wins before a blocked admission and admitted work linearizes before revocation', async () => {
+  for (const order of ['revoke_first', 'admit_first'])
+    await setup(async (f) => {
+      const c = await connector(f),
+        direct = createSessionPool(local.ingressDatabaseUrl),
+        client = await direct.connect(),
+        revoker = await pool.connect();
+      try {
+        if (order === 'revoke_first') {
+          await revoker.query('begin');
+          await revoker.query('select 1 from public.organizations where id=$1 for update', [f.org]);
+          await revoker.query(
+            "update private.source_integrations set status='revoked' where id=$1",
+            [c.integration.id],
+          );
+          const pid = (await client.query('select pg_backend_pid() pid')).rows[0].pid;
+          const pending = client.query('select private.inbound_ingest($1,$2::jsonb)', [
+            c.hash,
+            JSON.stringify(incoming(f)),
+          ]);
+          const rejected = assert.rejects(pending, { message: 'credentials_rejected' });
+          await waitForLock(pid);
+          await revoker.query('commit');
+          await rejected;
+          assert.equal(
+            (
+              await pool.query(
+                'select count(*)::int n from private.inbound_receipts where integration_id=$1',
+                [c.integration.id],
+              )
+            ).rows[0].n,
+            0,
+          );
+        } else {
+          await client.query('begin');
+          await client.query('select private.inbound_ingest($1,$2::jsonb)', [
+            c.hash,
+            JSON.stringify(incoming(f)),
+          ]);
+          const pid = (await revoker.query('select pg_backend_pid() pid')).rows[0].pid;
+          const pending = revoker.query(
+            'select 1 from public.organizations where id=$1 for update',
+            [f.org],
+          );
+          await waitForLock(pid);
+          await client.query('commit');
+          await pending;
+          await revoker.query(
+            "update private.source_integrations set status='revoked' where id=$1",
+            [c.integration.id],
+          );
+          await assert.rejects(ingress.ingestInbound(c.hash, incoming(f)), {
+            message: 'credentials_rejected',
+          });
+          assert.equal(
+            (
+              await pool.query(
+                'select count(*)::int n from private.inbound_receipts where integration_id=$1',
+                [c.integration.id],
+              )
+            ).rows[0].n,
+            1,
+          );
+        }
+      } finally {
+        await client.query('rollback');
+        await revoker.query('rollback');
+        client.release();
+        revoker.release();
+        await direct.end();
+      }
+    });
+});

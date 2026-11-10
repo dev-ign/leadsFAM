@@ -15,6 +15,21 @@ function setup() {
 }
 
 describe('API transport boundary', () => {
+  it('keeps mock inbound ingress unavailable in production even with a signing root', async () => {
+    const app = createApp({
+      ...parseEnv({ NODE_ENV: 'test', LOG_LEVEL: 'silent' }),
+      nodeEnv: 'production',
+      mockWebhookSecret: Buffer.alloc(32, 9).toString('base64'),
+    });
+    apps.push(app);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/webhooks/mock/inbound',
+      payload: { synthetic: true },
+    });
+    expect(response.statusCode).toBe(503);
+    expect(response.body).not.toContain(Buffer.alloc(32, 9).toString('base64'));
+  });
   it('reports missing dependencies without exposing configuration through readiness', async () => {
     const response = await setup().inject('/ready');
     expect(response.statusCode).toBe(503);

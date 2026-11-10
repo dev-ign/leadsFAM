@@ -78,7 +78,12 @@ export function createApp(config: AppConfig, logger?: FastifyBaseLogger) {
       registerIdentity(scoped, store, config.nodeEnv === 'production', config.corsOrigins);
       registerOrganizations(scoped, store);
       registerCrm(scoped, store, config.crmCursorKey);
-      registerAutomationManagement(scoped, store);
+      registerAutomationManagement(
+        scoped,
+        store,
+        config.mockWebhookSecret,
+        config.nodeEnv === 'production',
+      );
       registerCommunications(scoped, store);
       registerAi(scoped, store);
       readiness = async () => {

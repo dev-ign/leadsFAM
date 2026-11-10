@@ -9,10 +9,11 @@ Planning decision: November 9, 2026 (America/New_York). The product owner select
 - Phase 04: persistent communications, human editing and exact-version approval, consent/suppression controls and mock-only delivery.
 - Phase 05: bounded AI execution/provider boundary, durable requests/attempts, quotas and disabled-by-default real inference.
 - Phase 06: locally implemented versioned business knowledge, grounded lead qualification, bounded conversation context, reviewed proposals and evaluations. Local implementation and synthetic tests are not live-model or customer-rollout acceptance. See the [engineering report](phases/phase-06-report.md) for actual verification and the final durability correction.
+- Phase 07: locally implemented and accepted synthetic inbound email/SMS, durable receipts/replay protection, conservative conversation matching, explicit human linking and existing UI/context integration. The final feature-branch Git/CI checkpoint is separately authorized on `codex/phase-07-inbound-communications`; see the [Phase 07 report](phases/phase-07-report.md).
 
-No real inbound connector, live communication delivery or live-model usefulness has been accepted. The existing conversation context was exercised with synthetic messages. Human approval and mock-only sending remain required.
+No real-provider inbound connector, live communication delivery or live-model usefulness has been accepted. Conversation context has been exercised through authenticated synthetic ingress. Human approval and mock-only sending remain required.
 
-## Selected future direction
+## Selected phase sequence
 
 | Phase | Title                                                         | Planning objective                                                                                                                                                                                                        |
 | ----- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -21,7 +22,7 @@ No real inbound connector, live communication delivery or live-model usefulness 
 | 09    | Operational Safety and Observability                          | Extend audit trails, tenant quotas, failure diagnostics, cost accounting/visibility, operator controls and realistic multi-tenant load verification. Extend existing tooling before introducing infrastructure.           |
 | 10    | Real Integrations and AI Acceptance                           | Configure approved provider accounts, benchmark models, validate provider-specific signed inbound webhooks, test separately authorized controlled outbound delivery and close outstanding Phase 06 live acceptance gates. |
 
-The [November 9 closure review](phases/benchmarks/phase-06/closure-review-2026-11-09.md) contains a proposed minimal Phase 07 implementation sequence. Its engineering scenarios are proposals, not original formal acceptance criteria. The current durability assignment does **not** implement Phase 07.
+The [November 9 closure review](phases/benchmarks/phase-06/closure-review-2026-11-09.md) preserves the earlier Phase 07 proposal. The subsequent product-owner implementation brief defined Phase 07's local scope and acceptance; its actual results are in the [Phase 07 report](phases/phase-07-report.md). Phases 08–10 remain planning objectives, not implemented or automatically authorized capabilities.
 
 ## Open Phase 06 acceptance gates
 

@@ -88,6 +88,8 @@ export const communicationMessageSchema = z.strictObject({
   code: z.string().nullable(),
   provider: z.literal('mock'),
   provider_message_id: z.string().nullable(),
+  created_by_integration: z.uuid().nullable().default(null),
+  integration_name: z.string().nullable().default(null),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -164,3 +166,64 @@ export const providerEventSchema = z.strictObject({
 export type CommunicationMessage = z.infer<typeof communicationMessageSchema>;
 export type DispatchEnvelope = z.infer<typeof dispatchEnvelopeSchema>;
 export type ProviderEvent = z.infer<typeof providerEventSchema>;
+
+// Incoming content is data, never authority or an outbound instruction.
+export const inboundMessageInput = z
+  .strictObject({
+    eventId: z.string().regex(/^[A-Za-z0-9:_-]{1,160}$/),
+    channel: communicationChannel,
+    sender: z.string().trim().min(3).max(254),
+    subject: z
+      .string()
+      .max(200)
+      .refine((v) => !v.includes('\0') && !/[\uD800-\uDFFF]/u.test(v))
+      .default(''),
+    body: z
+      .string()
+      .min(1)
+      .max(4000)
+      .refine((v) => !!v.trim() && !v.includes('\0') && !/[\uD800-\uDFFF]/u.test(v)),
+    replyTo: z.uuid().nullable().default(null),
+    occurredAt: z.iso.datetime({ offset: true }).nullable().default(null),
+  })
+  .superRefine((v, ctx) => {
+    if (
+      (v.channel === 'email' && !z.email().safeParse(v.sender).success) ||
+      (v.channel === 'sms' &&
+        (!/^\+[1-9][0-9]{6,14}$/.test(v.sender) || v.body.length > 1600 || v.subject !== ''))
+    )
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Use a valid email or international SMS sender and bounded plain text.',
+      });
+  });
+export const inboundResultSchema = z.strictObject({
+  receiptId: z.uuid(),
+  state: z.enum(['needs_review', 'linked']),
+  messageId: z.uuid().nullable(),
+  replayed: z.boolean(),
+});
+export const inboundReviewSchema = z.strictObject({
+  id: z.uuid(),
+  channel: communicationChannel,
+  sender: z.string(),
+  recipient: z.string(),
+  subject: z.string(),
+  body: z.string(),
+  integration_name: z.string(),
+  reason: z.enum([
+    'unknown_customer',
+    'multiple_contacts',
+    'multiple_conversations',
+    'no_matching_lead',
+    'reply_unverified',
+  ]),
+  received_at: z.string(),
+  occurred_at: z.string().nullable(),
+});
+export const inboundReviewPageSchema = z.strictObject({
+  items: z.array(inboundReviewSchema).max(25),
+  next: z.string().nullable(),
+});
+export const inboundLinkInput = z.strictObject({ contactId: z.uuid(), leadId: z.uuid() });
+export type InboundReview = z.infer<typeof inboundReviewSchema>;

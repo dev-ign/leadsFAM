@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-09",
+  "syntheticOnly": true,
+  "observed": {
+    "emailReceivedAndDisplayed": true,
+    "sameEventReplayDidNotDuplicate": true,
+    "smsReceivedAndDisplayed": true,
+    "ambiguousReplyRequiredHumanLink": true,
+    "confirmedCorrectExistingContactAndLead": true,
+    "keyboardFocusEnteredReviewHeading": true,
+    "keyboardFocusReturnedToSuccessStatusAfterFix": true,
+    "keyboardOpenedLinkedConversation": true,
+    "manualSimulationUsedSixMessagesIncludingFourInbound": true,
+    "leadStatusAndOriginalInquiryUnchanged": true,
+    "foreignWorkspaceLeadAndConversationUnavailable": true,
+    "foreignUserSawOnlyOwnWorkspace": true,
+    "outboundEmailHumanEditedSavedThenSeparatelyApproved": true,
+    "outboundEmailAndSmsMockDeliveredOnlyAfterApproval": true
+  },
+  "wrapping": [
+    {
+      "cssViewport": 702,
+      "documentWidth": 702
+    },
+    {
+      "cssViewport": 375,
+      "documentWidth": 375,
+      "longParagraphClientWidthEqualsScrollWidth": true
+    }
+  ],
+  "narrowerThanSupportedMinimum": {
+    "cssViewport": 312,
+    "documentWidth": 320,
+    "existingBodyMinimumWidth": 320
+  },
+  "consoleWarningsOrErrorsBeforeIntentionalTenantDenial": [],
+  "limits": "Focused browser walkthrough, not screen-reader certification or production performance testing."
+}

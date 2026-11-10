@@ -97,6 +97,7 @@ beforeEach(() => {
   });
   vi.spyOn(apiClient, 'members').mockResolvedValue([]);
   vi.spyOn(apiClient, 'activity').mockResolvedValue({ items: [], cursor: null });
+  vi.spyOn(apiClient, 'inboundReview').mockResolvedValue({ items: [], next: null });
   vi.spyOn(apiClient, 'contact').mockResolvedValue(contact());
   vi.spyOn(apiClient, 'lead').mockResolvedValue(lead());
 });
@@ -677,6 +678,8 @@ it('shows a newly created integration key only in the current workspace and conf
     id: '88888888-8888-4888-8888-888888888888',
     organization_id: orgA.id,
     type: 'first_party' as const,
+    capability: 'lead_intake' as const,
+    credential_generation: 1,
     name: 'Synthetic backend',
     status: 'active' as const,
     source_id: null,
@@ -784,6 +787,8 @@ describe('communication approval and operational controls', () => {
       code: null,
       provider: 'mock' as const,
       provider_message_id: null,
+      created_by_integration: null,
+      integration_name: null,
       created_at: '2026-11-01T00:00:00Z',
       updated_at: '2026-11-01T00:00:00Z',
     };
@@ -859,4 +864,110 @@ describe('communication approval and operational controls', () => {
       ),
     );
   });
+});
+
+it('reviews an unmatched reply, confirms an existing customer/lead, and never sends or invokes AI', async () => {
+  const receipt = {
+    id: '99999999-9999-4999-8999-999999999999',
+    channel: 'email' as const,
+    sender: 'unknown-synthetic@example.test',
+    recipient: 'mock@example.test',
+    subject: 'Synthetic correction',
+    body: 'Actually three bedrooms next Friday.',
+    integration_name: 'Synthetic inbound',
+    reason: 'unknown_customer' as const,
+    received_at: '2026-11-09T18:00:00Z',
+    occurred_at: null,
+  };
+  let linked = false;
+  vi.mocked(apiClient.inboundReview).mockImplementation(async () => ({
+    items: linked ? [] : [receipt],
+    next: null,
+  }));
+  vi.spyOn(apiClient, 'conversations').mockResolvedValue({ items: [], next: null });
+  vi.mocked(apiClient.contacts).mockResolvedValue({ items: [contact()], cursor: null });
+  vi.mocked(apiClient.leads).mockResolvedValue({ items: [lead()], cursor: null });
+  const link = vi.spyOn(apiClient, 'linkInbound').mockImplementation(async () => {
+    linked = true;
+    return {
+      id: receipt.id,
+      conversation_id: receipt.id,
+      contact_id: contact().id,
+      lead_id: lead().id,
+      direction: 'inbound',
+      channel: 'email',
+      purpose: 'transactional',
+      sender: receipt.sender,
+      recipient: receipt.recipient,
+      subject: receipt.subject,
+      body: receipt.body,
+      state: 'delivered',
+      version: 1,
+      code: null,
+      provider: 'mock',
+      provider_message_id: null,
+      created_by_integration: receipt.id,
+      integration_name: receipt.integration_name,
+      created_at: receipt.received_at,
+      updated_at: receipt.received_at,
+    };
+  });
+  const send = vi.spyOn(apiClient, 'sendMessage'),
+    analyze = vi.spyOn(apiClient, 'requestAi');
+  app(`/organizations/${orgA.id}/communications`);
+  await userEvent.click(await screen.findByRole('button', { name: 'Review reply' }));
+  await waitFor(() =>
+    expect(screen.getByRole('heading', { name: 'Review incoming reply' })).toHaveFocus(),
+  );
+  expect(screen.getByText(receipt.body)).toBeInTheDocument();
+  await userEvent.click(await screen.findByRole('button', { name: contact().display_name }));
+  await userEvent.selectOptions(
+    await screen.findByRole('combobox', { name: 'Existing lead' }),
+    lead().id,
+  );
+  expect(link).not.toHaveBeenCalled();
+  await userEvent.click(screen.getByRole('button', { name: 'Confirm link to this lead' }));
+  await waitFor(() =>
+    expect(link).toHaveBeenCalledWith(orgA.id, receipt.id, {
+      contactId: contact().id,
+      leadId: lead().id,
+    }),
+  );
+  expect(await screen.findByRole('link', { name: 'Open the conversation' })).toBeInTheDocument();
+  await waitFor(() => expect(screen.getByRole('status')).toHaveFocus());
+  expect(send).not.toHaveBeenCalled();
+  expect(analyze).not.toHaveBeenCalled();
+});
+
+it('creates an inbound-only integration without revealing a signing credential', async () => {
+  const integration = {
+    id: '99999999-9999-4999-8999-999999999999',
+    organization_id: orgA.id,
+    type: 'first_party' as const,
+    capability: 'mock_inbound' as const,
+    credential_generation: 1,
+    name: 'Website inquiries',
+    status: 'active' as const,
+    source_id: null,
+    expires_at: '2027-01-01T00:00:00Z',
+    created_by: userA,
+    authorized_by: userA,
+    version: 1,
+    created_at: '2026-11-09T18:00:00Z',
+    updated_at: '2026-11-09T18:00:00Z',
+  };
+  vi.spyOn(apiClient, 'createIntegration').mockResolvedValue({ integration });
+  app(`/organizations/${orgA.id}/integrations`);
+  await userEvent.selectOptions(
+    await screen.findByRole('combobox', { name: 'Integration purpose' }),
+    'mock_inbound',
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Add integration' }));
+  await waitFor(() =>
+    expect(apiClient.createIntegration).toHaveBeenCalledWith(orgA.id, {
+      name: 'Website inquiries',
+      capability: 'mock_inbound',
+    }),
+  );
+  expect(screen.queryByRole('region', { name: 'Integration credential' })).not.toBeInTheDocument();
 });
