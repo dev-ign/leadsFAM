@@ -30,6 +30,6 @@ keywords = ["postgres://", "postgresql://"]
 
 [[rules]]
 id = "leadsfam-integration-credential"
-description = "First-party intake bearer credentials must never enter source"
-regex = '''lf_ing_[A-Za-z0-9_-]{43}'''
-keywords = ["lf_ing_"]
+description = "Intake bearer and inbound signing credentials must never enter source"
+regex = '''lf_(?:ing|inb)_[A-Za-z0-9_-]{43}'''
+keywords = ["lf_ing_", "lf_inb_"]

@@ -97,6 +97,22 @@ export class AutomationDatabase {
       ])
     ).rows[0]?.result as unknown;
   }
+  async authorizeInbound(hash: string): Promise<void> {
+    if (this.mode !== 'ingress') throw new Error('Invalid runtime capability');
+    await this.pool.query('select private.inbound_authorize($1)', [hash]);
+  }
+  async ingestInbound(hash: string, input: unknown): Promise<unknown> {
+    if (this.mode !== 'ingress') throw new Error('Invalid runtime capability');
+    const result = (
+      await this.pool.query('select private.inbound_ingest($1,$2::jsonb) result', [
+        hash,
+        JSON.stringify(input),
+      ])
+    ).rows[0]?.result as unknown;
+    if (result && typeof result === 'object' && 'state' in result && result.state === 'rejected')
+      throw new Error('idempotency_conflict');
+    return result;
+  }
   async claimAi(): Promise<unknown> {
     if (this.mode !== 'worker') throw new Error('Invalid runtime capability');
     return (await this.pool.query('select private.ai_claim() result')).rows[0]?.result as unknown;

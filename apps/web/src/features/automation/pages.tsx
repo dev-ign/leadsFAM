@@ -568,8 +568,8 @@ function IntegrationList() {
     if (confirm && !dialog.current?.open) dialog.current?.showModal();
     if (!confirm && dialog.current?.open) dialog.current.close();
   }, [confirm]);
-  const reveal = (id: string, value: string) => {
-    setSecret({ id, value });
+  const reveal = (id: string, value?: string) => {
+    setSecret(value ? { id, value } : null);
     refresh();
   };
   return (
@@ -628,6 +628,9 @@ function IntegrationList() {
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
+                {i.capability === 'mock_inbound'
+                  ? 'Receives simulated customer replies. No messages are sent. '
+                  : 'Receives new lead inquiries. '}
                 Source:{' '}
                 {state.data.sources.find((s) => s.id === i.source_id)?.name ?? 'No source selected'}{' '}
                 · Key expires {new Date(i.expires_at).toLocaleDateString()}
@@ -733,14 +736,19 @@ function IntegrationList() {
       <details className="space-y-3 rounded-xl border border-border p-5 text-sm">
         <summary className="cursor-pointer py-2 font-medium">Developer setup</summary>
         <p>
-          Send JSON from your trusted backend to <code>/ingress/v1/leads</code> on the LeadsFam API
-          with an Authorization bearer key and a stable external event ID. Retry the same event with
-          identical details after a timeout. Accepted intake creates the lead immediately;
-          automation runs in the background.
+          For new lead inquiries, send JSON from your trusted backend to{' '}
+          <code>/ingress/v1/leads</code> on the LeadsFam API with an Authorization bearer key and a
+          stable external event ID. Retry the same event with identical details after a timeout.
+          Accepted intake creates the lead immediately; automation runs in the background.
         </p>
         <p>
           Keep keys on the server. Public website forms need a trusted backend and appropriate bot
           protection. No live business connection is configured by creating an integration.
+        </p>
+        <p>
+          For simulated customer replies, use the local mock-inbound tool with an inbound-only
+          integration. Its signing credentials remain server-side; lead-intake keys cannot receive
+          replies.
         </p>
       </details>
       <dialog
@@ -799,9 +807,13 @@ function IntegrationList() {
     </section>
   );
 }
-function IntegrationForm({ onCreated }: { onCreated: (id: string, secret: string) => void }) {
+function IntegrationForm({ onCreated }: { onCreated: (id: string, secret?: string) => void }) {
   const { organization } = useOrganization(),
-    form = useDraft('integration:new', { name: 'Website inquiries', sourceId: '' }),
+    form = useDraft('integration:new', {
+      name: 'Website inquiries',
+      sourceId: '',
+      capability: 'lead_intake' as 'lead_intake' | 'mock_inbound',
+    }),
     { draft } = form;
   const load = useCallback(
       (signal: AbortSignal) => apiClient.sources(organization.id, signal),
@@ -814,7 +826,10 @@ function IntegrationForm({ onCreated }: { onCreated: (id: string, secret: string
     try {
       const result = await apiClient.createIntegration(organization.id, {
         name: draft.value.name,
-        ...(draft.value.sourceId ? { sourceId: draft.value.sourceId } : {}),
+        capability: draft.value.capability ?? 'lead_intake',
+        ...((draft.value.capability ?? 'lead_intake') === 'lead_intake' && draft.value.sourceId
+          ? { sourceId: draft.value.sourceId }
+          : {}),
       });
       if (form.visible()) {
         form.clear();
@@ -836,10 +851,29 @@ function IntegrationForm({ onCreated }: { onCreated: (id: string, secret: string
       onSubmit={(e) => void create(e)}
     >
       <h3 className="text-lg font-semibold">Add an integration</h3>
+      <p className="text-sm">
+        Choose one purpose. Receiving replies never grants permission to send.
+      </p>
       <fieldset
         disabled={!form.enabled || draft.phase === 'saving' || draft.phase === 'uncertain'}
         className="flex flex-wrap items-end gap-4"
       >
+        <label className="min-w-48 flex-1 text-sm">
+          Integration purpose
+          <select
+            className="field"
+            value={draft.value.capability ?? 'lead_intake'}
+            onChange={(e) =>
+              form.change({
+                ...draft.value,
+                capability: e.currentTarget.value as 'lead_intake' | 'mock_inbound',
+              })
+            }
+          >
+            <option value="lead_intake">New lead inquiries</option>
+            <option value="mock_inbound">Simulated customer replies</option>
+          </select>
+        </label>
         <label className="min-w-48 flex-1 text-sm">
           Integration name
           <input
@@ -854,6 +888,7 @@ function IntegrationForm({ onCreated }: { onCreated: (id: string, secret: string
           Lead source (optional)
           <select
             className="field"
+            disabled={(draft.value.capability ?? 'lead_intake') === 'mock_inbound'}
             value={draft.value.sourceId}
             onChange={(e) => form.change({ ...draft.value, sourceId: e.currentTarget.value })}
           >

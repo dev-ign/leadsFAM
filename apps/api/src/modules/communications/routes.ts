@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import type { FastifyInstance } from 'fastify';
 import { AutomationDatabase } from '@leadops/database';
@@ -19,6 +19,10 @@ import {
   communicationPurpose,
   providerEventSchema,
   okSchema,
+  inboundMessageInput,
+  inboundResultSchema,
+  inboundReviewPageSchema,
+  inboundLinkInput,
 } from '@leadops/shared';
 import { OrganizationService } from '../organizations/service.js';
 import { requireApplication, validated } from '../identity/routes.js';
@@ -34,6 +38,33 @@ const approval = z.strictObject({ version: z.int().positive() });
 export function registerCommunications(app: FastifyInstance, store: SessionStore) {
   const service = new OrganizationService(store),
     base = '/organizations/:org/communications';
+  app.get(`${base}/inbound`, async (request) => {
+    const { org } = validated(orgParamsSchema, request.params);
+    const query = validated(
+      z.strictObject({ cursor: z.string().max(200).optional() }),
+      request.query,
+    );
+    return inboundReviewPageSchema.parse(
+      await service.rpc(
+        requireApplication(request),
+        'communication_read',
+        { p_org: org, p_kind: 'inbound', p_query: query },
+        request.id,
+      ),
+    );
+  });
+  app.post(`${base}/inbound/:id/link`, async (request) => {
+    const { org, id } = validated(resourceParamsSchema, request.params);
+    const data = validated(inboundLinkInput, request.body);
+    return communicationMessageSchema.parse(
+      await service.rpc(
+        requireApplication(request),
+        'communication_manage',
+        { p_org: org, p_action: 'resolve_inbound', p_id: id, p_data: data },
+        request.id,
+      ),
+    );
+  });
   app.get(`${base}/settings`, async (request) => {
     const { org } = validated(orgParamsSchema, request.params);
     validated(z.strictObject({}), request.query);
@@ -220,6 +251,58 @@ export function registerCommunicationWebhooks(
       scoped.addHook('onReady', () => db.start());
       scoped.addHook('onClose', () => db.close());
     }
+    scoped.post(
+      '/webhooks/mock/inbound',
+      { bodyLimit: 16 * 1024, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },
+      async (request) => {
+        if (!db || !secret) throw new IdentityFailure(503, 'INGESTION_UNAVAILABLE');
+        if (request.headers.origin || request.headers.cookie)
+          throw new IdentityFailure(403, 'SERVER_INTEGRATION_REQUIRED');
+        if (!Buffer.isBuffer(request.body))
+          throw new IdentityFailure(415, 'UNSUPPORTED_MEDIA_TYPE');
+        const authorization = request.headers.authorization;
+        if (!authorization || !/^Bearer lf_inb_[A-Za-z0-9_-]{43}$/.test(authorization))
+          throw new IdentityFailure(401, 'CREDENTIALS_REJECTED');
+        const credential = authorization.slice(7),
+          hash = createHash('sha256').update(credential).digest('hex');
+        verifyMockWebhook(
+          request.body,
+          request.headers['x-mock-signature'],
+          request.headers['x-mock-timestamp'],
+          Buffer.from(credential.slice(7), 'base64url').toString('base64'),
+        );
+        try {
+          // Business JSON is parsed only after authenticating the connector. The
+          // committing transaction independently rechecks revocation/authority.
+          await db.authorizeInbound(hash);
+          let input: unknown;
+          try {
+            input = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(request.body));
+          } catch {
+            throw new IdentityFailure(400, 'INVALID_REQUEST');
+          }
+          const data = validated(inboundMessageInput, input);
+          return inboundResultSchema.parse(
+            await db.ingestInbound(hash, {
+              ...data,
+              sender: data.channel === 'email' ? data.sender.toLowerCase() : data.sender,
+              body: data.body.replaceAll('\r\n', '\n').replaceAll('\r', '\n'),
+            }),
+          );
+        } catch (error) {
+          if (error instanceof IdentityFailure) throw error;
+          const code = error instanceof Error ? error.message : '';
+          const mapping: Record<string, [number, string]> = {
+            credentials_rejected: [401, 'CREDENTIALS_REJECTED'],
+            idempotency_conflict: [409, 'IDEMPOTENCY_CONFLICT'],
+            rate_limited: [429, 'RATE_LIMITED'],
+            invalid_fields: [422, 'INVALID_FIELDS'],
+          };
+          const [status, safeCode] = mapping[code] ?? [503, 'INGESTION_UNAVAILABLE'];
+          throw new IdentityFailure(status, safeCode);
+        }
+      },
+    );
     scoped.post(
       '/webhooks/mock/communications',
       { bodyLimit: 16 * 1024, config: { rateLimit: { max: 60, timeWindow: '1 minute' } } },

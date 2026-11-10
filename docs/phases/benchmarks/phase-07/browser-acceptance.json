@@ -1,0 +1,102 @@
+{
+  "at": "2026-11-10T01:27:05.041Z",
+  "syntheticOnly": true,
+  "realProviders": false,
+  "operations": [
+    {
+      "op": "approved-mock-dispatch",
+      "states": [
+        {
+          "channel": "email",
+          "state": "delivered",
+          "version": 3
+        },
+        {
+          "channel": "sms",
+          "state": "delivered",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "op": "email",
+      "receiptId": "e8d27761-be7e-4fb5-88ee-d18b58094f62",
+      "state": "linked",
+      "messageId": "8cb4defc-9c61-4134-99d4-b15971a8f9ac",
+      "replayed": false
+    },
+    {
+      "op": "email_replay",
+      "receiptId": "e8d27761-be7e-4fb5-88ee-d18b58094f62",
+      "state": "linked",
+      "messageId": "8cb4defc-9c61-4134-99d4-b15971a8f9ac",
+      "replayed": true
+    },
+    {
+      "op": "sms",
+      "receiptId": "cb918547-3b75-4699-a3a1-fe6258fc079a",
+      "state": "linked",
+      "messageId": "c6de0cea-634b-4ba0-a0b7-fc0c602abdb0",
+      "replayed": false
+    },
+    {
+      "op": "ambiguous",
+      "receiptId": "379d4961-a25d-41fc-838f-6da3f0fbad08",
+      "state": "needs_review",
+      "messageId": null,
+      "replayed": false
+    },
+    {
+      "op": "counts",
+      "receipts": 3,
+      "incoming": 2,
+      "ai": 0,
+      "pending_outbound": 0
+    },
+    {
+      "op": "counts",
+      "receipts": 4,
+      "incoming": 4,
+      "ai": 0,
+      "pending_outbound": 0
+    },
+    {
+      "op": "manual-simulated-reanalysis",
+      "context": [
+        {
+          "id": "e1138bdf-b4de-43e0-ad56-7b8efd5cb077",
+          "direction": "outbound"
+        },
+        {
+          "id": "f050c880-9894-4b05-b2ae-3aeffc582f2e",
+          "direction": "outbound"
+        },
+        {
+          "id": "8cb4defc-9c61-4134-99d4-b15971a8f9ac",
+          "direction": "inbound"
+        },
+        {
+          "id": "c6de0cea-634b-4ba0-a0b7-fc0c602abdb0",
+          "direction": "inbound"
+        },
+        {
+          "id": "33821e2e-81fd-4742-982a-31ea6580f940",
+          "direction": "inbound"
+        },
+        {
+          "id": "a5c28169-59d2-448a-910b-bcd8c9cb22c1",
+          "direction": "inbound"
+        }
+      ]
+    },
+    {
+      "op": "counts",
+      "receipts": 4,
+      "incoming": 4,
+      "ai": 1,
+      "pending_outbound": 0
+    }
+  ],
+  "cleaned": true,
+  "stoppedWithVolumesPreserved": true
+}

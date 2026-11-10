@@ -1,6 +1,6 @@
 import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { randomUUID, createHash } from 'node:crypto';
+import { randomUUID, createHash, randomBytes } from 'node:crypto';
 import { fixture, pool, rpc } from '../database/fixture.mjs';
 import { localIdentity } from '../../scripts/local-identity.mjs';
 import { AutomationDatabase, createSessionPool } from '../../packages/database/dist/index.js';
@@ -1365,4 +1365,69 @@ test('contextual proposals use approved pricing and relevant business questions,
       ).rows[0].n,
       0,
     );
+  }));
+
+test('authenticated inbound corrections enter only the existing manual six-message AI context', () =>
+  setup(async (f) => {
+    const secret = 'lf_inb_' + randomBytes(32).toString('base64url');
+    const credentialHash = createHash('sha256').update(secret).digest('hex');
+    await rpc(f.ids.owner, 'automation_manage', [
+      f.org,
+      'integration',
+      'create',
+      null,
+      null,
+      { name: 'Synthetic inbound context', capability: 'mock_inbound', credentialHash },
+    ]);
+    const ids = [];
+    for (let index = 0; index < 7; index++) {
+      const result = await ingress.ingestInbound(credentialHash, {
+        eventId: randomUUID(),
+        channel: 'email',
+        sender: f.email,
+        subject: 'Synthetic correction',
+        body: `Correction ${index}: actually three bedrooms next Friday.`,
+        replyTo: null,
+        occurredAt: '2001-01-01T00:00:00Z',
+      });
+      assert.equal(result.state, 'linked');
+      ids.push(result.messageId);
+    }
+    assert.equal(
+      (
+        await pool.query('select count(*)::int n from private.ai_runs where organization_id=$1', [
+          f.org,
+        ])
+      ).rows[0].n,
+      0,
+    );
+    assert.equal(
+      (
+        await pool.query(
+          'select count(*)::int n from private.communication_jobs where organization_id=$1',
+          [f.org],
+        )
+      ).rows[0].n,
+      0,
+    );
+    await request(f);
+    let selected;
+    await processAi(worker, await worker.claimAi(), config, undefined, {
+      async execute(source, signal) {
+        selected = source.conversation;
+        return simulationProvider.execute(source, signal);
+      },
+    });
+    assert.deepEqual(
+      selected.map((m) => m.id),
+      ids.slice(1),
+    );
+    assert.ok(
+      selected.every((m) => m.direction === 'inbound' && m.body.includes('three bedrooms')),
+    );
+    assert.equal(
+      (await pool.query('select status from public.leads where id=$1', [f.lead])).rows[0].status,
+      'new',
+    );
+    assert.equal((await history(f)).items[0].state, 'succeeded');
   }));

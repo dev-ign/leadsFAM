@@ -66,6 +66,10 @@ try {
     path.join(canaryDirectory, 'integration.txt'),
     'lf_ing_' + randomBytes(32).toString('base64url'),
   );
+  await writeFile(
+    path.join(canaryDirectory, 'inbound.txt'),
+    'lf_inb_' + randomBytes(32).toString('base64url'),
+  );
   const reportPath = path.join(canaryDirectory, 'findings.json');
   const canary = scan(
     ['dir', canaryDirectory, '--report-format=json', '--report-path', reportPath],
@@ -79,7 +83,12 @@ try {
       'leadsfam-session-key',
       'leadsfam-database-password',
       'leadsfam-integration-credential',
-    ].every((rule) => findings.some((finding) => finding.RuleID === rule))
+    ].every((rule) => findings.some((finding) => finding.RuleID === rule)) ||
+    !findings.some(
+      (finding) =>
+        finding.RuleID === 'leadsfam-integration-credential' &&
+        finding.File.endsWith('inbound.txt'),
+    )
   )
     throw new Error('Gitleaks detection canary failed');
   console.log(

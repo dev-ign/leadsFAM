@@ -71,6 +71,7 @@ export async function fixture() {
           ['private', 'ai_attempts'],
           ['private', 'ai_runs'],
           ['private', 'ai_settings'],
+          ['private', 'inbound_receipts'],
           ['private', 'communication_events'],
           ['private', 'communication_jobs'],
           ['private', 'communication_messages'],

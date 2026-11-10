@@ -49,3 +49,8 @@ service-account*.json
 !/docs/phases/phase-06-manual.md
 !/docs/phases/benchmarks/phase-06/
 !/docs/phases/benchmarks/phase-06/**
+!/docs/architecture/phase-07.md
+!/docs/phases/phase-07-report.md
+!/docs/phases/phase-07-manual.md
+!/docs/phases/benchmarks/phase-07/
+!/docs/phases/benchmarks/phase-07/**

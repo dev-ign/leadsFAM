@@ -59,12 +59,15 @@ export const workflowSaveSchema = z.strictObject({
 export const integrationCreateSchema = z.strictObject({
   name: z.string().trim().min(1).max(80),
   sourceId: z.uuid().optional(),
+  capability: z.enum(['lead_intake', 'mock_inbound']).default('lead_intake'),
 });
 const stamp = z.iso.datetime({ offset: true });
 export const integrationSchema = z.strictObject({
   id: z.uuid(),
   organization_id: z.uuid(),
   type: z.literal('first_party'),
+  capability: z.enum(['lead_intake', 'mock_inbound']).default('lead_intake'),
+  credential_generation: z.int().positive().default(1),
   name: z.string().max(80),
   status: z.enum(['active', 'paused', 'revoked']),
   source_id: z.uuid().nullable(),
@@ -77,7 +80,10 @@ export const integrationSchema = z.strictObject({
 });
 export const integrationCredentialSchema = z.strictObject({
   integration: integrationSchema,
-  credential: z.string().regex(/^lf_ing_[A-Za-z0-9_-]{43}$/),
+  credential: z
+    .string()
+    .regex(/^lf_ing_[A-Za-z0-9_-]{43}$/)
+    .optional(),
 });
 export const workflowSchema = z.strictObject({
   id: z.uuid(),

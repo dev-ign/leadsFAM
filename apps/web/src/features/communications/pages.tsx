@@ -8,6 +8,7 @@ import {
   permissionInputSchema,
   type CommunicationMessage,
   type Contact,
+  type InboundReview,
 } from '@leadops/shared';
 import { apiClient } from '../../lib/api-client';
 import { useOrganization } from '../organizations/context';
@@ -92,6 +93,7 @@ function ConversationList() {
           Refresh status
         </Button>
       </div>
+      <IncomingReview onLinked={refresh} />
       {state.status === 'loading' ? (
         <p role="status">Loading conversations…</p>
       ) : state.status === 'error' ? (
@@ -171,7 +173,8 @@ function History({ id }: { id: string }) {
               <li key={m.id} className="space-y-3 rounded-xl border border-border p-5">
                 <p className="font-semibold">
                   {m.direction === 'outbound' ? 'Outgoing' : 'Incoming'}{' '}
-                  {m.channel === 'sms' ? 'SMS' : 'email'} · {m.state.replaceAll('_', ' ')}
+                  {m.channel === 'sms' ? 'SMS' : 'email'} ·{' '}
+                  {m.direction === 'inbound' ? 'Received' : m.state.replaceAll('_', ' ')}
                 </p>
                 <p className="break-all text-sm">
                   From {m.sender} · To {m.recipient}
@@ -181,6 +184,12 @@ function History({ id }: { id: string }) {
                 <p className="text-sm">
                   {new Date(m.created_at).toLocaleString()} · {m.purpose}
                 </p>
+                {m.direction === 'inbound' && (
+                  <p className="text-sm text-muted-foreground">
+                    Simulated customer reply · {m.integration_name ?? 'Historical mock message'} ·
+                    Received {new Date(m.created_at).toLocaleString()}
+                  </p>
+                )}
                 {m.code && <p role="status">{communicationReason(m.code)}</p>}
                 <div className="flex flex-wrap gap-4">
                   <Link className="underline" to={`${base}/contacts/${m.contact_id}`}>
@@ -231,6 +240,286 @@ function History({ id }: { id: string }) {
         </>
       )}
     </section>
+  );
+}
+const reviewReasons: Record<InboundReview['reason'], string> = {
+  unknown_customer: 'Unknown customer',
+  multiple_contacts: 'More than one saved contact matches',
+  multiple_conversations: 'Multiple possible conversations',
+  no_matching_lead: 'No matching lead',
+  reply_unverified: 'Reply reference could not be verified',
+};
+function IncomingReview({ onLinked }: { onLinked: () => void }) {
+  const { organization } = useOrganization();
+  const linkedStatus = useRef<HTMLParagraphElement>(null);
+  const [cursor, setCursor] = useState<string | undefined>(),
+    [selected, setSelected] = useState<InboundReview | null>(null),
+    [linked, setLinked] = useState<CommunicationMessage | null>(null);
+  useEffect(() => {
+    if (linked) linkedStatus.current?.focus();
+  }, [linked]);
+  const load = useCallback(
+    (signal: AbortSignal) => apiClient.inboundReview(organization.id, cursor, signal),
+    [organization.id, cursor],
+  );
+  const { state, refresh } = useQuery(`inbound-review:${cursor}`, load);
+  return (
+    <section
+      aria-labelledby="incoming-review-title"
+      className="min-w-0 space-y-3 rounded-xl border border-border bg-card p-4"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 id="incoming-review-title" className="text-xl font-semibold">
+          Incoming replies · Needs review
+        </h3>
+        <Button variant="outline" onClick={refresh}>
+          Refresh incoming replies
+        </Button>
+      </div>
+      <p className="text-sm">
+        Simulated email and SMS. Choose an existing customer and lead when a reply cannot be matched
+        safely. Linking never sends a response.
+      </p>
+      {linked && (
+        <p role="status" ref={linkedStatus} tabIndex={-1}>
+          Reply linked.{' '}
+          <Link
+            className="underline"
+            to={`/organizations/${organization.id}/communications/${linked.conversation_id}`}
+          >
+            Open the conversation
+          </Link>
+        </p>
+      )}
+      {selected ? (
+        <IncomingLink
+          key={selected.id}
+          receipt={selected}
+          onCancel={() => setSelected(null)}
+          onLinked={(message) => {
+            setLinked(message);
+            setSelected(null);
+            refresh();
+            onLinked();
+          }}
+        />
+      ) : state.status === 'loading' ? (
+        <p role="status">Loading incoming replies…</p>
+      ) : state.status === 'error' ? (
+        <Failure error={state.error} retry={refresh} />
+      ) : (
+        <>
+          <ul className="space-y-3">
+            {state.data.items.map((r) => (
+              <li key={r.id} className="min-w-0 rounded-lg border border-border p-3">
+                <p className="break-all font-medium">
+                  {r.sender} · {r.channel === 'sms' ? 'SMS' : 'Email'}
+                </p>
+                <p>{reviewReasons[r.reason]}</p>
+                <p className="break-words">{r.subject || r.body.slice(0, 160)}</p>
+                <p className="text-sm">
+                  Received {new Date(r.received_at).toLocaleString()} · Simulated ·{' '}
+                  {r.integration_name}
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setLinked(null);
+                    setSelected(r);
+                  }}
+                >
+                  Review reply
+                </Button>
+              </li>
+            ))}
+          </ul>
+          {!state.data.items.length && <p>No incoming replies need review.</p>}
+          <div className="flex flex-wrap gap-3">
+            {cursor && (
+              <Button variant="outline" onClick={() => setCursor(undefined)}>
+                Newest incoming replies
+              </Button>
+            )}
+            {state.data.next && (
+              <Button variant="outline" onClick={() => setCursor(state.data.next ?? undefined)}>
+                Older incoming replies
+              </Button>
+            )}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+function IncomingLink({
+  receipt,
+  onCancel,
+  onLinked,
+}: {
+  receipt: InboundReview;
+  onCancel: () => void;
+  onLinked: (message: CommunicationMessage) => void;
+}) {
+  const [contact, setContact] = useState<Pick<Contact, 'id' | 'display_name'> | null>(null);
+  const action = useOperation();
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    heading.current?.focus();
+  }, []);
+  return (
+    <div className="min-w-0 space-y-4">
+      <h3 ref={heading} tabIndex={-1} className="font-semibold">
+        Review incoming reply
+      </h3>
+      <p className="break-all">
+        From {receipt.sender} · {reviewReasons[receipt.reason]}
+      </p>
+      {receipt.subject && <p className="break-words font-medium">{receipt.subject}</p>}
+      <p className="whitespace-pre-wrap break-words">{receipt.body}</p>
+      <p className="text-sm">
+        Received {new Date(receipt.received_at).toLocaleString()} · Simulated ·{' '}
+        {receipt.integration_name}
+      </p>
+      {contact ? (
+        <>
+          <p>
+            Selected customer: <strong>{contact.display_name}</strong>
+          </p>
+          <Button variant="outline" disabled={action.busy} onClick={() => setContact(null)}>
+            Choose another customer
+          </Button>
+          <IncomingLead
+            key={contact.id}
+            receipt={receipt}
+            contact={contact}
+            onLinked={onLinked}
+            action={action}
+          />
+        </>
+      ) : (
+        <ChooseContact onChoose={setContact} />
+      )}
+      <Button variant="outline" disabled={action.busy} onClick={onCancel}>
+        Back to incoming replies
+      </Button>
+    </div>
+  );
+}
+function IncomingLead({
+  receipt,
+  contact,
+  onLinked,
+  action,
+}: {
+  receipt: InboundReview;
+  contact: Pick<Contact, 'id' | 'display_name'>;
+  onLinked: (message: CommunicationMessage) => void;
+  action: ReturnType<typeof useOperation>;
+}) {
+  const { organization } = useOrganization();
+  const [leadId, setLeadId] = useState(''),
+    [cursor, setCursor] = useState<string | undefined>();
+  const load = useCallback(
+    (signal: AbortSignal) =>
+      apiClient.leads(
+        organization.id,
+        { contactId: contact.id, pageSize: 25, ...(cursor ? { cursor } : {}) },
+        signal,
+      ),
+    [organization.id, contact.id, cursor],
+  );
+  const { state, refresh } = useQuery(`inbound-leads:${contact.id}:${cursor}`, load);
+  return (
+    <form
+      className="space-y-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!leadId || action.busy) return;
+        let result: CommunicationMessage;
+        void action.run(
+          async () => {
+            result = await apiClient.linkInbound(organization.id, receipt.id, {
+              contactId: contact.id,
+              leadId,
+            });
+          },
+          () => onLinked(result),
+        );
+      }}
+    >
+      {state.status === 'loading' ? (
+        <p role="status">Loading this customer's leads…</p>
+      ) : state.status === 'error' ? (
+        <Failure error={state.error} retry={refresh} />
+      ) : (
+        <>
+          <label className="block">
+            Existing lead
+            <select
+              className="field"
+              required
+              value={leadId}
+              onChange={(e) => setLeadId(e.currentTarget.value)}
+            >
+              <option value="">Choose the correct inquiry</option>
+              {state.data.items.map((lead) => (
+                <option value={lead.id} key={lead.id}>
+                  {lead.title} · {lead.status.replaceAll('_', ' ')}
+                </option>
+              ))}
+            </select>
+          </label>
+          {!state.data.items.length && (
+            <p>
+              No active leads for this customer. Create or restore the correct lead in the CRM
+              first.
+            </p>
+          )}
+          <div className="flex flex-wrap gap-3">
+            {cursor && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setLeadId('');
+                  setCursor(undefined);
+                }}
+              >
+                First leads
+              </Button>
+            )}
+            {state.data.cursor && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setLeadId('');
+                  setCursor(state.data.cursor ?? undefined);
+                }}
+              >
+                More leads
+              </Button>
+            )}
+          </div>
+          {leadId && (
+            <p>
+              This reply will appear under <strong>{contact.display_name}</strong> and{' '}
+              <strong>{state.data.items.find((l) => l.id === leadId)?.title}</strong>. No contact
+              details, lead status or sending permission will change.
+            </p>
+          )}
+          <Button type="submit" disabled={!leadId || action.busy}>
+            {action.busy ? 'Linking reply…' : 'Confirm link to this lead'}
+          </Button>
+        </>
+      )}
+      {action.error && (
+        <p role="alert">
+          {action.error} Refresh incoming replies if another team member already linked this
+          message.
+        </p>
+      )}
+    </form>
   );
 }
 function MessageEventHistory({ id }: { id: string }) {
@@ -293,7 +582,9 @@ export function ComposeMessagePage() {
     <ChooseContact key={organization.id} />
   );
 }
-function ChooseContact() {
+function ChooseContact({
+  onChoose,
+}: { onChoose?: (contact: Pick<Contact, 'id' | 'display_name'>) => void } = {}) {
   const { organization } = useOrganization(),
     [search, setSearch] = useState(''),
     [submitted, setSubmitted] = useState('');
@@ -332,9 +623,15 @@ function ChooseContact() {
           <ul className="space-y-3">
             {state.data.items.map((c) => (
               <li key={c.id}>
-                <Link className="underline" to={`?contactId=${c.id}`}>
-                  {c.display_name}
-                </Link>
+                {onChoose ? (
+                  <Button variant="outline" onClick={() => onChoose(c)}>
+                    {c.display_name}
+                  </Button>
+                ) : (
+                  <Link className="underline" to={`?contactId=${c.id}`}>
+                    {c.display_name}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

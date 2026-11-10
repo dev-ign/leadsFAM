@@ -49,10 +49,9 @@ export async function harness() {
       },
     };
   }
-  async function account() {
+  async function account(password = `Synthetic-${randomUUID()}-A9!`) {
     const client = browser(),
-      email = `crm-${randomUUID()}@example.test`,
-      password = `Synthetic-${randomUUID()}-A9!`;
+      email = `crm-${randomUUID()}@example.test`;
     await client.session();
     assert.equal(
       (
@@ -113,6 +112,7 @@ export async function harness() {
         ['private', 'ai_attempts'],
         ['private', 'ai_runs'],
         ['private', 'ai_settings'],
+        ['private', 'inbound_receipts'],
         ['private', 'communication_events'],
         ['private', 'communication_jobs'],
         ['private', 'communication_messages'],
